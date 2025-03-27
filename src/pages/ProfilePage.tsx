@@ -19,12 +19,15 @@ const ProfilePage = () => {
   const navigate = useNavigate();
   
   const [currentSection, setCurrentSection] = useState(0);
-  const [name, setName] = useState(userData.name);
+  const [name, setName] = useState(userData.name || '');
   const [age, setAge] = useState(userData.age !== null ? userData.age.toString() : '');
   const [weight, setWeight] = useState(userData.weight !== null ? userData.weight.toString() : '');
   const [gender, setGender] = useState(userData.gender || 'prefer-not-to-say');
-  const [diabetesType, setDiabetesType] = useState<string | null>(userData.diabetesType);
-  const [targetRange, setTargetRange] = useState([userData.targetRangeLow, userData.targetRangeHigh]);
+  const [diabetesType, setDiabetesType] = useState(userData.diabetesType || null);
+  const [targetRange, setTargetRange] = useState([
+    userData.targetRangeLow || 70,
+    userData.targetRangeHigh || 180
+  ]);
   const [exerciseFrequency, setExerciseFrequency] = useState(userData.exerciseFrequency || 'moderate');
   const [dietType, setDietType] = useState(userData.dietType || 'regular');
   const [smoker, setSmoker] = useState(userData.smoker || false);
@@ -64,14 +67,14 @@ const ProfilePage = () => {
       age: age ? parseInt(age) : null,
       weight: weight ? parseFloat(weight) : null,
       weightUnit,
-      gender,
+      gender: gender as any,
       diabetesType: diabetesType as any,
       targetRangeLow: targetRange[0],
       targetRangeHigh: targetRange[1],
-      exerciseFrequency,
-      dietType,
+      exerciseFrequency: exerciseFrequency as any,
+      dietType: dietType as any,
       smoker,
-      goal,
+      goal: goal as any,
       customGoal: goal === 'custom' ? customGoal : ''
     });
     
