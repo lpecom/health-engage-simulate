@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -5,10 +6,14 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useUser } from "@/contexts/UserContext";
 import LanguageSelector from "@/components/LanguageSelector";
 import { motion, AnimatePresence } from 'framer-motion';
+import { Check, ArrowRight, Syringe, CircleCheck } from 'lucide-react';
+import { Progress } from "@/components/ui/progress";
 
 const OnboardingSteps = [
   'language',
   'welcome',
+  'technology',
+  'benefits',
   'profile',
   'tutorial'
 ];
@@ -52,6 +57,8 @@ const OnboardingPage = () => {
     navigate('/home');
   };
   
+  const progressPercentage = ((currentStep + 1) / OnboardingSteps.length) * 100;
+  
   const renderStep = () => {
     const currentStepName = OnboardingSteps[currentStep];
     
@@ -59,7 +66,8 @@ const OnboardingPage = () => {
       case 'language':
         return (
           <div className="text-center">
-            <h1 className="text-3xl font-bold mb-6">GlucoVista</h1>
+            <h1 className="text-3xl font-bold mb-2">GlucoVista</h1>
+            <p className="text-gray-600 mb-6">{translate('welcomeToApp')}</p>
             <LanguageSelector />
           </div>
         );
@@ -67,29 +75,131 @@ const OnboardingPage = () => {
       case 'welcome':
         return (
           <div className="text-center">
+            <div className="w-20 h-20 rounded-full bg-blue-100 flex items-center justify-center mx-auto mb-6">
+              <Check size={40} className="text-medical-primary" />
+            </div>
             <h1 className="text-3xl font-bold mb-2">{translate('welcome')}</h1>
-            <p className="text-gray-600 mb-6">{translate('welcomeSubtitle')}</p>
+            <p className="text-gray-600 mb-6">{translate('thankYouMessage')}</p>
             
-            <div className="rounded-xl overflow-hidden bg-gradient-to-br from-medical-primary to-medical-dark p-0.5 mb-8">
+            <div className="bg-blue-50 rounded-lg p-4 mb-4">
+              <p className="text-center italic">"{translate('userTestimonial')}"</p>
+              <p className="text-right text-sm mt-2">- {translate('testimonialAuthor')}</p>
+            </div>
+            
+            <p className="text-sm text-gray-500">{translate('deviceArrivalMessage')}</p>
+          </div>
+        );
+        
+      case 'technology':
+        return (
+          <div className="text-center">
+            <h1 className="text-2xl font-bold mb-3">{translate('howItWorks')}</h1>
+            <p className="text-gray-600 mb-6">{translate('laserTechnologyIntro')}</p>
+            
+            <div className="rounded-xl overflow-hidden bg-gradient-to-br from-medical-primary to-medical-dark p-0.5 mb-6">
               <div className="bg-white rounded-lg p-6">
-                <div className="flex items-center justify-center mb-4">
-                  <div className="w-20 h-20 bg-medical-light rounded-full flex items-center justify-center">
-                    <div className="w-16 h-16 bg-medical-primary rounded-full flex items-center justify-center">
-                      <div className="w-2 h-10 bg-red-500 rounded-full"></div>
+                <div className="flex items-center justify-center mb-6">
+                  <div className="w-24 h-24 bg-medical-light rounded-full flex items-center justify-center">
+                    <div className="w-20 h-20 bg-medical-primary rounded-full flex items-center justify-center">
+                      <div className="w-2 h-12 bg-red-500 rounded-full animate-pulse"></div>
                     </div>
                   </div>
                 </div>
-                <h3 className="font-medium text-lg">{translate('nonInvasiveMonitoring')}</h3>
-                <p className="text-sm text-gray-500">{translate('laserMonitoringDescription')}</p>
+                
+                <div className="space-y-4">
+                  <div className="flex items-start">
+                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3 mt-0.5">
+                      <span className="font-bold text-medical-primary">1</span>
+                    </div>
+                    <div className="text-left">
+                      <h3 className="font-medium">{translate('laserEmissionTitle')}</h3>
+                      <p className="text-sm text-gray-500">{translate('laserEmissionDesc')}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start">
+                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3 mt-0.5">
+                      <span className="font-bold text-medical-primary">2</span>
+                    </div>
+                    <div className="text-left">
+                      <h3 className="font-medium">{translate('bloodlessAnalysisTitle')}</h3>
+                      <p className="text-sm text-gray-500">{translate('bloodlessAnalysisDesc')}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start">
+                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3 mt-0.5">
+                      <span className="font-bold text-medical-primary">3</span>
+                    </div>
+                    <div className="text-left">
+                      <h3 className="font-medium">{translate('instantReadingTitle')}</h3>
+                      <p className="text-sm text-gray-500">{translate('instantReadingDesc')}</p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
+            
+            <p className="text-sm text-gray-500 italic">{translate('scientificallyProven')}</p>
+          </div>
+        );
+        
+      case 'benefits':
+        return (
+          <div className="text-center">
+            <h1 className="text-2xl font-bold mb-3">{translate('keyBenefits')}</h1>
+            <p className="text-gray-600 mb-6">{translate('benefitsIntro')}</p>
+            
+            <div className="grid grid-cols-2 gap-4 mb-6">
+              <div className="bg-blue-50 p-4 rounded-lg flex flex-col items-center hover:bg-blue-100 transition-colors">
+                <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center mb-2 shadow-sm">
+                  <Syringe className="text-medical-primary" size={24} />
+                </div>
+                <h3 className="font-medium text-sm">{translate('noPainTitle')}</h3>
+                <p className="text-xs text-gray-500 mt-1">{translate('noPainDesc')}</p>
+              </div>
+              
+              <div className="bg-blue-50 p-4 rounded-lg flex flex-col items-center hover:bg-blue-100 transition-colors">
+                <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center mb-2 shadow-sm">
+                  <ArrowRight className="text-medical-primary" size={24} />
+                </div>
+                <h3 className="font-medium text-sm">{translate('instantResultsTitle')}</h3>
+                <p className="text-xs text-gray-500 mt-1">{translate('instantResultsDesc')}</p>
+              </div>
+              
+              <div className="bg-blue-50 p-4 rounded-lg flex flex-col items-center hover:bg-blue-100 transition-colors">
+                <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center mb-2 shadow-sm">
+                  <CircleCheck className="text-medical-primary" size={24} />
+                </div>
+                <h3 className="font-medium text-sm">{translate('expertApprovedTitle')}</h3>
+                <p className="text-xs text-gray-500 mt-1">{translate('expertApprovedDesc')}</p>
+              </div>
+              
+              <div className="bg-blue-50 p-4 rounded-lg flex flex-col items-center hover:bg-blue-100 transition-colors">
+                <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center mb-2 shadow-sm">
+                  <Check className="text-medical-primary" size={24} />
+                </div>
+                <h3 className="font-medium text-sm">{translate('accurateTitle')}</h3>
+                <p className="text-xs text-gray-500 mt-1">{translate('accurateDesc')}</p>
+              </div>
+            </div>
+            
+            <div className="mt-6 mb-4 flex justify-center">
+              <img 
+                src="/placeholder.svg" 
+                alt="GlucoVista Laser Glucometer" 
+                className="w-48 h-48 object-contain"
+              />
+            </div>
+            <p className="text-sm font-medium text-center">{translate('yourNewGlucometer')}</p>
           </div>
         );
         
       case 'profile':
         return (
           <div>
-            <h1 className="text-2xl font-bold mb-6 text-center">{translate('setupProfile')}</h1>
+            <h1 className="text-2xl font-bold mb-3 text-center">{translate('setupProfile')}</h1>
+            <p className="text-gray-600 mb-6 text-center">{translate('profileSetupIntro')}</p>
             
             <div className="space-y-4 mb-6">
               <div>
@@ -182,6 +292,15 @@ const OnboardingPage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-blue-50 px-4 py-8">
       <div className="max-w-md mx-auto">
+        {/* Progress bar */}
+        <div className="mb-6">
+          <Progress value={progressPercentage} className="h-2" />
+          <div className="flex justify-between mt-2 text-xs text-gray-500">
+            <span>{translate('step')} {currentStep + 1}/{OnboardingSteps.length}</span>
+            <span>{Math.round(progressPercentage)}% {translate('complete')}</span>
+          </div>
+        </div>
+        
         <AnimatePresence mode="wait">
           <motion.div
             key={currentStep}
