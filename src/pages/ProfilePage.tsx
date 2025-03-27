@@ -20,18 +20,28 @@ const ProfilePage = () => {
   
   const [currentSection, setCurrentSection] = useState(0);
   const [name, setName] = useState(userData.name || '');
-  const [age, setAge] = useState(userData.age !== null ? userData.age.toString() : '');
-  const [weight, setWeight] = useState(userData.weight !== null ? userData.weight.toString() : '');
-  const [gender, setGender] = useState(userData.gender || 'prefer-not-to-say');
-  const [diabetesType, setDiabetesType] = useState(userData.diabetesType || null);
+  const [age, setAge] = useState(userData.age !== null && userData.age !== undefined ? userData.age.toString() : '');
+  const [weight, setWeight] = useState(userData.weight !== null && userData.weight !== undefined ? userData.weight.toString() : '');
+  const [gender, setGender] = useState<'male' | 'female' | 'other' | 'prefer-not-to-say'>(
+    (userData.gender as any) || 'prefer-not-to-say'
+  );
+  const [diabetesType, setDiabetesType] = useState<'type1' | 'type2' | 'prediabetes' | 'gestational' | 'other' | null>(
+    userData.diabetesType || null
+  );
   const [targetRange, setTargetRange] = useState([
     userData.targetRangeLow || 70,
     userData.targetRangeHigh || 180
   ]);
-  const [exerciseFrequency, setExerciseFrequency] = useState(userData.exerciseFrequency || 'moderate');
-  const [dietType, setDietType] = useState(userData.dietType || 'regular');
+  const [exerciseFrequency, setExerciseFrequency] = useState<'sedentary' | 'light' | 'moderate' | 'active' | 'very-active'>(
+    (userData.exerciseFrequency as any) || 'moderate'
+  );
+  const [dietType, setDietType] = useState<'regular' | 'low-carb' | 'low-fat' | 'vegetarian' | 'vegan' | 'other'>(
+    (userData.dietType as any) || 'regular'
+  );
   const [smoker, setSmoker] = useState(userData.smoker || false);
-  const [goal, setGoal] = useState(userData.goal || 'better-control');
+  const [goal, setGoal] = useState<'better-control' | 'lose-weight' | 'more-energy' | 'reduce-medication' | 'custom'>(
+    (userData.goal as any) || 'better-control'
+  );
   const [customGoal, setCustomGoal] = useState(userData.customGoal || '');
   const [weightUnit, setWeightUnit] = useState(userData.weightUnit || 'kg');
   
@@ -67,14 +77,14 @@ const ProfilePage = () => {
       age: age ? parseInt(age) : null,
       weight: weight ? parseFloat(weight) : null,
       weightUnit,
-      gender: gender as any,
-      diabetesType: diabetesType as any,
+      gender,
+      diabetesType,
       targetRangeLow: targetRange[0],
       targetRangeHigh: targetRange[1],
-      exerciseFrequency: exerciseFrequency as any,
-      dietType: dietType as any,
+      exerciseFrequency,
+      dietType,
       smoker,
-      goal: goal as any,
+      goal,
       customGoal: goal === 'custom' ? customGoal : ''
     });
     
@@ -133,7 +143,7 @@ const ProfilePage = () => {
                   ? 'bg-medical-primary text-white border-medical-primary' 
                   : 'border-gray-300 text-gray-700 hover:bg-gray-50'
               }`}
-              onClick={() => setGender(option)}
+              onClick={() => setGender(option as 'male' | 'female' | 'other' | 'prefer-not-to-say')}
             >
               {translate(option)}
             </button>
@@ -156,7 +166,7 @@ const ProfilePage = () => {
                   ? 'bg-medical-primary text-white border-medical-primary' 
                   : 'border-gray-300 text-gray-700 hover:bg-gray-50'
               }`}
-              onClick={() => setDiabetesType(type)}
+              onClick={() => setDiabetesType(type as 'type1' | 'type2' | 'prediabetes' | 'gestational' | 'other')}
             >
               {translate(type)}
             </button>
@@ -239,7 +249,7 @@ const ProfilePage = () => {
                   ? 'bg-medical-primary text-white border-medical-primary' 
                   : 'border-gray-300 text-gray-700 hover:bg-gray-50'
               }`}
-              onClick={() => setExerciseFrequency(level)}
+              onClick={() => setExerciseFrequency(level as 'sedentary' | 'light' | 'moderate' | 'active' | 'very-active')}
             >
               {translate(level)}
               <span className="block text-xs mt-1 opacity-80">{translate(`${level}Desc`)}</span>
@@ -259,7 +269,7 @@ const ProfilePage = () => {
                   ? 'bg-medical-primary text-white border-medical-primary' 
                   : 'border-gray-300 text-gray-700 hover:bg-gray-50'
               }`}
-              onClick={() => setDietType(diet)}
+              onClick={() => setDietType(diet as 'regular' | 'low-carb' | 'low-fat' | 'vegetarian' | 'vegan' | 'other')}
             >
               {translate(diet)}
             </button>
@@ -295,7 +305,7 @@ const ProfilePage = () => {
                 ? 'bg-medical-primary text-white border-medical-primary' 
                 : 'border-gray-300 text-gray-700 hover:bg-gray-50'
             }`}
-            onClick={() => setGoal(goalOption)}
+            onClick={() => setGoal(goalOption as 'better-control' | 'lose-weight' | 'more-energy' | 'reduce-medication' | 'custom')}
           >
             {translate(goalOption)}
             <span className="block text-xs mt-1 opacity-80">{translate(`${goalOption}Desc`)}</span>
