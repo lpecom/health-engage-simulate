@@ -2,6 +2,11 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 type DiabetesType = 'type1' | 'type2' | 'prediabetes' | 'gestational' | 'other';
+type Gender = 'male' | 'female' | 'other' | 'prefer-not-to-say';
+type ExerciseFrequency = 'sedentary' | 'light' | 'moderate' | 'active' | 'very-active';
+type DietType = 'regular' | 'low-carb' | 'low-fat' | 'vegetarian' | 'vegan' | 'other';
+type Goal = 'better-control' | 'lose-weight' | 'more-energy' | 'reduce-medication' | 'custom';
+type WeightUnit = 'kg' | 'lb';
 
 type GlucoseReading = {
   value: number;
@@ -22,9 +27,17 @@ type Achievement = {
 interface UserData {
   name: string;
   age: number | null;
+  weight: number | null;
+  weightUnit: WeightUnit;
+  gender: Gender | null;
   diabetesType: DiabetesType | null;
   targetRangeLow: number;
   targetRangeHigh: number;
+  exerciseFrequency: ExerciseFrequency | null;
+  dietType: DietType | null;
+  smoker: boolean;
+  goal: Goal | null;
+  customGoal: string;
   onboarded: boolean;
   points: number;
   streak: number;
@@ -45,9 +58,17 @@ interface UserContextType {
 const defaultUserData: UserData = {
   name: '',
   age: null,
+  weight: null,
+  weightUnit: 'kg',
+  gender: null,
   diabetesType: null,
   targetRangeLow: 70,
   targetRangeHigh: 180,
+  exerciseFrequency: null,
+  dietType: null,
+  smoker: false,
+  goal: null,
+  customGoal: '',
   onboarded: false,
   points: 0,
   streak: 0,
