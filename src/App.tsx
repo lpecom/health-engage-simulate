@@ -12,6 +12,7 @@ import HomePage from "./pages/HomePage";
 import ProfilePage from "./pages/ProfilePage";
 import LearnPage from "./pages/LearnPage";
 import LanguagePage from "./pages/LanguagePage";
+import PersonalizedPlanPage from "./pages/PersonalizedPlanPage";
 import NotFound from "./pages/NotFound";
 
 // Create a new QueryClient instance
@@ -34,6 +35,7 @@ const App = () => {
                   <Route path="/profile" element={<ProfilePage />} />
                   <Route path="/learn/:topic" element={<LearnPage />} />
                   <Route path="/language" element={<LanguagePage />} />
+                  <Route path="/plan" element={<PersonalizedPlanPage />} />
                   {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                   <Route path="*" element={<NotFound />} />
                 </Routes>
