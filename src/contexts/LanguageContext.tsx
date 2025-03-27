@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 type Language = 'es' | 'pt';
@@ -84,7 +85,7 @@ const translations = {
     type2: "Tipo 2",
     prediabetes: "Prediabetes",
     gestational: "Gestacional",
-    other: "Otro",
+    otherDiabetes: "Otro", // Renamed from 'other' to 'otherDiabetes' to avoid duplicates
     targetRangeDescription: "Rango objetivo de glucosa (mg/dL)",
     howItWorksContent: "GlucoVista utiliza tecnología láser avanzada para medir los niveles de glucosa a través de la piel sin necesidad de pinchazos. El láser penetra en la piel y analiza la concentración de glucosa en la sangre de forma no invasiva.",
     benefitsContent: "- Sin dolor ni molestias\n- Sin consumibles costosos\n- Resultados inmediatos\n- Seguimiento continuo\n- Discreto y conveniente",
@@ -111,7 +112,7 @@ const translations = {
     gender: "Género",
     male: "Masculino",
     female: "Femenino",
-    other: "Otro",
+    otherGender: "Otro", // Renamed from 'other' to 'otherGender' to avoid duplicates
     "prefer-not-to-say": "Prefiero no decirlo",
     weight: "Peso",
     exerciseFrequency: "Frecuencia de ejercicio",
@@ -148,6 +149,8 @@ const translations = {
     profileCompletion: "Completado del perfil",
     privacyNote: "Tu información se mantiene privada y segura. Solo la usamos para personalizar tu experiencia.",
     saveAndContinue: "Guardar y continuar",
+    language: "Idioma",
+    saveAndReturn: "Guardar y volver"
   },
   pt: {
     welcome: "Bem-vindo ao GlucoVista",
@@ -224,7 +227,7 @@ const translations = {
     type2: "Tipo 2",
     prediabetes: "Pré-diabetes",
     gestational: "Gestacional",
-    other: "Outro",
+    otherDiabetes: "Outro", // Renamed from 'other' to 'otherDiabetes' to avoid duplicates
     targetRangeDescription: "Faixa alvo de glicose (mg/dL)",
     howItWorksContent: "O GlucoVista usa tecnologia laser avançada para medir os níveis de glicose através da pele sem a necessidade de picadas. O laser penetra na pele e analisa a concentração de glicose no sangue de forma não invasiva.",
     benefitsContent: "- Sem dor ou desconforto\n- Sem consumíveis caros\n- Resultados imediatos\n- Monitoramento contínuo\n- Discreto e conveniente",
@@ -251,7 +254,7 @@ const translations = {
     gender: "Gênero",
     male: "Masculino",
     female: "Feminino",
-    other: "Outro",
+    otherGender: "Outro", // Renamed from 'other' to 'otherGender' to avoid duplicates
     "prefer-not-to-say": "Prefiro não dizer",
     weight: "Peso",
     exerciseFrequency: "Frequência de exercícios",
@@ -288,6 +291,8 @@ const translations = {
     profileCompletion: "Conclusão do perfil",
     privacyNote: "Suas informações são mantidas privadas e seguras. Usamos apenas para personalizar sua experiência.",
     saveAndContinue: "Salvar e continuar",
+    language: "Idioma",
+    saveAndReturn: "Salvar e voltar"
   }
 };
 
