@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,7 +62,20 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
-				}
+				},
+				// Custom colors for our app
+				medical: {
+					primary: '#2C7FB8',
+					dark: '#1D5F9C',
+					light: '#7FB8D4',
+				},
+				warm: {
+					primary: '#FF9F76',
+					light: '#FFD2BA',
+				},
+				success: '#4CAF50',
+				warning: '#FFC107',
+				danger: '#F44336',
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
@@ -84,11 +98,43 @@ export default {
 					to: {
 						height: '0'
 					}
+				},
+				'laser-scan': {
+					'0%': {
+						transform: 'translateY(0%)',
+						opacity: '0.8'
+					},
+					'50%': {
+						opacity: '1'
+					},
+					'100%': {
+						transform: 'translateY(100%)',
+						opacity: '0.8'
+					}
+				},
+				'pulse-slow': {
+					'0%, 100%': {
+						opacity: '1'
+					},
+					'50%': {
+						opacity: '0.6'
+					}
+				},
+				'fade-in': {
+					'0%': {
+						opacity: '0'
+					},
+					'100%': {
+						opacity: '1'
+					}
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'laser-scan': 'laser-scan 2s ease-in-out infinite',
+				'pulse-slow': 'pulse-slow 3s infinite',
+				'fade-in': 'fade-in 0.5s ease-out'
 			}
 		}
 	},
