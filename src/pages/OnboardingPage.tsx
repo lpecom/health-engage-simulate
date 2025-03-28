@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -8,26 +7,20 @@ import LanguageSelector from "@/components/LanguageSelector";
 import { motion, AnimatePresence } from 'framer-motion';
 import { Check, ArrowRight, Syringe, CircleCheck } from 'lucide-react';
 import { Progress } from "@/components/ui/progress";
-
-const OnboardingSteps = [
-  'language',
-  'welcome',
-  'technology',
-  'benefits',
-  'profile',
-  'tutorial'
-];
-
+const OnboardingSteps = ['language', 'welcome', 'technology', 'benefits', 'profile', 'tutorial'];
 const OnboardingPage = () => {
-  const { translate } = useLanguage();
-  const { userData, updateUserData } = useUser();
+  const {
+    translate
+  } = useLanguage();
+  const {
+    userData,
+    updateUserData
+  } = useUser();
   const navigate = useNavigate();
-  
   const [currentStep, setCurrentStep] = useState(0);
   const [name, setName] = useState('');
   const [age, setAge] = useState('');
   const [diabetesType, setDiabetesType] = useState<string | null>(null);
-  
   const goToNextStep = () => {
     if (currentStep < OnboardingSteps.length - 1) {
       setCurrentStep(currentStep + 1);
@@ -35,15 +28,13 @@ const OnboardingPage = () => {
       completeOnboarding();
     }
   };
-  
   const goToPreviousStep = () => {
     if (currentStep > 0) {
       setCurrentStep(currentStep - 1);
     }
   };
-  
   const completeOnboarding = () => {
-    updateUserData({ 
+    updateUserData({
       onboarded: true,
       name: name || userData.name,
       age: age ? parseInt(age) : userData.age,
@@ -51,43 +42,29 @@ const OnboardingPage = () => {
     });
     navigate('/home');
   };
-  
   const skipOnboarding = () => {
-    updateUserData({ onboarded: true });
+    updateUserData({
+      onboarded: true
+    });
     navigate('/home');
   };
-  
-  const progressPercentage = ((currentStep + 1) / OnboardingSteps.length) * 100;
-  
+  const progressPercentage = (currentStep + 1) / OnboardingSteps.length * 100;
   const renderStep = () => {
     const currentStepName = OnboardingSteps[currentStep];
-    
     switch (currentStepName) {
       case 'language':
-        return (
-          <div className="text-center">
+        return <div className="text-center">
             <div className="flex justify-center mb-4">
-              <img 
-                src="https://accu-tech.pro/wp-content/uploads/2024/08/Accu-Tech-1.png" 
-                alt="Accu-Tech Logo" 
-                className="h-16 mb-4"
-              />
+              <img src="https://accu-tech.pro/wp-content/uploads/2024/08/Accu-Tech-1.png" alt="Accu-Tech Logo" className="h-16 mb-4" />
             </div>
             <h1 className="text-3xl font-bold mb-2 text-accu-tech-blue">GlucoVista</h1>
             <p className="text-gray-600 mb-6">{translate('welcomeToApp')}</p>
             <LanguageSelector />
-          </div>
-        );
-        
+          </div>;
       case 'welcome':
-        return (
-          <div className="text-center">
+        return <div className="text-center">
             <div className="flex justify-center mb-4">
-              <img 
-                src="https://accu-tech.pro/wp-content/uploads/2024/08/Accu-Tech-1.png" 
-                alt="Accu-Tech Logo" 
-                className="h-16 mb-4"
-              />
+              <img src="https://accu-tech.pro/wp-content/uploads/2024/08/Accu-Tech-1.png" alt="Accu-Tech Logo" className="h-16 mb-4 object-scale-down" />
             </div>
             <div className="w-20 h-20 rounded-full bg-accu-tech-light flex items-center justify-center mx-auto mb-6">
               <Check size={40} className="text-accu-tech-blue" />
@@ -101,12 +78,9 @@ const OnboardingPage = () => {
             </div>
             
             <p className="text-sm text-gray-500">{translate('deviceArrivalMessage')}</p>
-          </div>
-        );
-        
+          </div>;
       case 'technology':
-        return (
-          <div className="text-center">
+        return <div className="text-center">
             <h1 className="text-2xl font-bold mb-3">{translate('howItWorks')}</h1>
             <p className="text-gray-600 mb-6">{translate('laserTechnologyIntro')}</p>
             
@@ -155,12 +129,9 @@ const OnboardingPage = () => {
             </div>
             
             <p className="text-sm text-gray-500 italic">{translate('scientificallyProven')}</p>
-          </div>
-        );
-        
+          </div>;
       case 'benefits':
-        return (
-          <div className="text-center">
+        return <div className="text-center">
             <h1 className="text-2xl font-bold mb-3">{translate('keyBenefits')}</h1>
             <p className="text-gray-600 mb-6">{translate('benefitsIntro')}</p>
             
@@ -199,61 +170,32 @@ const OnboardingPage = () => {
             </div>
             
             <div className="mt-6 mb-4 flex justify-center">
-              <img 
-                src="/placeholder.svg" 
-                alt="GlucoVista Laser Glucometer" 
-                className="w-48 h-48 object-contain"
-              />
+              <img src="/placeholder.svg" alt="GlucoVista Laser Glucometer" className="w-48 h-48 object-contain" />
             </div>
             <p className="text-sm font-medium text-center">{translate('yourNewGlucometer')}</p>
-          </div>
-        );
-        
+          </div>;
       case 'profile':
-        return (
-          <div>
+        return <div>
             <h1 className="text-2xl font-bold mb-3 text-center">{translate('setupProfile')}</h1>
             <p className="text-gray-600 mb-6 text-center">{translate('profileSetupIntro')}</p>
             
             <div className="space-y-4 mb-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">{translate('name')}</label>
-                <input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder={translate('enterName')}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-medical-primary"
-                />
+                <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder={translate('enterName')} className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-medical-primary" />
               </div>
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">{translate('age')}</label>
-                <input
-                  type="number"
-                  value={age}
-                  onChange={(e) => setAge(e.target.value)}
-                  placeholder="30"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-medical-primary"
-                />
+                <input type="number" value={age} onChange={e => setAge(e.target.value)} placeholder="30" className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-medical-primary" />
               </div>
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">{translate('diabetesType')}</label>
                 <div className="grid grid-cols-2 gap-2">
-                  {['type1', 'type2', 'prediabetes', 'gestational', 'other'].map((type) => (
-                    <button
-                      key={type}
-                      className={`px-4 py-2 border rounded-md text-sm ${
-                        diabetesType === type 
-                          ? 'bg-medical-primary text-white border-medical-primary' 
-                          : 'border-gray-300 text-gray-700 hover:bg-gray-50'
-                      }`}
-                      onClick={() => setDiabetesType(type)}
-                    >
+                  {['type1', 'type2', 'prediabetes', 'gestational', 'other'].map(type => <button key={type} className={`px-4 py-2 border rounded-md text-sm ${diabetesType === type ? 'bg-medical-primary text-white border-medical-primary' : 'border-gray-300 text-gray-700 hover:bg-gray-50'}`} onClick={() => setDiabetesType(type)}>
                       {translate(type)}
-                    </button>
-                  ))}
+                    </button>)}
                 </div>
               </div>
             </div>
@@ -261,12 +203,9 @@ const OnboardingPage = () => {
             <p className="text-sm text-gray-500 italic mb-6">
               {translate('profilePrivacyMessage')}
             </p>
-          </div>
-        );
-        
+          </div>;
       case 'tutorial':
-        return (
-          <div className="text-center">
+        return <div className="text-center">
             <h1 className="text-2xl font-bold mb-2">{translate('readyToStart')}</h1>
             <p className="text-gray-600 mb-6">{translate('tutorialDescription')}</p>
             
@@ -295,16 +234,12 @@ const OnboardingPage = () => {
                 </div>
               </div>
             </div>
-          </div>
-        );
-        
+          </div>;
       default:
         return null;
     }
   };
-  
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-accu-tech-lightest px-4 py-8">
+  return <div className="min-h-screen bg-gradient-to-b from-white to-accu-tech-lightest px-4 py-8">
       <div className="max-w-md mx-auto">
         {/* Progress bar */}
         <div className="mb-6">
@@ -316,56 +251,43 @@ const OnboardingPage = () => {
         </div>
         
         <AnimatePresence mode="wait">
-          <motion.div
-            key={currentStep}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            transition={{ duration: 0.3 }}
-            className="bg-white rounded-xl shadow-lg p-6 mb-8"
-          >
+          <motion.div key={currentStep} initial={{
+          opacity: 0,
+          x: 20
+        }} animate={{
+          opacity: 1,
+          x: 0
+        }} exit={{
+          opacity: 0,
+          x: -20
+        }} transition={{
+          duration: 0.3
+        }} className="bg-white rounded-xl shadow-lg p-6 mb-8">
             {renderStep()}
           </motion.div>
         </AnimatePresence>
         
         <div className="flex justify-between">
-          {currentStep > 0 ? (
-            <Button variant="outline" onClick={goToPreviousStep}>
+          {currentStep > 0 ? <Button variant="outline" onClick={goToPreviousStep}>
               {translate('back')}
-            </Button>
-          ) : (
-            <div></div>
-          )}
+            </Button> : <div></div>}
           
           <div className="flex space-x-2">
-            {currentStep < OnboardingSteps.length - 1 && (
-              <Button variant="ghost" onClick={skipOnboarding}>
+            {currentStep < OnboardingSteps.length - 1 && <Button variant="ghost" onClick={skipOnboarding}>
                 {translate('skip')}
-              </Button>
-            )}
+              </Button>}
             
             <Button className="accu-tech-gradient text-white" onClick={goToNextStep}>
-              {currentStep === OnboardingSteps.length - 1
-                ? translate('getStarted')
-                : translate('next')}
+              {currentStep === OnboardingSteps.length - 1 ? translate('getStarted') : translate('next')}
             </Button>
           </div>
         </div>
         
         {/* Step indicator */}
         <div className="flex justify-center mt-6 space-x-1">
-          {OnboardingSteps.map((_, index) => (
-            <div
-              key={index}
-              className={`h-1.5 rounded-full ${
-                index === currentStep ? 'w-6 bg-accu-tech-blue' : 'w-2 bg-gray-300'
-              }`}
-            ></div>
-          ))}
+          {OnboardingSteps.map((_, index) => <div key={index} className={`h-1.5 rounded-full ${index === currentStep ? 'w-6 bg-accu-tech-blue' : 'w-2 bg-gray-300'}`}></div>)}
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default OnboardingPage;
