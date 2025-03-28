@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -7,6 +6,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useUser } from "@/contexts/UserContext";
 import { ChevronLeft, CheckCircle } from "lucide-react";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
+import { toast } from "@/components/ui/use-toast";
 
 const LearnPage = () => {
   const { translate, language } = useLanguage();
@@ -14,20 +14,14 @@ const LearnPage = () => {
   const navigate = useNavigate();
   const { topic } = useParams();
   
-  // Mark educational content as read and award points
   React.useEffect(() => {
     if (topic) {
       const topicKey = `learn_${topic}`;
       
-      // Check if this topic has been read before
       if (!localStorage.getItem(topicKey)) {
-        // Award points for reading
         earnPoints(25);
-        
-        // Mark as read
         localStorage.setItem(topicKey, 'true');
         
-        // Update achievement progress
         const achievements = [...userData.achievements];
         const learnExpertAchievement = achievements.find(a => a.id === 'learn-expert');
         
@@ -39,7 +33,6 @@ const LearnPage = () => {
           
           if (isComplete) {
             learnExpertAchievement.unlocked = true;
-            // Bonus points for completing all educational content
             earnPoints(100);
           }
           
@@ -237,7 +230,7 @@ const LearnPage = () => {
                   <h4 className="text-sm font-medium mb-1">
                     {language === 'es' 
                       ? 'Estudio clínico: Precisión de la medición no invasiva' 
-                      : 'Estudo clínico: Precisão da medição não invasiva'}
+                      : 'Estudio clínico: Precisão da medição não invasiva'}
                   </h4>
                   <p className="text-xs text-gray-600 mb-2">
                     {language === 'es' 
@@ -247,7 +240,7 @@ const LearnPage = () => {
                   <p className="text-sm text-gray-700">
                     {language === 'es' 
                       ? 'En un estudio con 157 participantes, la tecnología de GlucoVista mostró una precisión del 96.8% comparado con métodos de análisis de sangre de laboratorio.' 
-                      : 'Em um estudo com 157 participantes, a tecnologia do GlucoVista mostrou uma precisão de 96.8% em comparação com métodos de análise de sangue de laboratório.'}
+                      : 'Em um estudo com 157 participantes, a tecnologia do GlucoVista mostrou uma precisão de 96.8% em comparação com métodos de análise de sangre de laboratorio.'}
                   </p>
                 </div>
               </div>
@@ -283,7 +276,6 @@ const LearnPage = () => {
     }
   };
   
-  // Check if this content has been read before
   const isTopicRead = () => {
     if (!topic) return false;
     return localStorage.getItem(`learn_${topic}`) === 'true';
@@ -291,7 +283,6 @@ const LearnPage = () => {
   
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
       <div className="gradient-medical text-white px-4 pt-12 pb-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
