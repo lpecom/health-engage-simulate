@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -7,13 +6,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useUser } from "@/contexts/UserContext";
 import SimulatedGlucometer from "@/components/SimulatedGlucometer";
+import DeviceShippingStatus from "@/components/DeviceShippingStatus";
 import { 
   ActivitySquare, Award, Book, ChevronRight, History, 
-  Home, TrendingUp, User, LineChart, BarChart, Loader2
+  Home, TrendingUp, User, LineChart, BarChart
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { Input } from "@/components/ui/input";
-import { Skeleton } from "@/components/ui/skeleton";
 
 const formatDateTime = (timestamp: number) => {
   return new Date(timestamp).toLocaleString(undefined, {
@@ -110,49 +108,9 @@ const HomePage = () => {
       
       <div className="px-4 -mt-4">
         {showDeviceConnector && (
-          <Card className="mb-4 overflow-hidden relative">
-            <div className="absolute inset-0 bg-white/40 backdrop-blur-sm z-10 flex flex-col items-center justify-center">
-              <div className="animate-pulse flex flex-col items-center text-center px-6">
-                <Loader2 className="h-10 w-10 text-medical-primary animate-spin mb-4" />
-                <h3 className="text-lg font-semibold text-medical-dark mb-2">{translate('deviceOnTheWay')}</h3>
-                <p className="text-sm text-gray-600 max-w-xs">
-                  {translate('yourDeviceIsBeingShipped')}
-                </p>
-                <div className="mt-6 w-full max-w-xs">
-                  <Skeleton className="h-1.5 w-full mb-1 bg-medical-light" />
-                  <div className="flex justify-between text-xs text-gray-500">
-                    <span>{translate('ordered')}</span>
-                    <span>{translate('shipping')}</span>
-                    <span>{translate('delivered')}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <CardContent className="p-4">
-              <h2 className="text-lg font-medium mb-4">{translate('connectYourDevice')}</h2>
-              
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">{translate('deviceSerialNumber')}</label>
-                  <Input 
-                    placeholder={translate('enterSerialNumber')} 
-                    disabled
-                  />
-                </div>
-                
-                <ol className="list-decimal pl-5 text-sm text-gray-600 space-y-2">
-                  <li>{translate('turnOnYourDevice')}</li>
-                  <li>{translate('enableBluetooth')}</li>
-                  <li>{translate('enterSerialAndConnect')}</li>
-                </ol>
-                
-                <Button className="w-full" disabled>
-                  {translate('connectDevice')}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+          <DeviceShippingStatus 
+            onConnect={() => setShowDeviceConnector(false)}
+          />
         )}
       
         <Tabs defaultValue="measure" className="w-full">
