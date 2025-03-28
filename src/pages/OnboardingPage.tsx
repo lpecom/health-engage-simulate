@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -265,11 +266,25 @@ const OnboardingPage = () => {
 
   return <div className="min-h-screen bg-gradient-to-b from-white to-accu-tech-lightest px-4 py-8">
       <div className="max-w-md mx-auto">
+        {/* New header with logo and progress bar */}
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center">
+            <img 
+              src="https://accu-tech.pro/wp-content/uploads/2024/08/Accu-Tech-1.png" 
+              alt="Accu-Tech Logo" 
+              className="h-8 mr-3" 
+            />
+            <h2 className="text-lg font-semibold text-accu-tech-blue">Healthineers</h2>
+          </div>
+          <div className="text-xs text-gray-500 text-right">
+            {translate('step')} {currentStep + 1}/{OnboardingSteps.length}
+          </div>
+        </div>
+        
         <div className="mb-6">
-          <Progress value={progressPercentage} className="h-2" />
-          <div className="flex justify-between mt-2 text-xs text-gray-500">
-            <span>{translate('step')} {currentStep + 1}/{OnboardingSteps.length}</span>
-            <span>{Math.round(progressPercentage)}% {translate('complete')}</span>
+          <Progress value={progressPercentage} className="h-2 bg-accu-tech-lightest" />
+          <div className="flex justify-end mt-1">
+            <span className="text-xs text-gray-500">{Math.round(progressPercentage)}% {translate('complete')}</span>
           </div>
         </div>
         
