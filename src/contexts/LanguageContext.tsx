@@ -1,10 +1,11 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext } from 'react';
 
+// Hard-coded language - this will be 'es' for Spanish version, 'pt' for Portuguese version
 type Language = 'es' | 'pt';
+const DEFAULT_LANGUAGE: Language = 'es'; // This would be different in each deployment
 
 type LanguageContextType = {
   language: Language;
-  setLanguage: (lang: Language) => void;
   translate: (key: string) => string;
 };
 
@@ -84,7 +85,7 @@ const translations = {
     type2: "Tipo 2",
     prediabetes: "Prediabetes",
     gestational: "Gestacional",
-    otherDiabetes: "Otro", // Renamed from 'other' to 'otherDiabetes' to avoid duplicates
+    otherDiabetes: "Otro",
     targetRangeDescription: "Rango objetivo de glucosa (mg/dL)",
     howItWorksContent: "GlucoVista utiliza tecnología láser avanzada para medir los niveles de glucosa a través de la piel sin necesidad de pinchazos. El láser penetra en la piel y analiza la concentración de glucosa en la sangre de forma no invasiva.",
     benefitsContent: "- Sin dolor ni molestias\n- Sin consumibles costosos\n- Resultados inmediatos\n- Seguimiento continuo\n- Discreto y conveniente",
@@ -111,7 +112,7 @@ const translations = {
     gender: "Género",
     male: "Masculino",
     female: "Femenino",
-    otherGender: "Otro", // Renamed from 'other' to 'otherGender' to avoid duplicates
+    otherGender: "Otro",
     "prefer-not-to-say": "Prefiero no decirlo",
     weight: "Peso",
     exerciseFrequency: "Frecuencia de ejercicio",
@@ -232,7 +233,7 @@ const translations = {
     type2: "Tipo 2",
     prediabetes: "Pré-diabetes",
     gestational: "Gestacional",
-    otherDiabetes: "Outro", // Renamed from 'other' to 'otherDiabetes' to avoid duplicates
+    otherDiabetes: "Outro",
     targetRangeDescription: "Faixa alvo de glicose (mg/dL)",
     howItWorksContent: "O GlucoVista usa tecnologia laser avançada para medir os níveis de glicose através da pele sem a necessidade de picadas. O laser penetra na pele e analisa a concentração de glicose no sangue de forma não invasiva.",
     benefitsContent: "- Sem dor ou desconforto\n- Sem consumíveis caros\n- Resultados imediatos\n- Monitoramento contínuo\n- Discreto e conveniente",
@@ -259,7 +260,7 @@ const translations = {
     gender: "Gênero",
     male: "Masculino",
     female: "Feminino",
-    otherGender: "Outro", // Renamed from 'other' to 'otherGender' to avoid duplicates
+    otherGender: "Outro",
     "prefer-not-to-say": "Prefiro não dizer",
     weight: "Peso",
     exerciseFrequency: "Frequência de exercícios",
@@ -310,27 +311,14 @@ const translations = {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [language, setLanguageState] = useState<Language>('es');
-
-  useEffect(() => {
-    // Try to get saved language preference from local storage
-    const savedLanguage = localStorage.getItem('language') as Language;
-    if (savedLanguage && (savedLanguage === 'es' || savedLanguage === 'pt')) {
-      setLanguageState(savedLanguage);
-    }
-  }, []);
-
-  const setLanguage = (lang: Language) => {
-    setLanguageState(lang);
-    localStorage.setItem('language', lang);
-  };
+  const language = DEFAULT_LANGUAGE;
 
   const translate = (key: string): string => {
     return translations[language][key as keyof typeof translations[typeof language]] || key;
   };
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, translate }}>
+    <LanguageContext.Provider value={{ language, translate }}>
       {children}
     </LanguageContext.Provider>
   );

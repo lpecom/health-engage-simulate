@@ -5,7 +5,6 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import AccuTechHeader from '@/components/AccuTechHeader';
-import LanguageSelector from '@/components/LanguageSelector';
 import { ArrowRight } from 'lucide-react';
 
 const OnboardingPage: React.FC = () => {
@@ -13,7 +12,7 @@ const OnboardingPage: React.FC = () => {
   const navigate = useNavigate();
   
   const handleStartOnboarding = () => {
-    navigate('/language');
+    navigate('/plan');
   };
   
   return (
@@ -21,10 +20,6 @@ const OnboardingPage: React.FC = () => {
       <AccuTechHeader />
       
       <div className="flex-1 container max-w-md mx-auto px-4 py-8 flex flex-col">
-        <div className="mb-6 flex justify-end">
-          <LanguageSelector />
-        </div>
-        
         <Card className="shadow-lg border-accutech-teal/20 mb-8">
           <CardHeader className="pb-2">
             <CardTitle className="text-2xl font-bold text-accutech-dark">
