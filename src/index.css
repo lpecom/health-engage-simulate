@@ -16,7 +16,8 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 204 59% 45%;
+    /* Updated primary color to match Accu-Tech teal */
+    --primary: 180 58% 55%;
     --primary-foreground: 210 40% 98%;
 
     --secondary: 210 40% 96.1%;
@@ -33,7 +34,7 @@
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 204 59% 45%;
+    --ring: 180 58% 55%;
 
     --radius: 1rem;
 
@@ -103,7 +104,8 @@
 
 @layer components {
   .gradient-medical {
-    @apply bg-gradient-to-b from-medical-primary to-medical-dark;
+    /* Updated gradient to match Accu-Tech colors */
+    @apply bg-gradient-to-b from-[#7FB8D4] to-[#2C7FB8];
   }
   
   .card-shadow {
@@ -121,5 +123,10 @@
   .laser-line {
     @apply h-1 bg-red-500 w-full absolute opacity-70 rounded-full animate-laser-scan;
     box-shadow: 0 0 10px 2px theme('colors.red.500');
+  }
+
+  /* Additional Accu-Tech specific styles */
+  .accu-tech-gradient {
+    @apply bg-gradient-to-r from-[#2C7FB8] to-[#7FB8D4];
   }
 }

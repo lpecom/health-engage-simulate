@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 type Language = 'es' | 'pt';
@@ -150,7 +149,13 @@ const translations = {
     privacyNote: "Tu información se mantiene privada y segura. Solo la usamos para personalizar tu experiencia.",
     saveAndContinue: "Guardar y continuar",
     language: "Idioma",
-    saveAndReturn: "Guardar y volver"
+    saveAndReturn: "Guardar y volver",
+    welcomeToAccuTech: "Bienvenido a Accu-Tech",
+    yourPersonalGlucoseMonitor: "Tu solución personal para monitoreo de glucosa",
+    getStartedWithAccuTech: "Comienza con tu dispositivo Accu-Tech",
+    setupYourProfileForPersonalizedExperience: "Configuremos tu perfil para una experiencia personalizada",
+    byProceedingYouAgreeToOur: "Al continuar, aceptas nuestros",
+    termsOfService: "Términos de servicio"
   },
   pt: {
     welcome: "Bem-vindo ao GlucoVista",
@@ -292,7 +297,13 @@ const translations = {
     privacyNote: "Suas informações são mantidas privadas e seguras. Usamos apenas para personalizar sua experiência.",
     saveAndContinue: "Salvar e continuar",
     language: "Idioma",
-    saveAndReturn: "Salvar e voltar"
+    saveAndReturn: "Salvar e voltar",
+    welcomeToAccuTech: "Bem-vindo ao Accu-Tech",
+    yourPersonalGlucoseMonitor: "Sua solução pessoal de monitoramento de glicose",
+    getStartedWithAccuTech: "Comece com seu dispositivo Accu-Tech",
+    setupYourProfileForPersonalizedExperience: "Vamos configurar seu perfil para uma experiência personalizada",
+    byProceedingYouAgreeToOur: "Ao prosseguir, você concorda com nossos",
+    termsOfService: "Termos de Serviço"
   }
 };
 
