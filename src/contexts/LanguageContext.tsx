@@ -1,11 +1,11 @@
-import React, { createContext, useContext } from 'react';
 
-// Hard-coded language - this will be 'es' for Spanish version, 'pt' for Portuguese version
+import React, { createContext, useContext, useState, useEffect } from 'react';
+
 type Language = 'es' | 'pt';
-const DEFAULT_LANGUAGE: Language = 'es'; // This would be different in each deployment
 
 type LanguageContextType = {
   language: Language;
+  setLanguage: (lang: Language) => void;
   translate: (key: string) => string;
 };
 
@@ -85,7 +85,7 @@ const translations = {
     type2: "Tipo 2",
     prediabetes: "Prediabetes",
     gestational: "Gestacional",
-    otherDiabetes: "Otro",
+    otherDiabetes: "Otro", // Renamed from 'other' to 'otherDiabetes' to avoid duplicates
     targetRangeDescription: "Rango objetivo de glucosa (mg/dL)",
     howItWorksContent: "GlucoVista utiliza tecnología láser avanzada para medir los niveles de glucosa a través de la piel sin necesidad de pinchazos. El láser penetra en la piel y analiza la concentración de glucosa en la sangre de forma no invasiva.",
     benefitsContent: "- Sin dolor ni molestias\n- Sin consumibles costosos\n- Resultados inmediatos\n- Seguimiento continuo\n- Discreto y conveniente",
@@ -112,7 +112,7 @@ const translations = {
     gender: "Género",
     male: "Masculino",
     female: "Femenino",
-    otherGender: "Otro",
+    otherGender: "Otro", // Renamed from 'other' to 'otherGender' to avoid duplicates
     "prefer-not-to-say": "Prefiero no decirlo",
     weight: "Peso",
     exerciseFrequency: "Frecuencia de ejercicio",
@@ -150,13 +150,7 @@ const translations = {
     privacyNote: "Tu información se mantiene privada y segura. Solo la usamos para personalizar tu experiencia.",
     saveAndContinue: "Guardar y continuar",
     language: "Idioma",
-    saveAndReturn: "Guardar y volver",
-    welcomeToAccuTech: "Bienvenido a Accu-Tech",
-    yourPersonalGlucoseMonitor: "Tu solución personal para monitoreo de glucosa",
-    getStartedWithAccuTech: "Comienza con tu dispositivo Accu-Tech",
-    setupYourProfileForPersonalizedExperience: "Configuremos tu perfil para una experiencia personalizada",
-    byProceedingYouAgreeToOur: "Al continuar, aceptas nuestros",
-    termsOfService: "Términos de servicio"
+    saveAndReturn: "Guardar y volver"
   },
   pt: {
     welcome: "Bem-vindo ao GlucoVista",
@@ -233,7 +227,7 @@ const translations = {
     type2: "Tipo 2",
     prediabetes: "Pré-diabetes",
     gestational: "Gestacional",
-    otherDiabetes: "Outro",
+    otherDiabetes: "Outro", // Renamed from 'other' to 'otherDiabetes' to avoid duplicates
     targetRangeDescription: "Faixa alvo de glicose (mg/dL)",
     howItWorksContent: "O GlucoVista usa tecnologia laser avançada para medir os níveis de glicose através da pele sem a necessidade de picadas. O laser penetra na pele e analisa a concentração de glicose no sangue de forma não invasiva.",
     benefitsContent: "- Sem dor ou desconforto\n- Sem consumíveis caros\n- Resultados imediatos\n- Monitoramento contínuo\n- Discreto e conveniente",
@@ -260,7 +254,7 @@ const translations = {
     gender: "Gênero",
     male: "Masculino",
     female: "Feminino",
-    otherGender: "Outro",
+    otherGender: "Outro", // Renamed from 'other' to 'otherGender' to avoid duplicates
     "prefer-not-to-say": "Prefiro não dizer",
     weight: "Peso",
     exerciseFrequency: "Frequência de exercícios",
@@ -298,27 +292,34 @@ const translations = {
     privacyNote: "Suas informações são mantidas privadas e seguras. Usamos apenas para personalizar sua experiência.",
     saveAndContinue: "Salvar e continuar",
     language: "Idioma",
-    saveAndReturn: "Salvar e voltar",
-    welcomeToAccuTech: "Bem-vindo ao Accu-Tech",
-    yourPersonalGlucoseMonitor: "Sua solução pessoal de monitoramento de glicose",
-    getStartedWithAccuTech: "Comece com seu dispositivo Accu-Tech",
-    setupYourProfileForPersonalizedExperience: "Vamos configurar seu perfil para uma experiência personalizada",
-    byProceedingYouAgreeToOur: "Ao prosseguir, você concorda com nossos",
-    termsOfService: "Termos de Serviço"
+    saveAndReturn: "Salvar e voltar"
   }
 };
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const language = DEFAULT_LANGUAGE;
+  const [language, setLanguageState] = useState<Language>('es');
+
+  useEffect(() => {
+    // Try to get saved language preference from local storage
+    const savedLanguage = localStorage.getItem('language') as Language;
+    if (savedLanguage && (savedLanguage === 'es' || savedLanguage === 'pt')) {
+      setLanguageState(savedLanguage);
+    }
+  }, []);
+
+  const setLanguage = (lang: Language) => {
+    setLanguageState(lang);
+    localStorage.setItem('language', lang);
+  };
 
   const translate = (key: string): string => {
     return translations[language][key as keyof typeof translations[typeof language]] || key;
   };
 
   return (
-    <LanguageContext.Provider value={{ language, translate }}>
+    <LanguageContext.Provider value={{ language, setLanguage, translate }}>
       {children}
     </LanguageContext.Provider>
   );

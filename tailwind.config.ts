@@ -63,21 +63,15 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				// Updated custom colors to match Accu-Tech brand
+				// Custom colors for our app
 				medical: {
-					primary: '#7FB8D4',  // Accu-Tech teal
-					dark: '#2C7FB8',    // Darker Accu-Tech blue
-					light: '#B3DEF0',  // Lighter teal
+					primary: '#2C7FB8',
+					dark: '#1D5F9C',
+					light: '#7FB8D4',
 				},
 				warm: {
 					primary: '#FF9F76',
 					light: '#FFD2BA',
-				},
-				accutech: {
-					teal: '#7FB8D4',
-					blue: '#2C7FB8',
-					dark: '#333333',
-					orange: '#F97316',
 				},
 				success: '#4CAF50',
 				warning: '#FFC107',
