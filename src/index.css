@@ -45,6 +45,14 @@
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Accu-Tech Colors */
+    --accu-tech-blue: 209 78% 40%;
+    --accu-tech-dark-blue: 210 80% 30%;
+    --accu-tech-light-blue: 209 78% 85%;
+    --accu-tech-lightest: 209 78% 95%;
+    --accu-tech-orange: 25 100% 50%;
+    --accu-tech-light-orange: 25 100% 90%;
   }
 
   .dark {
@@ -121,5 +129,10 @@
   .laser-line {
     @apply h-1 bg-red-500 w-full absolute opacity-70 rounded-full animate-laser-scan;
     box-shadow: 0 0 10px 2px theme('colors.red.500');
+  }
+
+  /* Accu-Tech Specific Styles */
+  .accu-tech-gradient {
+    @apply bg-gradient-to-b from-accu-tech-blue to-accu-tech-dark-blue rounded-full px-6 py-3 font-medium shadow-md hover:opacity-90 transition-opacity;
   }
 }

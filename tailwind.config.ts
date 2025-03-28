@@ -76,6 +76,15 @@ export default {
 				success: '#4CAF50',
 				warning: '#FFC107',
 				danger: '#F44336',
+				// Accu-Tech colors
+				'accu-tech': {
+					blue: 'hsl(var(--accu-tech-blue))',
+					'dark-blue': 'hsl(var(--accu-tech-dark-blue))',
+					'light-blue': 'hsl(var(--accu-tech-light-blue))',
+					lightest: 'hsl(var(--accu-tech-lightest))',
+					orange: 'hsl(var(--accu-tech-orange))',
+					'light-orange': 'hsl(var(--accu-tech-light-orange))',
+				},
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
