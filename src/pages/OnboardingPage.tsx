@@ -71,6 +71,15 @@ const OnboardingPage = () => {
             <div className="flex justify-center mb-4">
               <img src="https://accu-tech.pro/wp-content/uploads/2024/08/Accu-Tech-1.png" alt="Accu-Tech Logo" className="h-16 mb-4 object-scale-down" />
             </div>
+            
+            <div className="mb-6 flex justify-center">
+              <img 
+                src="https://h00ktt-1h.myshopify.com/cdn/shop/files/gempages_559218299439678285-292f3a7c-297f-4208-b019-985346c4ef7b.jpg?v=10467499079061507992" 
+                alt="Accu-Tech Laser Glucometer" 
+                className="w-64 h-auto object-contain rounded-lg shadow-md" 
+              />
+            </div>
+            
             <div className="w-20 h-20 rounded-full bg-accu-tech-light-blue flex items-center justify-center mx-auto mb-6">
               <Check size={40} className="text-accu-tech-blue" />
             </div>
