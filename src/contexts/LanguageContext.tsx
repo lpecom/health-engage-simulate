@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 type Language = 'es' | 'pt';
@@ -11,13 +10,13 @@ type LanguageContextType = {
 
 const translations = {
   es: {
-    welcome: "Bienvenido a GlucoVista",
+    welcome: "Bienvenido a Accu-Tech Healthineers",
     welcomeSubtitle: "Tu compañero para el control de la glucosa sin dolor",
     welcomeToApp: "La nueva era del control de la diabetes",
     thankYouMessage: "¡Gracias por tu compra! Estamos preparando tu dispositivo",
     userTestimonial: "Por fin puedo medir mi glucosa sin pincharme los dedos. ¡Es increíble!",
-    testimonialAuthor: "María G., usuario de GlucoVista",
-    deviceArrivalMessage: "Mientras esperas la llegada de tu GlucoVista, exploremos la aplicación",
+    testimonialAuthor: "María G., usuario de Accu-Tech Healthineers",
+    deviceArrivalMessage: "Mientras esperas la llegada de tu Accu-Tech Healthineers, exploremos la aplicación",
     selectLanguage: "Seleccionar idioma",
     spanish: "Español",
     portuguese: "Portugués",
@@ -36,7 +35,7 @@ const translations = {
     instantReadingDesc: "El dispositivo calcula tu nivel de glucosa en segundos",
     scientificallyProven: "Tecnología respaldada por investigación científica avanzada",
     keyBenefits: "Beneficios principales",
-    benefitsIntro: "Descubre por qué GlucoVista transformará tu vida",
+    benefitsIntro: "Descubre por qué Accu-Tech Healthineers transformará tu vida",
     noPainTitle: "Sin dolor",
     noPainDesc: "Olvídate de los pinchazos diarios",
     instantResultsTitle: "Resultados inmediatos",
@@ -87,9 +86,9 @@ const translations = {
     gestational: "Gestacional",
     otherDiabetes: "Otro", // Renamed from 'other' to 'otherDiabetes' to avoid duplicates
     targetRangeDescription: "Rango objetivo de glucosa (mg/dL)",
-    howItWorksContent: "GlucoVista utiliza tecnología láser avanzada para medir los niveles de glucosa a través de la piel sin necesidad de pinchazos. El láser penetra en la piel y analiza la concentración de glucosa en la sangre de forma no invasiva.",
+    howItWorksContent: "Accu-Tech Healthineers utiliza tecnología láser avanzada para medir los niveles de glucosa a través de la piel sin necesidad de pinchazos. El láser penetra en la piel y analiza la concentración de glucosa en la sangre de forma no invasiva.",
     benefitsContent: "- Sin dolor ni molestias\n- Sin consumibles costosos\n- Resultados inmediatos\n- Seguimiento continuo\n- Discreto y conveniente",
-    safetyContent: "La tecnología láser de GlucoVista utiliza un láser de baja potencia que es completamente seguro para la piel. El dispositivo ha pasado rigurosas pruebas de seguridad y cumple con todos los estándares médicos internacionales.",
+    safetyContent: "La tecnología láser de Accu-Tech Healthineers utiliza un láser de baja potencia que es completamente seguro para la piel. El dispositivo ha pasado rigurosas pruebas de seguridad y cumple con todos los estándares médicos internacionales.",
     firstMeasurement: "¡Primera medición!",
     threeDay: "¡Racha de 3 días!",
     sevenDay: "¡Racha de 7 días!",
@@ -153,13 +152,13 @@ const translations = {
     saveAndReturn: "Guardar y volver"
   },
   pt: {
-    welcome: "Bem-vindo ao GlucoVista",
+    welcome: "Bem-vindo ao Accu-Tech Healthineers",
     welcomeSubtitle: "Seu companheiro para monitoramento de glicose sem dor",
     welcomeToApp: "A nova era do controle do diabetes",
     thankYouMessage: "Obrigado pela sua compra! Estamos preparando seu dispositivo",
     userTestimonial: "Finalmente posso medir minha glicose sem furar os dedos. É incrível!",
-    testimonialAuthor: "João M., usuário GlucoVista",
-    deviceArrivalMessage: "Enquanto você espera a chegada do seu GlucoVista, vamos explorar o aplicativo",
+    testimonialAuthor: "João M., usuário Accu-Tech Healthineers",
+    deviceArrivalMessage: "Enquanto você espera a chegada do seu Accu-Tech Healthineers, vamos explorar o aplicativo",
     selectLanguage: "Selecionar idioma",
     spanish: "Espanhol",
     portuguese: "Português",
@@ -178,7 +177,7 @@ const translations = {
     instantReadingDesc: "O dispositivo calcula seu nível de glicose em segundos",
     scientificallyProven: "Tecnologia respaldada por pesquisas científicas avançadas",
     keyBenefits: "Principais benefícios",
-    benefitsIntro: "Descubra por que o GlucoVista vai transformar sua vida",
+    benefitsIntro: "Descubra por que o Accu-Tech Healthineers vai transformar sua vida",
     noPainTitle: "Sem dor",
     noPainDesc: "Esqueça as picadas diárias",
     instantResultsTitle: "Resultados imediatos",
@@ -229,9 +228,9 @@ const translations = {
     gestational: "Gestacional",
     otherDiabetes: "Outro", // Renamed from 'other' to 'otherDiabetes' to avoid duplicates
     targetRangeDescription: "Faixa alvo de glicose (mg/dL)",
-    howItWorksContent: "O GlucoVista usa tecnologia laser avançada para medir os níveis de glicose através da pele sem a necessidade de picadas. O laser penetra na pele e analisa a concentração de glicose no sangue de forma não invasiva.",
+    howItWorksContent: "O Accu-Tech Healthineers usa tecnologia laser avançada para medir os níveis de glicose através da pele sem a necessidade de picadas. O laser penetra na pele e analisa a concentração de glicose no sangue de forma não invasiva.",
     benefitsContent: "- Sem dor ou desconforto\n- Sem consumíveis caros\n- Resultados imediatos\n- Monitoramento contínuo\n- Discreto e conveniente",
-    safetyContent: "A tecnologia laser GlucoVista usa um laser de baixa potência que é completamente seguro para a pele. O dispositivo passou por testes rigorosos de segurança e atende a todos os padrões médicos internacionais.",
+    safetyContent: "A tecnologia laser Accu-Tech Healthineers usa um laser de baixa potência que é completamente seguro para a pele. O dispositivo passou por testes rigorosos de segurança e atende a todos os padrões médicos internacionais.",
     firstMeasurement: "Primeira medição!",
     threeDay: "Sequência de 3 dias!",
     sevenDay: "Sequência de 7 dias!",

@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -13,7 +12,6 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
-// Helper to format dates
 const formatDateTime = (timestamp: number) => {
   return new Date(timestamp).toLocaleString(undefined, {
     month: 'short', 
@@ -30,7 +28,6 @@ const HomePage = () => {
   const navigate = useNavigate();
   
   useEffect(() => {
-    // Check if user has not completed onboarding
     if (!userData.onboarded) {
       navigate('/onboarding');
     }
@@ -38,16 +35,13 @@ const HomePage = () => {
     checkAchievements();
   }, [userData.onboarded, navigate, checkAchievements]);
   
-  // Display unlocked achievements
   useEffect(() => {
     const unlockedAchievements = userData.achievements.filter(a => a.unlocked);
     const latestAchievement = unlockedAchievements[unlockedAchievements.length - 1];
     
     if (latestAchievement && !localStorage.getItem(`shown_${latestAchievement.id}`)) {
-      // Store that we've shown this achievement
       localStorage.setItem(`shown_${latestAchievement.id}`, 'true');
       
-      // Show toast
       toast({
         title: translate('achievementUnlocked'),
         description: `${latestAchievement.icon} ${translate(latestAchievement.title)}`,
@@ -59,11 +53,10 @@ const HomePage = () => {
   
   return (
     <div className="min-h-screen bg-gray-50 pb-16">
-      {/* Header */}
       <div className="gradient-medical text-white px-4 pt-12 pb-6">
         <div className="flex justify-between items-center mb-6">
           <div>
-            <h1 className="text-xl font-bold">GlucoVista</h1>
+            <h1 className="text-xl font-bold">Accu-Tech Healthineers</h1>
             {userData.name && <p className="text-sm opacity-90">{translate('hello')}, {userData.name}</p>}
           </div>
           
@@ -79,7 +72,6 @@ const HomePage = () => {
           </div>
         </div>
         
-        {/* Stats Overview */}
         <div className="flex justify-between space-x-2 mb-2">
           <Card className="flex-1 bg-white/10 border-none text-white shadow-none">
             <CardContent className="p-3 text-center">
@@ -305,7 +297,6 @@ const HomePage = () => {
         </Tabs>
       </div>
       
-      {/* Bottom navigation */}
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-6 py-2">
         <div className="flex justify-around">
           <Button variant="ghost" className="flex flex-col items-center" onClick={() => {}}>

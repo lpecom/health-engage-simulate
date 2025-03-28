@@ -17,7 +17,7 @@ const Index = () => {
           alt="Accu-Tech Logo" 
           className="h-16 mx-auto mb-4" 
         />
-        <h1 className="text-4xl font-bold mb-4 text-accu-tech-blue">GlucoVista</h1>
+        <h1 className="text-4xl font-bold mb-4 text-accu-tech-blue">Accu-Tech Healthineers</h1>
         <p className="text-xl text-gray-600">Loading...</p>
       </div>
     </div>

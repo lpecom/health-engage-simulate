@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -62,7 +61,7 @@ const OnboardingPage = () => {
             <div className="flex justify-center mb-4">
               <img src="https://accu-tech.pro/wp-content/uploads/2024/08/Accu-Tech-1.png" alt="Accu-Tech Logo" className="h-16 mb-4" />
             </div>
-            <h1 className="text-3xl font-bold mb-2 text-accu-tech-blue">GlucoVista</h1>
+            <h1 className="text-3xl font-bold mb-2 text-accu-tech-blue">Accu-Tech Healthineers</h1>
             <p className="text-gray-600 mb-6">{translate('welcomeToApp')}</p>
             <LanguageSelector />
           </div>;
@@ -257,7 +256,6 @@ const OnboardingPage = () => {
 
   return <div className="min-h-screen bg-gradient-to-b from-white to-accu-tech-lightest px-4 py-8">
       <div className="max-w-md mx-auto">
-        {/* Progress bar */}
         <div className="mb-6">
           <Progress value={progressPercentage} className="h-2" />
           <div className="flex justify-between mt-2 text-xs text-gray-500">
@@ -299,7 +297,6 @@ const OnboardingPage = () => {
           </div>
         </div>
         
-        {/* Step indicator */}
         <div className="flex justify-center mt-6 space-x-1">
           {OnboardingSteps.map((_, index) => <div key={index} className={`h-1.5 rounded-full ${index === currentStep ? 'w-6 bg-accu-tech-blue' : 'w-2 bg-gray-300'}`}></div>)}
         </div>
