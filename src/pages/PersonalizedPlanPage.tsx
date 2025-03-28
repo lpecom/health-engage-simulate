@@ -7,9 +7,21 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { ChevronDown, Book, Calendar, Award, CheckCircle, Lightbulb, TrendingUp, Clock, Info } from 'lucide-react';
+import { ChevronDown, Book, Calendar, Award, CheckCircle, Lightbulb, TrendingUp, Clock, Info, ExternalLink } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
+
+// Educational module type definition
+interface EducationalModule {
+  id: string;
+  title: string;
+  description: string;
+  icon: JSX.Element;
+  completed: boolean;
+  durationMinutes: number;
+  content?: string;
+  path?: string;
+}
 
 const PersonalizedPlanPage = () => {
   const { translate, language } = useLanguage();
@@ -18,6 +30,7 @@ const PersonalizedPlanPage = () => {
   const [activeTab, setActiveTab] = useState("plan");
   const { toast } = useToast();
   const [completedModules, setCompletedModules] = useState<string[]>([]);
+  const [expandedModule, setExpandedModule] = useState<string | null>(null);
   
   // Calculate overall progress
   const completedItems = userData.achievements.filter(a => a.unlocked).length;
@@ -42,7 +55,7 @@ const PersonalizedPlanPage = () => {
   }, []);
   
   // Get educational modules based on diabetes type
-  const getEducationalModules = () => {
+  const getEducationalModules = (): EducationalModule[] => {
     if (!userData.diabetesType) return [];
     
     const commonModules = [
@@ -54,7 +67,11 @@ const PersonalizedPlanPage = () => {
           : "Aprenda como o açúcar afeta seu corpo",
         icon: <Book size={20} />,
         completed: completedModules.includes("glucose-basics"),
-        durationMinutes: 2
+        durationMinutes: 2,
+        content: language === 'es' 
+          ? "La glucosa es un tipo de azúcar que tu cuerpo utiliza como fuente principal de energía. Cuando comes, tu cuerpo convierte los carbohidratos en glucosa, que entra en el torrente sanguíneo. La insulina, una hormona producida por el páncreas, ayuda a que la glucosa entre en las células para ser utilizada como energía.\n\nEn personas con diabetes, este proceso no funciona correctamente. En la diabetes tipo 1, el cuerpo no produce insulina. En la diabetes tipo 2, el cuerpo no utiliza la insulina de manera eficiente o no produce suficiente. Esto causa que la glucosa se acumule en la sangre en lugar de ser utilizada por las células.\n\nLos niveles normales de glucosa en sangre en ayunas suelen estar entre 70-100 mg/dL. Después de comer, es normal que suban temporalmente, pero no deberían exceder los 140 mg/dL. Niveles constantemente elevados pueden dañar vasos sanguíneos y nervios con el tiempo."
+          : "A glicose é um tipo de açúcar que seu corpo usa como principal fonte de energia. Quando você come, seu corpo converte carboidratos em glicose, que entra na corrente sanguínea. A insulina, um hormônio produzido pelo pâncreas, ajuda a glicose a entrar nas células para ser usada como energia.\n\nEm pessoas com diabetes, este processo não funciona corretamente. No diabetes tipo 1, o corpo não produz insulina. No diabetes tipo 2, o corpo não usa a insulina de maneira eficiente ou não produz o suficiente. Isso faz com que a glicose se acumule no sangue em vez de ser usada pelas células.\n\nOs níveis normais de glicose no sangue em jejum geralmente estão entre 70-100 mg/dL. Após comer, é normal que subam temporariamente, mas não devem exceder 140 mg/dL. Níveis constantemente elevados podem danificar vasos sanguíneos e nervos ao longo do tempo.",
+        path: "how-it-works"
       }
     ];
     
@@ -68,7 +85,11 @@ const PersonalizedPlanPage = () => {
             : "Estratégias para uma dosagem eficaz",
           icon: <TrendingUp size={20} />,
           completed: completedModules.includes("insulin-management"),
-          durationMinutes: 3
+          durationMinutes: 3,
+          content: language === 'es' 
+            ? "El manejo efectivo de la insulina es fundamental para las personas con diabetes tipo 1. La insulina es una hormona que permite que la glucosa en tu sangre entre en las células de tu cuerpo, donde se utiliza como energía.\n\nTipos de insulina:\n• Insulina de acción rápida: comienza a funcionar en 15 minutos, alcanza su punto máximo en 1 hora y dura 2-4 horas.\n• Insulina regular (acción corta): comienza a funcionar en 30 minutos, alcanza su punto máximo en 2-3 horas y dura 3-6 horas.\n• Insulina de acción intermedia: comienza a funcionar en 2-4 horas, alcanza su punto máximo en 4-12 horas y dura 12-18 horas.\n• Insulina de acción prolongada: comienza a funcionar varias horas después de la inyección y dura hasta 24 horas.\n\nConsejos para la dosificación:\n• Mantén un registro de tus niveles de glucosa en sangre.\n• Aprende a contar los carbohidratos que consumes.\n• Ajusta tu dosis según tu actividad física, estrés y enfermedades.\n• Consulta regularmente con tu médico para ajustar tu esquema de tratamiento."
+            : "O gerenciamento eficaz da insulina é fundamental para pessoas com diabetes tipo 1. A insulina é um hormônio que permite que a glicose no seu sangue entre nas células do seu corpo, onde é usada como energia.\n\nTipos de insulina:\n• Insulina de ação rápida: começa a funcionar em 15 minutos, atinge seu pico em 1 hora e dura 2-4 horas.\n• Insulina regular (ação curta): começa a funcionar em 30 minutos, atinge seu pico em 2-3 horas e dura 3-6 horas.\n• Insulina de ação intermediária: começa a funcionar em 2-4 horas, atinge seu pico em 4-12 horas e dura 12-18 horas.\n• Insulina de ação prolongada: começa a funcionar várias horas após a injeção e dura até 24 horas.\n\nDicas para dosagem:\n• Mantenha um registro dos seus níveis de glicose no sangue.\n• Aprenda a contar os carboidratos que você consome.\n• Ajuste sua dose de acordo com sua atividade física, estresse e doenças.\n• Consulte regularmente seu médico para ajustar seu esquema de tratamento.",
+          path: "benefits"
         }
       ],
       type2: [
@@ -80,7 +101,11 @@ const PersonalizedPlanPage = () => {
             : "Dicas para que seu corpo responda melhor",
           icon: <TrendingUp size={20} />,
           completed: completedModules.includes("insulin-sensitivity"),
-          durationMinutes: 2
+          durationMinutes: 2,
+          content: language === 'es'
+            ? "La resistencia a la insulina ocurre cuando las células del cuerpo no responden correctamente a la insulina, lo que dificulta que la glucosa entre en las células. Esto obliga al páncreas a producir más insulina para compensar.\n\nAcciones clave para mejorar la sensibilidad a la insulina:\n\n1. Actividad física regular: El ejercicio ayuda a las células a responder mejor a la insulina. Incluso 30 minutos diarios de caminata pueden marcar la diferencia.\n\n2. Alimentación equilibrada: Consume alimentos con bajo índice glucémico, ricos en fibra y proteínas magras. Limita los carbohidratos refinados y los azúcares añadidos.\n\n3. Pérdida de peso: Perder entre un 5-10% del peso corporal puede mejorar significativamente la sensibilidad a la insulina.\n\n4. Manejo del estrés: El estrés crónico puede aumentar la resistencia a la insulina. Técnicas como la meditación, el yoga o la respiración profunda pueden ayudar.\n\n5. Sueño adecuado: Dormir 7-8 horas por noche ayuda a mantener el equilibrio hormonal que afecta la sensibilidad a la insulina."
+            : "A resistência à insulina ocorre quando as células do corpo não respondem adequadamente à insulina, dificultando a entrada de glicose nas células. Isso força o pâncreas a produzir mais insulina para compensar.\n\nAções-chave para melhorar a sensibilidade à insulina:\n\n1. Atividade física regular: O exercício ajuda as células a responderem melhor à insulina. Mesmo 30 minutos diários de caminhada podem fazer a diferença.\n\n2. Alimentação equilibrada: Consuma alimentos com baixo índice glicêmico, ricos em fibras e proteínas magras. Limite os carboidratos refinados e açúcares adicionados.\n\n3. Perda de peso: Perder entre 5-10% do peso corporal pode melhorar significativamente a sensibilidade à insulina.\n\n4. Gerenciamento do estresse: O estresse crônico pode aumentar a resistência à insulina. Técnicas como meditação, yoga ou respiração profunda podem ajudar.\n\n5. Sono adequado: Dormir 7-8 horas por noite ajuda a manter o equilíbrio hormonal que afeta a sensibilidade à insulina.",
+          path: "safety"
         }
       ],
       prediabetes: [
@@ -92,7 +117,11 @@ const PersonalizedPlanPage = () => {
             : "Como evitar desenvolver diabetes tipo 2",
           icon: <TrendingUp size={20} />,
           completed: completedModules.includes("prevent-progression"),
-          durationMinutes: 2
+          durationMinutes: 2,
+          content: language === 'es'
+            ? "La prediabetes significa que tus niveles de azúcar en sangre están más altos de lo normal, pero no lo suficientemente altos para ser diagnosticados como diabetes tipo 2. Es una señal de advertencia importante, pero la buena noticia es que la progresión a diabetes tipo 2 no es inevitable.\n\nEstudios han demostrado que las personas con prediabetes pueden reducir su riesgo de desarrollar diabetes tipo 2 en un 58% realizando cambios moderados en el estilo de vida.\n\nAcciones efectivas para prevenir la progresión:\n\n1. Pérdida de peso moderada: Perder aproximadamente 7% del peso corporal (para una persona de 180 libras, eso es alrededor de 13 libras).\n\n2. Actividad física regular: Al menos 150 minutos por semana de actividad moderada como caminar rápido.\n\n3. Alimentación saludable: Reducir la ingesta de carbohidratos refinados y azúcares, aumentar el consumo de verduras, proteínas magras y grasas saludables.\n\n4. Monitoreo regular: Revisar tus niveles de glucosa periódicamente y mantener citas regulares con tu médico.\n\n5. Evitar el tabaco: Fumar aumenta el riesgo de resistencia a la insulina y diabetes."
+            : "Pré-diabetes significa que seus níveis de açúcar no sangue estão mais altos que o normal, mas não altos o suficiente para serem diagnosticados como diabetes tipo 2. É um sinal de alerta importante, mas a boa notícia é que a progressão para diabetes tipo 2 não é inevitável.\n\nEstudos demonstraram que pessoas com pré-diabetes podem reduzir seu risco de desenvolver diabetes tipo 2 em 58% fazendo mudanças moderadas no estilo de vida.\n\nAções efetivas para prevenir a progressão:\n\n1. Perda de peso moderada: Perder aproximadamente 7% do peso corporal (para uma pessoa de 80 kg, isso é cerca de 5,6 kg).\n\n2. Atividade física regular: Pelo menos 150 minutos por semana de atividade moderada como caminhada rápida.\n\n3. Alimentação saudável: Reduzir a ingestão de carboidratos refinados e açúcares, aumentar o consumo de vegetais, proteínas magras e gorduras saudáveis.\n\n4. Monitoramento regular: Verificar seus níveis de glicose periodicamente e manter consultas regulares com seu médico.\n\n5. Evitar o tabaco: Fumar aumenta o risco de resistência à insulina e diabetes.",
+          path: "how-it-works"
         }
       ],
       gestational: [
@@ -104,7 +133,11 @@ const PersonalizedPlanPage = () => {
             : "Mantendo níveis saudáveis para você e seu bebê",
           icon: <TrendingUp size={20} />,
           completed: completedModules.includes("pregnancy-glucose"),
-          durationMinutes: 3
+          durationMinutes: 3,
+          content: language === 'es'
+            ? "La diabetes gestacional afecta aproximadamente al 2-10% de los embarazos y generalmente se desarrolla durante el segundo o tercer trimestre. Ocurre cuando el cuerpo no puede producir suficiente insulina para compensar la resistencia natural a la insulina que ocurre durante el embarazo.\n\nImportancia del control de la glucosa durante el embarazo:\n• Reduce el riesgo de complicaciones para ti y tu bebé\n• Disminuye la probabilidad de un parto por cesárea\n• Ayuda a mantener un peso saludable para el bebé\n• Previene problemas con la glucemia del bebé después del nacimiento\n\nObjetivos recomendados para niveles de glucosa en la diabetes gestacional:\n• En ayunas: 95 mg/dL o menos\n• 1 hora después de las comidas: 140 mg/dL o menos\n• 2 horas después de las comidas: 120 mg/dL o menos\n\nEstrategias para mantener niveles saludables:\n1. Sigue un plan de alimentación desarrollado por tu equipo médico\n2. Realiza actividad física moderada según las recomendaciones de tu médico\n3. Monitorea tus niveles de glucosa regularmente\n4. Toma medicamentos si son recetados por tu médico\n\nRecuerda: La diabetes gestacional generalmente desaparece después del parto, pero las mujeres que la han tenido tienen mayor riesgo de desarrollar diabetes tipo 2 más adelante."
+            : "O diabetes gestacional afeta aproximadamente 2-10% das gravidezes e geralmente se desenvolve durante o segundo ou terceiro trimestre. Ocorre quando o corpo não consegue produzir insulina suficiente para compensar a resistência natural à insulina que ocorre durante a gravidez.\n\nImportância do controle da glicose durante a gravidez:\n• Reduz o risco de complicações para você e seu bebê\n• Diminui a probabilidade de um parto por cesariana\n• Ajuda a manter um peso saudável para o bebê\n• Previne problemas com a glicemia do bebê após o nascimento\n\nObjetivos recomendados para níveis de glicose no diabetes gestacional:\n• Em jejum: 95 mg/dL ou menos\n• 1 hora após as refeições: 140 mg/dL ou menos\n• 2 horas após as refeições: 120 mg/dL ou menos\n\nEstratégias para manter níveis saudáveis:\n1. Siga um plano alimentar desenvolvido pela sua equipe médica\n2. Realize atividade física moderada conforme recomendações do seu médico\n3. Monitore seus níveis de glicose regularmente\n4. Tome medicamentos se forem prescritos pelo seu médico\n\nLembre-se: O diabetes gestacional geralmente desaparece após o parto, mas mulheres que tiveram diabetes gestacional têm maior risco de desenvolver diabetes tipo 2 mais tarde.",
+          path: "benefits"
         }
       ],
       other: [
@@ -116,7 +149,11 @@ const PersonalizedPlanPage = () => {
             : "Princípios fundamentais para qualquer tipo",
           icon: <TrendingUp size={20} />,
           completed: completedModules.includes("general-management"),
-          durationMinutes: 2
+          durationMinutes: 2,
+          content: language === 'es'
+            ? "Independientemente del tipo específico de diabetes, existen principios fundamentales que pueden ayudar a todos los pacientes a manejar mejor su condición.\n\nPilares del manejo efectivo de la diabetes:\n\n1. Monitoreo regular: Comprobar los niveles de glucosa según las recomendaciones de tu médico. La tecnología moderna como GlucoVista facilita este proceso y proporciona datos valiosos sobre patrones y tendencias.\n\n2. Alimentación balanceada: Una dieta que controle los carbohidratos, enfatice las proteínas magras, grasas saludables y fibra. La planificación de comidas puede adaptarse a preferencias culturales y personales.\n\n3. Actividad física regular: El ejercicio mejora la sensibilidad a la insulina y ayuda a mantener un peso saludable. Incluso actividades de baja intensidad como caminar pueden ser beneficiosas.\n\n4. Medicación adecuada: Tomar los medicamentos recetados según las indicaciones. Esto puede incluir insulina, medicamentos orales, u otros tratamientos según el tipo de diabetes.\n\n5. Educación continua: Mantenerse informado sobre la diabetes y las nuevas opciones de tratamiento. La educación empodera a las personas para tomar mejores decisiones sobre su salud.\n\n6. Apoyo emocional: Reconocer que la diabetes puede tener un impacto psicológico. Buscar apoyo de familiares, amigos o grupos de apoyo puede ser valioso."
+            : "Independentemente do tipo específico de diabetes, existem princípios fundamentais que podem ajudar todos os pacientes a gerenciar melhor sua condição.\n\nPilares do gerenciamento efetivo do diabetes:\n\n1. Monitoramento regular: Verificar os níveis de glicose de acordo com as recomendações do seu médico. A tecnologia moderna como GlucoVista facilita este processo e fornece dados valiosos sobre padrões e tendências.\n\n2. Alimentação balanceada: Uma dieta que controle os carboidratos, enfatize proteínas magras, gorduras saudáveis e fibras. O planejamento de refeições pode ser adaptado às preferências culturais e pessoais.\n\n3. Atividade física regular: O exercício melhora a sensibilidade à insulina e ajuda a manter um peso saudável. Mesmo atividades de baixa intensidade como caminhar podem ser benéficas.\n\n4. Medicação adequada: Tomar os medicamentos prescritos conforme as indicações. Isso pode incluir insulina, medicamentos orais ou outros tratamentos dependendo do tipo de diabetes.\n\n5. Educação contínua: Manter-se informado sobre diabetes e novas opções de tratamento. A educação capacita as pessoas a tomarem melhores decisões sobre sua saúde.\n\n6. Apoio emocional: Reconhecer que o diabetes pode ter um impacto psicológico. Buscar apoio de familiares, amigos ou grupos de apoio pode ser valioso.",
+          path: "safety"
         }
       ]
     };
@@ -161,6 +198,11 @@ const PersonalizedPlanPage = () => {
         duration: 3000,
       });
     }
+  };
+  
+  // Navigate to learn topic page
+  const navigateToLearnTopic = (path: string) => {
+    navigate(`/learn/${path}`);
   };
   
   return (
@@ -425,7 +467,14 @@ const PersonalizedPlanPage = () => {
               </CardHeader>
               <CardContent className="space-y-4">
                 {educationalModules.map((module) => (
-                  <Collapsible key={module.id} className="border rounded-lg overflow-hidden bg-white">
+                  <Collapsible 
+                    key={module.id} 
+                    className="border rounded-lg overflow-hidden bg-white" 
+                    open={expandedModule === module.id}
+                    onOpenChange={(isOpen) => {
+                      setExpandedModule(isOpen ? module.id : null);
+                    }}
+                  >
                     <CollapsibleTrigger className="flex items-center justify-between w-full p-4 text-left">
                       <div className="flex items-center">
                         <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-3 ${module.completed ? 'bg-green-100' : 'bg-accu-tech-light-blue'}`}>
@@ -453,20 +502,42 @@ const PersonalizedPlanPage = () => {
                       </div>
                     </CollapsibleTrigger>
                     <CollapsibleContent className="px-4 pb-4 pt-0">
-                      <div className="pl-8">
+                      <div className="pl-8 pr-2">
                         <p className="text-sm mb-4">{module.description}</p>
-                        {!module.completed ? (
-                          <Button 
-                            className="w-full bg-accu-tech-blue hover:bg-accu-tech-dark-blue"
-                            onClick={() => handleCompleteModule(module.id)}
-                          >
-                            {language === 'es' ? 'Leer ahora' : 'Ler agora'}
-                          </Button>
-                        ) : (
-                          <div className="w-full p-2 bg-green-50 rounded-md border border-green-100 text-center text-sm text-green-600">
-                            {language === 'es' ? '¡Módulo completado!' : 'Módulo concluído!'}
+                        
+                        {expandedModule === module.id && module.content && (
+                          <div className="mb-4 bg-gray-50 p-3 rounded-lg text-sm text-gray-700 whitespace-pre-line">
+                            {module.content}
                           </div>
                         )}
+                        
+                        <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
+                          {!module.completed ? (
+                            <Button 
+                              className="w-full bg-accu-tech-blue hover:bg-accu-tech-dark-blue"
+                              onClick={() => handleCompleteModule(module.id)}
+                            >
+                              {language === 'es' ? 'Marcar como leído' : 'Marcar como lido'}
+                            </Button>
+                          ) : (
+                            <div className="w-full p-2 bg-green-50 rounded-md border border-green-100 text-center text-sm text-green-600">
+                              {language === 'es' ? '¡Módulo completado!' : 'Módulo concluído!'}
+                            </div>
+                          )}
+                          
+                          {module.path && (
+                            <Button 
+                              variant="outline" 
+                              className="flex items-center w-full" 
+                              onClick={() => navigateToLearnTopic(module.path)}
+                            >
+                              <span className="mr-1">
+                                {language === 'es' ? 'Más información' : 'Mais informações'}
+                              </span>
+                              <ExternalLink size={14} />
+                            </Button>
+                          )}
+                        </div>
                       </div>
                     </CollapsibleContent>
                   </Collapsible>
