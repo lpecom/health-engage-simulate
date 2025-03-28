@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -56,10 +57,18 @@ const HomePage = () => {
   
   return (
     <div className="min-h-screen bg-gray-50 pb-16">
-      <div className="gradient-medical text-white px-4 pt-12 pb-6">
+      <div className="gradient-medical text-white px-4 pt-6 pb-6">
+        <div className="flex items-center mb-4">
+          <img 
+            src="https://accu-tech.pro/wp-content/uploads/2024/08/Accu-Tech-1.png" 
+            alt="Accu-Tech Logo" 
+            className="h-8 mr-3" 
+          />
+          <h1 className="text-xl font-bold">Healthineers</h1>
+        </div>
+        
         <div className="flex justify-between items-center mb-6">
           <div>
-            <h1 className="text-xl font-bold">Accu-Tech Healthineers</h1>
             {userData.name && <p className="text-sm opacity-90">{translate('hello')}, {userData.name}</p>}
           </div>
           
