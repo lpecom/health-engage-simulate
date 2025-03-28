@@ -102,7 +102,7 @@ const HomePage = () => {
       <div className="px-4 -mt-4">
         {showDeviceConnector && (
           <Card className="mb-4 overflow-hidden relative">
-            <div className="absolute inset-0 bg-white/70 backdrop-blur-sm z-10 flex flex-col items-center justify-center">
+            <div className="absolute inset-0 bg-white/40 backdrop-blur-sm z-10 flex flex-col items-center justify-center">
               <div className="animate-pulse flex flex-col items-center text-center px-6">
                 <Loader2 className="h-10 w-10 text-medical-primary animate-spin mb-4" />
                 <h3 className="text-lg font-semibold text-medical-dark mb-2">{translate('deviceOnTheWay')}</h3>
