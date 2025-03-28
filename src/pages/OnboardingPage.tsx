@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -7,20 +8,18 @@ import LanguageSelector from "@/components/LanguageSelector";
 import { motion, AnimatePresence } from 'framer-motion';
 import { Check, ArrowRight, Syringe, CircleCheck } from 'lucide-react';
 import { Progress } from "@/components/ui/progress";
+
 const OnboardingSteps = ['language', 'welcome', 'technology', 'benefits', 'profile', 'tutorial'];
+
 const OnboardingPage = () => {
-  const {
-    translate
-  } = useLanguage();
-  const {
-    userData,
-    updateUserData
-  } = useUser();
+  const { translate } = useLanguage();
+  const { userData, updateUserData } = useUser();
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(0);
   const [name, setName] = useState('');
   const [age, setAge] = useState('');
   const [diabetesType, setDiabetesType] = useState<string | null>(null);
+
   const goToNextStep = () => {
     if (currentStep < OnboardingSteps.length - 1) {
       setCurrentStep(currentStep + 1);
@@ -28,11 +27,13 @@ const OnboardingPage = () => {
       completeOnboarding();
     }
   };
+
   const goToPreviousStep = () => {
     if (currentStep > 0) {
       setCurrentStep(currentStep - 1);
     }
   };
+
   const completeOnboarding = () => {
     updateUserData({
       onboarded: true,
@@ -42,15 +43,19 @@ const OnboardingPage = () => {
     });
     navigate('/home');
   };
+
   const skipOnboarding = () => {
     updateUserData({
       onboarded: true
     });
     navigate('/home');
   };
+
   const progressPercentage = (currentStep + 1) / OnboardingSteps.length * 100;
+
   const renderStep = () => {
     const currentStepName = OnboardingSteps[currentStep];
+
     switch (currentStepName) {
       case 'language':
         return <div className="text-center">
@@ -61,6 +66,7 @@ const OnboardingPage = () => {
             <p className="text-gray-600 mb-6">{translate('welcomeToApp')}</p>
             <LanguageSelector />
           </div>;
+
       case 'welcome':
         return <div className="text-center">
             <div className="flex justify-center mb-4">
@@ -79,6 +85,7 @@ const OnboardingPage = () => {
             
             <p className="text-sm text-gray-500">{translate('deviceArrivalMessage')}</p>
           </div>;
+
       case 'technology':
         return <div className="text-center">
             <h1 className="text-2xl font-bold mb-3">{translate('howItWorks')}</h1>
@@ -130,6 +137,7 @@ const OnboardingPage = () => {
             
             <p className="text-sm text-gray-500 italic">{translate('scientificallyProven')}</p>
           </div>;
+
       case 'benefits':
         return <div className="text-center">
             <h1 className="text-2xl font-bold mb-3">{translate('keyBenefits')}</h1>
@@ -170,10 +178,15 @@ const OnboardingPage = () => {
             </div>
             
             <div className="mt-6 mb-4 flex justify-center">
-              <img src="/placeholder.svg" alt="GlucoVista Laser Glucometer" className="w-48 h-48 object-contain" />
+              <img 
+                src="https://h00ktt-1h.myshopify.com/cdn/shop/files/gempages_559218299439678285-292f3a7c-297f-4208-b019-985346c4ef7b.jpg?v=10467499079061507992" 
+                alt="GlucoVista Laser Glucometer" 
+                className="w-64 h-auto object-contain rounded-lg shadow-md" 
+              />
             </div>
             <p className="text-sm font-medium text-center">{translate('yourNewGlucometer')}</p>
           </div>;
+
       case 'profile':
         return <div>
             <h1 className="text-2xl font-bold mb-3 text-center">{translate('setupProfile')}</h1>
@@ -204,6 +217,7 @@ const OnboardingPage = () => {
               {translate('profilePrivacyMessage')}
             </p>
           </div>;
+
       case 'tutorial':
         return <div className="text-center">
             <h1 className="text-2xl font-bold mb-2">{translate('readyToStart')}</h1>
@@ -235,10 +249,12 @@ const OnboardingPage = () => {
               </div>
             </div>
           </div>;
+
       default:
         return null;
     }
   };
+
   return <div className="min-h-screen bg-gradient-to-b from-white to-accu-tech-lightest px-4 py-8">
       <div className="max-w-md mx-auto">
         {/* Progress bar */}
@@ -290,4 +306,5 @@ const OnboardingPage = () => {
       </div>
     </div>;
 };
+
 export default OnboardingPage;
