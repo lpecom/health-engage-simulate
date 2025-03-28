@@ -46,51 +46,17 @@
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
 
-    /* Accu-Tech Colors */
-    --accu-tech-blue: 209 78% 40%;
-    --accu-tech-dark-blue: 210 80% 30%;
-    --accu-tech-light-blue: 209 78% 85%;
-    --accu-tech-lightest: 209 78% 95%;
-    --accu-tech-orange: 25 100% 50%;
+    /* Accu-Tech Colors - Updated to match landing page */
+    --accu-tech-blue: 178 75% 39%; /* Brighter teal color from logo */
+    --accu-tech-dark-blue: 178 75% 30%;
+    --accu-tech-light-blue: 178 75% 85%;
+    --accu-tech-lightest: 178 75% 95%;
+    --accu-tech-orange: 25 100% 50%; /* Orange accent from the Healthineers logo */
     --accu-tech-light-orange: 25 100% 90%;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 204 59% 45%;
-    --primary-foreground: 210 40% 98%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* ... keep existing code (dark mode variables) */
   }
 }
 
@@ -111,7 +77,7 @@
 
 @layer components {
   .gradient-medical {
-    @apply bg-gradient-to-b from-medical-primary to-medical-dark;
+    @apply bg-gradient-to-b from-accu-tech-blue to-accu-tech-dark-blue;
   }
   
   .card-shadow {
@@ -131,8 +97,13 @@
     box-shadow: 0 0 10px 2px theme('colors.red.500');
   }
 
-  /* Accu-Tech Specific Styles */
+  /* Accu-Tech Specific Styles - Updated to match landing page */
   .accu-tech-gradient {
-    @apply bg-gradient-to-b from-accu-tech-blue to-accu-tech-dark-blue rounded-full px-6 py-3 font-medium shadow-md hover:opacity-90 transition-opacity;
+    @apply bg-accu-tech-blue text-white rounded-full px-6 py-3 font-medium shadow-md hover:opacity-90 transition-opacity;
+  }
+  
+  /* New buy button style from landing page */
+  .buy-button {
+    @apply bg-accu-tech-blue text-white rounded-full px-6 py-3 font-medium shadow-md hover:opacity-90 transition-opacity;
   }
 }

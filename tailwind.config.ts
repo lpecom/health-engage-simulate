@@ -65,18 +65,18 @@ export default {
 				},
 				// Custom colors for our app
 				medical: {
-					primary: '#2C7FB8',
-					dark: '#1D5F9C',
-					light: '#7FB8D4',
+					primary: '#40C9C2', // Updated to match Accu-Tech teal
+					dark: '#2BA6A0',    // Darker teal
+					light: '#A8E5E3',   // Light teal
 				},
 				warm: {
-					primary: '#FF9F76',
-					light: '#FFD2BA',
+					primary: '#FF9F76', // Orange accent color
+					light: '#FFD2BA',   // Light orange
 				},
 				success: '#4CAF50',
 				warning: '#FFC107',
 				danger: '#F44336',
-				// Accu-Tech colors
+				// Accu-Tech colors - Updated to match landing page
 				'accu-tech': {
 					blue: 'hsl(var(--accu-tech-blue))',
 					'dark-blue': 'hsl(var(--accu-tech-dark-blue))',
