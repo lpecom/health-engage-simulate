@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import AccuTechHeader from '@/components/AccuTechHeader';
 import LanguageSelector from '@/components/LanguageSelector';
+import { ArrowRight } from 'lucide-react';
 
 const OnboardingPage: React.FC = () => {
   const { translate } = useLanguage();
@@ -36,7 +37,7 @@ const OnboardingPage: React.FC = () => {
           <CardContent>
             <div className="flex justify-center my-8">
               <img 
-                src="/lovable-uploads/876ba7b6-a6f5-4c1d-91fc-848c85d435bf.png" 
+                src="https://accu-tech.pro/wp-content/uploads/2024/08/Accu-Tech-1.png" 
                 alt="Accu-Tech Device" 
                 className="w-full max-w-[280px]"
               />
@@ -56,9 +57,10 @@ const OnboardingPage: React.FC = () => {
         <div className="mt-auto pt-4">
           <Button 
             onClick={handleStartOnboarding} 
-            className="w-full btn-primary text-lg py-6"
+            className="w-full bg-accutech-teal hover:bg-accutech-teal/90 text-white text-lg py-6 flex items-center justify-center gap-2"
           >
             {translate('getStarted')}
+            <ArrowRight className="h-5 w-5" />
           </Button>
           
           <p className="mt-4 text-center text-sm text-muted-foreground">
