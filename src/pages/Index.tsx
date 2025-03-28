@@ -15,9 +15,9 @@ const Index = () => {
         <img 
           src="https://accu-tech.pro/wp-content/uploads/2024/08/Accu-Tech-1.png" 
           alt="Accu-Tech Logo" 
-          className="h-16 mx-auto mb-4" 
+          className="h-12 mx-auto mb-4" 
         />
-        <h1 className="text-4xl font-bold mb-4 text-accu-tech-blue">Accu-Tech Healthineers</h1>
+        <h1 className="text-3xl font-bold mb-4 text-accu-tech-blue">Accu-Tech Healthineers</h1>
         <p className="text-xl text-gray-600">Loading...</p>
       </div>
     </div>
