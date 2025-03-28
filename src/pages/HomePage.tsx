@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -8,9 +8,11 @@ import { useUser } from "@/contexts/UserContext";
 import SimulatedGlucometer from "@/components/SimulatedGlucometer";
 import { 
   ActivitySquare, Award, Book, ChevronRight, History, 
-  Home, TrendingUp, User, LineChart, BarChart 
+  Home, TrendingUp, User, LineChart, BarChart, Loader2
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const formatDateTime = (timestamp: number) => {
   return new Date(timestamp).toLocaleString(undefined, {
@@ -26,6 +28,7 @@ const HomePage = () => {
   const { userData, checkAchievements } = useUser();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const [showDeviceConnector, setShowDeviceConnector] = useState(true);
   
   useEffect(() => {
     if (!userData.onboarded) {
@@ -97,6 +100,52 @@ const HomePage = () => {
       </div>
       
       <div className="px-4 -mt-4">
+        {showDeviceConnector && (
+          <Card className="mb-4 overflow-hidden relative">
+            <div className="absolute inset-0 bg-white/70 backdrop-blur-sm z-10 flex flex-col items-center justify-center">
+              <div className="animate-pulse flex flex-col items-center text-center px-6">
+                <Loader2 className="h-10 w-10 text-medical-primary animate-spin mb-4" />
+                <h3 className="text-lg font-semibold text-medical-dark mb-2">{translate('deviceOnTheWay')}</h3>
+                <p className="text-sm text-gray-600 max-w-xs">
+                  {translate('yourDeviceIsBeingShipped')}
+                </p>
+                <div className="mt-6 w-full max-w-xs">
+                  <Skeleton className="h-1.5 w-full mb-1 bg-medical-light" />
+                  <div className="flex justify-between text-xs text-gray-500">
+                    <span>{translate('ordered')}</span>
+                    <span>{translate('shipping')}</span>
+                    <span>{translate('delivered')}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <CardContent className="p-4">
+              <h2 className="text-lg font-medium mb-4">{translate('connectYourDevice')}</h2>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{translate('deviceSerialNumber')}</label>
+                  <Input 
+                    placeholder={translate('enterSerialNumber')} 
+                    disabled
+                  />
+                </div>
+                
+                <ol className="list-decimal pl-5 text-sm text-gray-600 space-y-2">
+                  <li>{translate('turnOnYourDevice')}</li>
+                  <li>{translate('enableBluetooth')}</li>
+                  <li>{translate('enterSerialAndConnect')}</li>
+                </ol>
+                
+                <Button className="w-full" disabled>
+                  {translate('connectDevice')}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+      
         <Tabs defaultValue="measure" className="w-full">
           <TabsList className="grid grid-cols-4 bg-white rounded-lg shadow-md">
             <TabsTrigger value="measure" className="py-2">
