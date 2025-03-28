@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -59,9 +58,6 @@ const OnboardingPage = () => {
     switch (currentStepName) {
       case 'language':
         return <div className="text-center">
-            <div className="flex justify-center mb-4">
-              <img src="https://accu-tech.pro/wp-content/uploads/2024/08/Accu-Tech-1.png" alt="Accu-Tech Logo" className="h-16 mb-4" />
-            </div>
             <h1 className="text-3xl font-bold mb-2 text-accu-tech-blue">Accu-Tech Healthineers</h1>
             <p className="text-gray-600 mb-6">{translate('welcomeToApp')}</p>
             <LanguageSelector />
@@ -69,10 +65,6 @@ const OnboardingPage = () => {
 
       case 'welcome':
         return <div className="text-center">
-            <div className="flex justify-center mb-4">
-              <img src="https://accu-tech.pro/wp-content/uploads/2024/08/Accu-Tech-1.png" alt="Accu-Tech Logo" className="h-16 mb-4 object-scale-down" />
-            </div>
-            
             <div className="mb-6 flex justify-center">
               <img 
                 src="https://h00ktt-1h.myshopify.com/cdn/shop/files/gempages_559218299439678285-292f3a7c-297f-4208-b019-985346c4ef7b.jpg?v=10467499079061507992" 
@@ -266,16 +258,12 @@ const OnboardingPage = () => {
 
   return <div className="min-h-screen bg-gradient-to-b from-white to-accu-tech-lightest px-4 py-8">
       <div className="max-w-md mx-auto">
-        {/* New header with logo and progress bar */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center">
-            <img 
-              src="https://accu-tech.pro/wp-content/uploads/2024/08/Accu-Tech-1.png" 
-              alt="Accu-Tech Logo" 
-              className="h-8 mr-3" 
-            />
-            <h2 className="text-lg font-semibold text-accu-tech-blue">Healthineers</h2>
-          </div>
+        <div className="flex items-center justify-between mb-4">
+          <img 
+            src="https://accu-tech.pro/wp-content/uploads/2024/08/Accu-Tech-1.png" 
+            alt="Accu-Tech Logo" 
+            className="h-8" 
+          />
           <div className="text-xs text-gray-500 text-right">
             {translate('step')} {currentStep + 1}/{OnboardingSteps.length}
           </div>
