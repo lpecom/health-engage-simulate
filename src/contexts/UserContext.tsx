@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 type DiabetesType = 'type1' | 'type2' | 'prediabetes' | 'gestational' | 'other';
@@ -19,7 +20,6 @@ type Achievement = {
   description: string;
   icon: string;
   unlocked: boolean;
-  seen: boolean; // Added the seen property
   progress?: number;
   maxProgress?: number;
 };
@@ -53,7 +53,6 @@ interface UserContextType {
   checkAndUpdateStreak: () => void;
   earnPoints: (points: number) => void;
   checkAchievements: () => void;
-  markAchievementAsSeen: (achievementId: string) => void; // Add this line
 }
 
 const defaultUserData: UserData = {
@@ -81,8 +80,7 @@ const defaultUserData: UserData = {
       title: 'firstMeasurement',
       description: 'Complete your first glucose measurement',
       icon: '🎯',
-      unlocked: false,
-      seen: false
+      unlocked: false
     },
     {
       id: 'three-day-streak',
@@ -90,7 +88,6 @@ const defaultUserData: UserData = {
       description: 'Measure your glucose for 3 consecutive days',
       icon: '🔥',
       unlocked: false,
-      seen: false,
       progress: 0,
       maxProgress: 3
     },
@@ -100,7 +97,6 @@ const defaultUserData: UserData = {
       description: 'Measure your glucose for 7 consecutive days',
       icon: '⚡',
       unlocked: false,
-      seen: false,
       progress: 0,
       maxProgress: 7
     },
@@ -109,8 +105,7 @@ const defaultUserData: UserData = {
       title: 'profileComplete',
       description: 'Complete your health profile',
       icon: '📋',
-      unlocked: false,
-      seen: false
+      unlocked: false
     },
     {
       id: 'learn-expert',
@@ -118,7 +113,6 @@ const defaultUserData: UserData = {
       description: 'Read all educational content',
       icon: '🧠',
       unlocked: false,
-      seen: false,
       progress: 0,
       maxProgress: 3
     }
@@ -247,7 +241,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUserData(prevData => {
       const updatedAchievements = prevData.achievements.map(achievement => {
         if (achievement.id === achievementId) {
-          return { ...achievement, unlocked: true, seen: false };
+          return { ...achievement, unlocked: true };
         }
         return achievement;
       });
@@ -300,23 +294,6 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  // Add a function to mark achievements as seen
-  const markAchievementAsSeen = (achievementId: string) => {
-    setUserData(prevData => {
-      const updatedAchievements = prevData.achievements.map(achievement => {
-        if (achievement.id === achievementId) {
-          return { ...achievement, seen: true };
-        }
-        return achievement;
-      });
-      
-      return {
-        ...prevData,
-        achievements: updatedAchievements
-      };
-    });
-  };
-
   return (
     <UserContext.Provider 
       value={{ 
@@ -325,8 +302,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         addGlucoseReading, 
         checkAndUpdateStreak, 
         earnPoints,
-        checkAchievements,
-        markAchievementAsSeen // Add the new function to the context
+        checkAchievements
       }}
     >
       {children}

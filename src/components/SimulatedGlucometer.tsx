@@ -3,10 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useUser } from "@/contexts/UserContext";
-import { Play, Pause, ArrowUp, ArrowRight, ArrowDown, Zap, Clock } from "lucide-react";
+import { Play, Pause, ArrowUp, ArrowRight, ArrowDown } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { Progress } from "@/components/ui/progress";
-import { useIsMobile } from "@/hooks/use-mobile";
 
 // Generate a somewhat realistic glucose reading
 const generateReading = (targetLow: number, targetHigh: number): number => {
@@ -51,14 +49,10 @@ const SimulatedGlucometer: React.FC = () => {
   const { translate } = useLanguage();
   const { userData, addGlucoseReading } = useUser();
   const { toast } = useToast();
-  const isMobile = useIsMobile();
   
   const [measurementState, setMeasurementState] = useState<MeasurementState>(MeasurementState.READY);
   const [progress, setProgress] = useState(0);
   const [currentReading, setCurrentReading] = useState<number | null>(null);
-  
-  // Check if user has measured today
-  const hasMeasuredToday = userData.lastMeasurementDate === new Date().toDateString();
   
   useEffect(() => {
     if (measurementState === MeasurementState.MEASURING) {
@@ -100,29 +94,11 @@ const SimulatedGlucometer: React.FC = () => {
     setCurrentReading(null);
   };
   
-  const getTimeUntilNextReading = () => {
-    if (!hasMeasuredToday) return null;
-    
-    const now = new Date();
-    const midnight = new Date();
-    midnight.setHours(24, 0, 0, 0);
-    
-    const diffMs = midnight.getTime() - now.getTime();
-    const diffHrs = Math.floor(diffMs / (1000 * 60 * 60));
-    const diffMins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-    
-    return `${diffHrs}h ${diffMins}m`;
-  };
-  
   const renderReadingStatus = () => {
     if (!currentReading) return null;
     
     if (currentReading >= userData.targetRangeLow && currentReading <= userData.targetRangeHigh) {
-      return (
-        <div className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium animate-pulse">
-          {translate('inRange')} ✓
-        </div>
-      );
+      return <div className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">{translate('inRange')}</div>;
     } else if (currentReading > userData.targetRangeHigh) {
       return <div className="px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-sm font-medium">{translate('highAlert')}</div>;
     } else {
@@ -130,47 +106,17 @@ const SimulatedGlucometer: React.FC = () => {
     }
   };
   
-  const renderEmptyState = () => {
-    if (userData.glucoseReadings.length > 0) return null;
-    
-    return (
-      <div className="mt-4 p-3 bg-blue-50 rounded-lg text-center border border-blue-100">
-        <p className="text-blue-800 text-sm">{translate('firstReadingGuide')}</p>
-        <p className="text-blue-600 text-xs mt-1">{translate('takeYourFirstReading')}</p>
-      </div>
-    );
-  };
-  
   return (
     <div className="medical-card flex flex-col items-center">
       <div className="w-full max-w-sm mx-auto">
         {/* Device simulation */}
-        <div className={`relative rounded-xl overflow-hidden bg-gray-100 aspect-[2/3] mb-6 border-2 border-gray-200 shadow-lg ${isMobile ? 'max-h-[450px]' : ''}`}>
+        <div className="relative rounded-xl overflow-hidden bg-gray-100 aspect-[2/3] mb-6 border-2 border-gray-200">
           {/* Screen */}
           <div className="absolute inset-4 bg-gray-800 rounded-lg flex flex-col items-center justify-center">
             {measurementState === MeasurementState.READY && (
               <div className="text-center text-white">
-                <div className="text-xl font-semibold mb-3">
-                  {hasMeasuredToday 
-                    ? translate('alreadyMeasured') 
-                    : translate('readyForYourGlucoseCheck')}
-                </div>
-                
-                {hasMeasuredToday ? (
-                  <div className="bg-accu-tech-blue/30 p-3 rounded-lg mb-3 flex items-center justify-center flex-col">
-                    <Clock className="h-8 w-8 mb-2 text-accu-tech-blue" />
-                    <p className="text-sm text-gray-300">Next reading available in:</p>
-                    <p className="text-xl font-bold text-white mt-1">{getTimeUntilNextReading()}</p>
-                  </div>
-                ) : (
-                  <Play className="h-12 w-12 mx-auto text-accu-tech-blue animate-pulse-slow" />
-                )}
-                
-                <p className="text-sm text-gray-300 mt-3">
-                  {hasMeasuredToday 
-                    ? `You've already checked your glucose today. Great job!` 
-                    : translate('quickAndEasy')}
-                </p>
+                <div className="text-xl font-semibold mb-2">{translate('readyToMeasure')}</div>
+                <Play className="h-10 w-10 mx-auto text-medical-primary animate-pulse-slow" />
               </div>
             )}
             
@@ -184,16 +130,21 @@ const SimulatedGlucometer: React.FC = () => {
                 </div>
                 
                 {/* Progress bar */}
-                <Progress value={progress} className="h-2 mb-2" />
+                <div className="w-full bg-gray-700 rounded-full h-2 mb-2">
+                  <div 
+                    className="bg-medical-primary h-2 rounded-full" 
+                    style={{ width: `${progress}%` }}
+                  ></div>
+                </div>
                 <div className="text-sm text-gray-300">{progress}%</div>
               </div>
             )}
             
             {measurementState === MeasurementState.COMPLETE && currentReading && (
               <div className="text-center text-white w-full px-4">
-                <div className="text-xl font-semibold mb-2">{translate('greatJob')}</div>
+                <div className="text-xl font-semibold mb-2">{translate('measurementComplete')}</div>
                 
-                <div className="text-4xl font-bold text-accu-tech-blue mb-1 animate-fade-in">
+                <div className="text-4xl font-bold text-medical-primary mb-1">
                   {currentReading}
                   <span className="text-sm font-normal ml-1 text-gray-300">{translate('mgdl')}</span>
                 </div>
@@ -208,17 +159,12 @@ const SimulatedGlucometer: React.FC = () => {
                     {getTrendIcon(userData.glucoseReadings)}
                   </div>
                 )}
-                
-                <div className="mt-3 px-3 py-2 bg-accu-tech-lightest text-accu-tech-blue rounded-lg text-sm flex items-center justify-center">
-                  <Zap className="h-4 w-4 inline mr-1" />
-                  {translate('pointsEarned')}: +10 points
-                </div>
               </div>
             )}
           </div>
           
           {/* Button at bottom of device */}
-          <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 w-14 h-14 rounded-full bg-accu-tech-blue flex items-center justify-center shadow-lg hover:bg-accu-tech-blue/90 transition-all">
+          <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 w-12 h-12 rounded-full bg-medical-primary flex items-center justify-center">
             {measurementState === MeasurementState.MEASURING ? (
               <Pause className="h-6 w-6 text-white" />
             ) : (
@@ -227,17 +173,14 @@ const SimulatedGlucometer: React.FC = () => {
           </div>
         </div>
         
-        {/* Controls with improved CTA */}
+        {/* Controls */}
         <div className="flex justify-center">
           {measurementState === MeasurementState.READY && (
             <Button 
               onClick={startMeasurement}
-              disabled={hasMeasuredToday}
-              className={`bg-accu-tech-blue hover:bg-accu-tech-blue/90 text-white py-6 px-8 rounded-full font-medium text-lg shadow-md hover:shadow-lg transform transition hover:scale-105 ${hasMeasuredToday ? 'opacity-70' : 'animate-pulse-slow'}`}
+              className="btn-primary"
             >
-              {hasMeasuredToday 
-                ? translate('alreadyMeasuredToday')
-                : translate('checkYourGlucoseNow')}
+              {translate('takeMeasurement')}
             </Button>
           )}
           
@@ -245,7 +188,6 @@ const SimulatedGlucometer: React.FC = () => {
             <Button 
               onClick={() => setMeasurementState(MeasurementState.READY)}
               variant="outline"
-              className="border-accu-tech-blue text-accu-tech-blue"
             >
               {translate('cancel')}
             </Button>
@@ -254,14 +196,12 @@ const SimulatedGlucometer: React.FC = () => {
           {measurementState === MeasurementState.COMPLETE && (
             <Button 
               onClick={resetMeasurement}
-              className="bg-accu-tech-blue hover:bg-accu-tech-blue/90 text-white"
+              className="btn-primary"
             >
               {translate('newMeasurement')}
             </Button>
           )}
         </div>
-        
-        {renderEmptyState()}
       </div>
     </div>
   );

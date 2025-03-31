@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
 
 const LanguageSelector = () => {
-  const { language, setLanguage, translate } = useLanguage();
+  const { language, translate } = useLanguage();
 
   return (
     <div className="flex flex-col items-center w-full max-w-xs mx-auto">
@@ -16,7 +16,7 @@ const LanguageSelector = () => {
           className={`relative px-6 py-6 h-auto flex justify-between items-center ${
             language === 'es' ? 'bg-accu-tech-blue hover:bg-accu-tech-dark-blue' : ''
           }`}
-          onClick={() => setLanguage('es')}
+          onClick={() => {}}
         >
           <span className="text-lg">{translate('spanish')}</span>
           {language === 'es' && <Check className="h-5 w-5 ml-2" />}
@@ -27,7 +27,7 @@ const LanguageSelector = () => {
           className={`relative px-6 py-6 h-auto flex justify-between items-center ${
             language === 'pt' ? 'bg-accu-tech-blue hover:bg-accu-tech-dark-blue' : ''
           }`}
-          onClick={() => setLanguage('pt')}
+          onClick={() => {}}
         >
           <span className="text-lg">{translate('portuguese')}</span>
           {language === 'pt' && <Check className="h-5 w-5 ml-2" />}
