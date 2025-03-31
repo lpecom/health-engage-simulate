@@ -84,7 +84,7 @@ const translations = {
     type2: "Tipo 2",
     prediabetes: "Prediabetes",
     gestational: "Gestacional",
-    otherDiabetes: "Otro", // Renamed from 'other' to 'otherDiabetes' to avoid duplicates
+    otherDiabetes: "Otro",
     targetRangeDescription: "Rango objetivo de glucosa (mg/dL)",
     howItWorksContent: "Accu-Tech Healthineers utiliza tecnología láser avanzada para medir los niveles de glucosa a través de la piel sin necesidad de pinchazos. El láser penetra en la piel y analiza la concentración de glucosa en la sangre de forma no invasiva.",
     benefitsContent: "- Sin dolor ni molestias\n- Sin consumibles costosos\n- Resultados inmediatos\n- Seguimiento continuo\n- Discreto y conveniente",
@@ -111,7 +111,7 @@ const translations = {
     gender: "Género",
     male: "Masculino",
     female: "Femenino",
-    otherGender: "Otro", // Renamed from 'other' to 'otherGender' to avoid duplicates
+    otherGender: "Otro",
     "prefer-not-to-say": "Prefiero no decirlo",
     weight: "Peso",
     exerciseFrequency: "Frecuencia de ejercicio",
@@ -149,7 +149,18 @@ const translations = {
     privacyNote: "Tu información se mantiene privada y segura. Solo la usamos para personalizar tu experiencia.",
     saveAndContinue: "Guardar y continuar",
     language: "Idioma",
-    saveAndReturn: "Guardar y volver"
+    saveAndReturn: "Guardar y volver",
+    deviceOnTheWay: "Tu dispositivo está en camino",
+    yourDeviceIsBeingShipped: "Tu Accu-Tech Healthineers está siendo enviado a tu dirección",
+    ordered: "Ordenado",
+    shipping: "Enviando",
+    delivered: "Entregado",
+    estimatedDelivery: "Entrega estimada",
+    days: "días",
+    prepareForArrival: "Prepárate para su llegada",
+    connectYourDeviceWhenArrives: "Una vez que llegue tu dispositivo, podrás conectarlo para empezar a medir tu glucosa sin dolor",
+    learnMore: "Aprender más",
+    trackShipment: "Seguir envío"
   },
   pt: {
     welcome: "Bem-vindo ao Accu-Tech Healthineers",
@@ -226,7 +237,7 @@ const translations = {
     type2: "Tipo 2",
     prediabetes: "Pré-diabetes",
     gestational: "Gestacional",
-    otherDiabetes: "Outro", // Renamed from 'other' to 'otherDiabetes' to avoid duplicates
+    otherDiabetes: "Outro",
     targetRangeDescription: "Faixa alvo de glicose (mg/dL)",
     howItWorksContent: "O Accu-Tech Healthineers usa tecnologia laser avançada para medir os níveis de glicose através da pele sem a necessidade de picadas. O laser penetra na pele e analisa a concentração de glicose no sangue de forma não invasiva.",
     benefitsContent: "- Sem dor ou desconforto\n- Sem consumíveis caros\n- Resultados imediatos\n- Monitoramento contínuo\n- Discreto e conveniente",
@@ -253,7 +264,7 @@ const translations = {
     gender: "Gênero",
     male: "Masculino",
     female: "Feminino",
-    otherGender: "Outro", // Renamed from 'other' to 'otherGender' to avoid duplicates
+    otherGender: "Outro",
     "prefer-not-to-say": "Prefiro não dizer",
     weight: "Peso",
     exerciseFrequency: "Frequência de exercícios",
@@ -291,7 +302,18 @@ const translations = {
     privacyNote: "Suas informações são mantidas privadas e seguras. Usamos apenas para personalizar sua experiência.",
     saveAndContinue: "Salvar e continuar",
     language: "Idioma",
-    saveAndReturn: "Salvar e voltar"
+    saveAndReturn: "Salvar e voltar",
+    deviceOnTheWay: "Seu dispositivo está a caminho",
+    yourDeviceIsBeingShipped: "Seu Accu-Tech Healthineers está sendo enviado para o seu endereço",
+    ordered: "Pedido",
+    shipping: "Enviando",
+    delivered: "Entregue",
+    estimatedDelivery: "Entrega estimada",
+    days: "dias",
+    prepareForArrival: "Prepare-se para a chegada",
+    connectYourDeviceWhenArrives: "Quando seu dispositivo chegar, você poderá conectá-lo para começar a medir sua glicose sem dor",
+    learnMore: "Saiba mais",
+    trackShipment: "Rastrear envio"
   }
 };
 
