@@ -67,6 +67,11 @@ export const LanguageProvider = ({ children }) => {
       phone: "Phone Number",
       moneyBackGuarantee: "30-day Money Back Guarantee",
       secureTransaction: "Secure Transaction",
+      paymentMethod: "Payment Method",
+      creditCard: "Credit Card",
+      cashOnDelivery: "Cash on Delivery",
+      cashOnDeliveryDescription: "Pay in cash when your order is delivered.",
+      cashOnDeliveryNote: "You will need to pay the full amount in cash when your order arrives.",
       
       // Onboarding
       purchaseDevice: "Purchase Your Device",
@@ -156,6 +161,11 @@ export const LanguageProvider = ({ children }) => {
       phone: "Número de Teléfono",
       moneyBackGuarantee: "Garantía de devolución de 30 días",
       secureTransaction: "Transacción Segura",
+      paymentMethod: "Método de Pago",
+      creditCard: "Tarjeta de Crédito",
+      cashOnDelivery: "Pago Contra Entrega",
+      cashOnDeliveryDescription: "Paga en efectivo cuando tu pedido sea entregado.",
+      cashOnDeliveryNote: "Necesitarás pagar el monto total en efectivo cuando llegue tu pedido.",
       
       // Onboarding
       purchaseDevice: "Compra Tu Dispositivo",

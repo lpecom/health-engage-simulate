@@ -4,9 +4,12 @@ import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useUser } from '@/contexts/UserContext';
 import { Button } from '@/components/ui/button';
-import { ShieldCheck, ArrowLeft, Truck, CreditCard } from 'lucide-react';
+import { ShieldCheck, ArrowLeft, Truck, CreditCard, Package, Wallet } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent } from '@/components/ui/card';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
+import { useForm } from 'react-hook-form';
 
 // Product offering
 const productOfferings = [
@@ -45,6 +48,7 @@ const CheckoutPage = () => {
   const { userData } = useUser();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const form = useForm();
   
   // Form state
   const [firstName, setFirstName] = useState('');
@@ -55,6 +59,7 @@ const CheckoutPage = () => {
   const [city, setCity] = useState('');
   const [province, setProvince] = useState('');
   const [postalCode, setPostalCode] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState('credit-card');
   
   // Product selection from onboarding
   const [selectedOffering, setSelectedOffering] = useState(productOfferings[0]);
@@ -119,6 +124,7 @@ const CheckoutPage = () => {
         postalCode,
         phone
       },
+      paymentMethod,
       total
     }));
     
@@ -165,7 +171,7 @@ const CheckoutPage = () => {
           <CardContent className="p-6">
             <h2 className="text-lg font-bold mb-4">{translate('purchaseDevice')}</h2>
             <div className="flex items-center justify-between mb-6">
-              <div className="flex flex-col items-center opacity-70">
+              <div className="flex flex-col items-center">
                 <div className="w-10 h-10 bg-accu-tech-blue text-white rounded-full flex items-center justify-center mb-2">
                   <Truck className="h-5 w-5" />
                 </div>
@@ -173,9 +179,9 @@ const CheckoutPage = () => {
               </div>
               
               <div className="flex-1 h-1 mx-4 bg-gray-200">
-                <div className="h-full bg-accu-tech-blue w-0 transition-all duration-500"></div>
+                <div className="h-full bg-accu-tech-blue w-1/2 transition-all duration-500"></div>
               </div>
-              <div className="flex flex-col items-center">
+              <div className="flex flex-col items-center opacity-70">
                 <div className="w-10 h-10 bg-gray-200 text-gray-500 rounded-full flex items-center justify-center mb-2">
                   <CreditCard className="h-5 w-5" />
                 </div>
@@ -282,6 +288,50 @@ const CheckoutPage = () => {
                   </div>
                 </div>
                 
+                {/* Payment Method Selection */}
+                <div className="mt-6 border-t pt-6">
+                  <h3 className="text-lg font-semibold mb-4">{translate('paymentMethod')}</h3>
+                  
+                  <RadioGroup defaultValue="credit-card" className="grid grid-cols-1 md:grid-cols-2 gap-4" value={paymentMethod} onValueChange={setPaymentMethod}>
+                    <div 
+                      className={`border rounded-lg p-4 cursor-pointer ${paymentMethod === 'credit-card' ? 'border-accu-tech-blue bg-accu-tech-lightest' : 'border-gray-200'}`}
+                      onClick={() => setPaymentMethod('credit-card')}
+                    >
+                      <div className="flex items-center space-x-3">
+                        <div className={`w-5 h-5 rounded-full border flex items-center justify-center ${paymentMethod === 'credit-card' ? 'border-accu-tech-blue' : 'border-gray-400'}`}>
+                          {paymentMethod === 'credit-card' && (
+                            <div className="w-3 h-3 rounded-full bg-accu-tech-blue" />
+                          )}
+                        </div>
+                        <div className="flex items-center">
+                          <CreditCard className="h-5 w-5 mr-2 text-gray-700" />
+                          <label className="text-sm font-medium cursor-pointer">{translate('creditCard')}</label>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div 
+                      className={`border rounded-lg p-4 cursor-pointer ${paymentMethod === 'cash' ? 'border-accu-tech-blue bg-accu-tech-lightest' : 'border-gray-200'}`}
+                      onClick={() => setPaymentMethod('cash')}
+                    >
+                      <div className="flex items-center space-x-3">
+                        <div className={`w-5 h-5 rounded-full border flex items-center justify-center ${paymentMethod === 'cash' ? 'border-accu-tech-blue' : 'border-gray-400'}`}>
+                          {paymentMethod === 'cash' && (
+                            <div className="w-3 h-3 rounded-full bg-accu-tech-blue" />
+                          )}
+                        </div>
+                        <div className="flex items-center">
+                          <Wallet className="h-5 w-5 mr-2 text-gray-700" />
+                          <label className="text-sm font-medium cursor-pointer">{translate('cashOnDelivery')}</label>
+                        </div>
+                      </div>
+                      {paymentMethod === 'cash' && (
+                        <p className="text-sm text-gray-500 mt-2 ml-8">{translate('cashOnDeliveryDescription')}</p>
+                      )}
+                    </div>
+                  </RadioGroup>
+                </div>
+                
                 <div className="pt-4">
                   <Button
                     type="submit"
@@ -339,6 +389,14 @@ const CheckoutPage = () => {
                 <span>{translate('total')}</span>
                 <span>{formatCurrency(total)}</span>
               </div>
+              
+              {paymentMethod === 'cash' && (
+                <div className="bg-yellow-50 rounded-lg p-3 mb-4 text-sm border border-yellow-200">
+                  <p className="text-yellow-800">
+                    {translate('cashOnDeliveryNote')}
+                  </p>
+                </div>
+              )}
               
               <div className="bg-gray-50 rounded-lg p-4 space-y-2">
                 <div className="flex items-center text-sm text-gray-600">
