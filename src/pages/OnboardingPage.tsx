@@ -14,10 +14,18 @@ const OnboardingPage = () => {
   const { translate } = useLanguage();
   const { userData, updateUserData } = useUser();
   const navigate = useNavigate();
-  const [currentStep, setCurrentStep] = useState(0);
   const [name, setName] = useState('');
   const [age, setAge] = useState('');
   const [diabetesType, setDiabetesType] = useState<string | null>(null);
+
+  const [currentStep, setCurrentStep] = useState(() => {
+    const savedStep = sessionStorage.getItem('onboardingStep');
+    if (savedStep) {
+      sessionStorage.removeItem('onboardingStep');
+      return parseInt(savedStep);
+    }
+    return 0;
+  });
 
   const goToNextStep = () => {
     if (currentStep < OnboardingSteps.length - 1) {
@@ -113,7 +121,7 @@ const OnboardingPage = () => {
             <div className="w-20 h-20 rounded-full bg-accu-tech-light-blue flex items-center justify-center mx-auto mb-6">
               <Check size={40} className="text-accu-tech-blue" />
             </div>
-            <h1 className="text-3xl font-bold mb-2 text-accu-tech-blue">{translate('welcome')}</h1>
+            <h1 className="text-3xl font-bold mb-2 text-accu-tech-blue">{translate('welcomeHeading')}</h1>
             <p className="text-gray-600 mb-6">{translate('thankYouMessage')}</p>
             
             <div className="bg-accu-tech-lightest rounded-lg p-4 mb-4">

@@ -1,14 +1,23 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { CheckCircle, Package, TruckIcon, Home } from "lucide-react";
+import { CheckCircle, Package, TruckIcon } from "lucide-react";
 
 const OrderSuccessPage = () => {
   const { translate } = useLanguage();
   const navigate = useNavigate();
+
+  // Set flag in sessionStorage to indicate that onboarding should continue at step 3
+  useEffect(() => {
+    sessionStorage.setItem('onboardingStep', '3');
+  }, []);
+
+  const continueOnboarding = () => {
+    navigate('/onboarding');
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -72,11 +81,10 @@ const OrderSuccessPage = () => {
         </p>
         
         <Button 
-          onClick={() => navigate('/home')}
-          className="w-full rounded-full py-3"
+          onClick={continueOnboarding}
+          className="w-full rounded-full py-3 bg-accu-tech-blue hover:bg-accu-tech-dark-blue"
         >
-          <Home className="mr-2 h-4 w-4" />
-          {translate('backToHome')}
+          {translate('continueOnboarding')}
         </Button>
       </div>
     </div>
