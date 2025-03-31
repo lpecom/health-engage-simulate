@@ -54,6 +54,7 @@ const OnboardingPage = () => {
   const [currentStep, setCurrentStep] = useState(() => {
     const savedStep = sessionStorage.getItem('onboardingStep');
     if (savedStep) {
+      // Clear the session storage after getting the step
       sessionStorage.removeItem('onboardingStep');
       return parseInt(savedStep);
     }

@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -23,7 +22,6 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
-// Product offering
 const productOfferings = [
   { 
     id: 1, 
@@ -55,7 +53,6 @@ const productOfferings = [
   }
 ];
 
-// Form validation schema
 const formSchema = z.object({
   firstName: z.string().min(2, { message: 'First name must be at least 2 characters' }),
   lastName: z.string().min(2, { message: 'Last name must be at least 2 characters' }),
@@ -79,10 +76,8 @@ const CheckoutPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   
-  // Product selection from onboarding
   const [selectedOffering, setSelectedOffering] = useState(productOfferings[0]);
   
-  // Create form
   const form = useForm<CheckoutFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -100,14 +95,12 @@ const CheckoutPage = () => {
     },
   });
   
-  // Calculate prices
   const subtotal = selectedOffering.price;
   const discount = subtotal * (selectedOffering.discount / 100);
   const discountedSubtotal = subtotal - discount;
-  const shipping = 0; // Free shipping
+  const shipping = 0;
   const total = discountedSubtotal + shipping;
 
-  // Load selected offering from session storage
   useEffect(() => {
     const savedOffering = sessionStorage.getItem('selectedOffering');
     if (savedOffering) {
@@ -115,22 +108,17 @@ const CheckoutPage = () => {
     }
   }, []);
 
-  // Handle returning to onboarding
   useEffect(() => {
-    // Mark that we're coming from checkout if we're part of the onboarding
     return () => {
       if (window.location.pathname.includes('/checkout')) {
         sessionStorage.setItem('fromCheckout', 'true');
       }
     };
   }, []);
-  
-  // Form submission handler
+
   const onSubmit = (values: CheckoutFormValues) => {    
-    // Process order
     const orderNumber = `AC-${Math.floor(100000 + Math.random() * 900000)}`;
     
-    // Save order data to session storage for confirmation page
     sessionStorage.setItem('order', JSON.stringify({
       orderNumber,
       email: values.email,
@@ -156,8 +144,9 @@ const CheckoutPage = () => {
       total
     }));
     
-    // Navigate to success page
-    navigate('/order-success');
+    sessionStorage.setItem('onboardingStep', '3');
+    
+    navigate('/onboarding');
   };
 
   const formatCurrency = (amount) => {
@@ -194,7 +183,6 @@ const CheckoutPage = () => {
           <h1 className="text-xl font-bold text-gray-800">{translate('checkout')}</h1>
         </div>
         
-        {/* Order Progress */}
         <Card className="mb-6 bg-white">
           <CardContent className="p-6">
             <h2 className="text-lg font-bold mb-4">{translate('purchaseDevice')}</h2>
@@ -219,7 +207,6 @@ const CheckoutPage = () => {
           </CardContent>
         </Card>
         
-        {/* Cash on Delivery Banner */}
         <Alert className="mb-6 bg-yellow-50 border-yellow-200">
           <Wallet className="h-5 w-5 text-yellow-600" />
           <AlertDescription className="text-yellow-800">
@@ -228,7 +215,6 @@ const CheckoutPage = () => {
         </Alert>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main checkout area */}
           <div className="lg:col-span-2">
             <div className="bg-white rounded-lg shadow-md p-6 mb-6">
               <h2 className="text-xl font-bold mb-4">{translate('enterShippingAddress')}</h2>
@@ -405,7 +391,6 @@ const CheckoutPage = () => {
                     )}
                   />
                   
-                  {/* Cash on Delivery Information */}
                   <div className="mt-4 border rounded-lg border-yellow-200 bg-yellow-50 p-4">
                     <div className="flex items-start">
                       <Wallet className="h-5 w-5 text-yellow-600 mt-0.5 mr-3 flex-shrink-0" />
@@ -434,7 +419,6 @@ const CheckoutPage = () => {
             </div>
           </div>
           
-          {/* Order summary */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-lg shadow-md p-6 sticky top-6">
               <h2 className="text-lg font-bold mb-4">{translate('yourOrder')}</h2>
@@ -480,13 +464,11 @@ const CheckoutPage = () => {
                 <span>{formatCurrency(total)}</span>
               </div>
               
-              {/* Payment Method - Cash on Delivery Only */}
               <div className="flex items-center p-3 bg-yellow-50 border border-yellow-200 rounded-lg mb-4">
                 <Wallet className="h-4 w-4 text-yellow-600 mr-2" />
                 <span className="text-sm font-medium text-yellow-800">{translate('payOnDelivery')}</span>
               </div>
               
-              {/* Shipping Timeline */}
               <div className="border rounded-lg p-3 mb-4">
                 <h3 className="font-medium text-gray-800 text-sm mb-2 flex items-center">
                   <Info className="h-4 w-4 mr-2 text-gray-500" />
