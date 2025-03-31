@@ -4,15 +4,40 @@ import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useUser } from '@/contexts/UserContext';
 import { Button } from '@/components/ui/button';
-import { Check, ShieldCheck, ArrowLeft } from 'lucide-react';
+import { Check, ShieldCheck, ArrowLeft, Package, CreditCard, Truck } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { Card, CardContent } from '@/components/ui/card';
 
 // Product offering
 const productOfferings = [
-  { id: 1, quantity: 1, price: 199.99, discount: 0 },
-  { id: 2, quantity: 2, price: 399.98, discount: 10 },
-  { id: 3, quantity: 3, price: 599.97, discount: 20 },
-  { id: 4, quantity: 4, price: 799.96, discount: 25 }
+  { 
+    id: 1, 
+    quantity: 1, 
+    price: 199.99, 
+    discount: 0,
+    image: "https://h00ktt-1h.myshopify.com/cdn/shop/files/gempages_559218299439678285-292f3a7c-297f-4208-b019-985346c4ef7b.jpg?v=10467499079061507992" 
+  },
+  { 
+    id: 2, 
+    quantity: 2, 
+    price: 399.98, 
+    discount: 10,
+    image: "https://h00ktt-1h.myshopify.com/cdn/shop/files/gempages_559218299439678285-48536be6-1e97-4f93-beec-f90b62a0a0b5.jpg?v=4986797994953195968" 
+  },
+  { 
+    id: 3, 
+    quantity: 3, 
+    price: 599.97, 
+    discount: 20,
+    image: "https://h00ktt-1h.myshopify.com/cdn/shop/files/gempages_559218299439678285-9bda3efb-a7a6-4d37-9d5c-e9d0fd0bfb62.jpg?v=8693849955267883844" 
+  },
+  { 
+    id: 4, 
+    quantity: 4, 
+    price: 799.96, 
+    discount: 25,
+    image: "https://h00ktt-1h.myshopify.com/cdn/shop/files/gempages_559218299439678285-9bda3efb-a7a6-4d37-9d5c-e9d0fd0bfb62.jpg?v=8693849955267883844" 
+  }
 ];
 
 const CheckoutPage = () => {
@@ -120,7 +145,7 @@ const CheckoutPage = () => {
   return (
     <div className="min-h-screen bg-gray-50 pt-6 pb-12">
       <div className="max-w-5xl mx-auto px-4">
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex justify-between items-center mb-6">
           <div className="flex items-center">
             <Button 
               variant="ghost" 
@@ -139,6 +164,39 @@ const CheckoutPage = () => {
           </div>
           <h1 className="text-xl font-bold text-gray-800">{translate('checkout')}</h1>
         </div>
+        
+        {/* Order Progress */}
+        <Card className="mb-8 bg-white">
+          <CardContent className="p-6">
+            <h2 className="text-lg font-bold mb-4">{translate('purchaseDevice')}</h2>
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex flex-col items-center">
+                <div className="w-10 h-10 bg-accu-tech-blue text-white rounded-full flex items-center justify-center mb-2">
+                  <Package className="h-5 w-5" />
+                </div>
+                <span className="text-sm font-medium">{translate('selectOffer')}</span>
+              </div>
+              <div className="flex-1 h-1 mx-4 bg-gray-200">
+                <div className={`h-full bg-accu-tech-blue ${step >= 2 ? 'w-full' : 'w-0'} transition-all duration-500`}></div>
+              </div>
+              <div className="flex flex-col items-center">
+                <div className={`w-10 h-10 ${step >= 2 ? 'bg-accu-tech-blue text-white' : 'bg-gray-200 text-gray-500'} rounded-full flex items-center justify-center mb-2`}>
+                  <Truck className="h-5 w-5" />
+                </div>
+                <span className="text-sm font-medium">{translate('enterShippingAddress')}</span>
+              </div>
+              <div className="flex-1 h-1 mx-4 bg-gray-200">
+                <div className="h-full bg-accu-tech-blue w-0 transition-all duration-500"></div>
+              </div>
+              <div className="flex flex-col items-center">
+                <div className="w-10 h-10 bg-gray-200 text-gray-500 rounded-full flex items-center justify-center mb-2">
+                  <CreditCard className="h-5 w-5" />
+                </div>
+                <span className="text-sm font-medium">{translate('completeOrder')}</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main checkout area */}
@@ -159,31 +217,44 @@ const CheckoutPage = () => {
                           : 'border-gray-200 hover:border-gray-300'
                       }`}
                     >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center">
-                          <div className={`w-5 h-5 rounded-full flex items-center justify-center mr-3 ${
-                            selectedOffering.id === offering.id 
-                              ? 'bg-accu-tech-blue text-white' 
-                              : 'border border-gray-300'
-                          }`}>
-                            {selectedOffering.id === offering.id && <Check className="h-3 w-3" />}
-                          </div>
-                          <div>
+                      <div className="flex items-center">
+                        <div className={`w-5 h-5 rounded-full flex items-center justify-center mr-3 ${
+                          selectedOffering.id === offering.id 
+                            ? 'bg-accu-tech-blue text-white' 
+                            : 'border border-gray-300'
+                        }`}>
+                          {selectedOffering.id === offering.id && <Check className="h-3 w-3" />}
+                        </div>
+                        
+                        <div className="flex-1 flex items-center">
+                          <img 
+                            src={offering.image} 
+                            alt={`${offering.quantity} ${translate('deviceName')}`}
+                            className="w-16 h-16 object-contain mr-4"
+                          />
+                          
+                          <div className="flex-1">
                             <h3 className="font-medium">
                               {offering.quantity} {offering.quantity === 1 ? translate('unit') : translate('unit') + 's'}
                             </h3>
+                            {offering.discount > 0 && (
+                              <span className="text-sm text-green-700">
+                                {offering.discount}% {translate('discount')}
+                              </span>
+                            )}
                             {offering.id === 4 && (
-                              <span className="text-sm bg-green-100 text-green-800 px-2 py-0.5 rounded-full">
+                              <span className="block text-sm bg-green-100 text-green-800 px-2 py-0.5 rounded-full mt-1 w-fit">
                                 {translate('buy3get1')}
                               </span>
                             )}
                           </div>
-                        </div>
-                        <div className="text-right">
-                          <p className="font-bold">{formatCurrency(offering.price - (offering.price * (offering.discount / 100)))}</p>
-                          {offering.discount > 0 && (
-                            <p className="text-sm text-gray-500 line-through">{formatCurrency(offering.price)}</p>
-                          )}
+                          
+                          <div className="text-right">
+                            <p className="font-bold">{formatCurrency(offering.price - (offering.price * (offering.discount / 100)))}</p>
+                            {offering.discount > 0 && (
+                              <p className="text-sm text-gray-500 line-through">{formatCurrency(offering.price)}</p>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -320,7 +391,7 @@ const CheckoutPage = () => {
               <div className="border-b pb-4 mb-4">
                 <div className="flex items-start space-x-4">
                   <img
-                    src="https://h00ktt-1h.myshopify.com/cdn/shop/files/gempages_559218299439678285-292f3a7c-297f-4208-b019-985346c4ef7b.jpg?v=10467499079061507992"
+                    src={selectedOffering.image}
                     alt={translate('deviceName')}
                     className="w-16 h-16 object-contain rounded-md"
                   />

@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 // Define the structure for translations
@@ -131,7 +130,6 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       'afternoon': 'Afternoon',
       'evening': 'Evening',
       'night': 'Night',
-      'welcome': 'Welcome',
       'recentReadings': 'Recent Readings',
       'achievements': 'Achievements',
       'progress': 'Progress',
@@ -439,7 +437,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       'evening': 'Noite',
       'night': 'Madrugada',
       'welcome': 'Bem-vindo',
-      'recentReadings': 'Leituras Recentes',
+      'recentReadings': 'Lecturas Recentes',
       'achievements': 'Conquistas',
       'progress': 'Progresso',
       'streak': 'Sequência Atual',
