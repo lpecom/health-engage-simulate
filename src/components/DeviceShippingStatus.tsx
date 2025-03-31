@@ -44,7 +44,7 @@ const DeviceShippingStatus: React.FC<DeviceShippingStatusProps> = ({
   
   return (
     <div className="space-y-4 mb-4">
-      {/* Shipping Status Card - Now placed first */}
+      {/* Shipping Status Card */}
       <Card className="overflow-hidden">
         <CardContent className="p-4">
           <div className="animate-pulse flex flex-col items-center text-center px-2 w-full">
@@ -136,10 +136,19 @@ const DeviceShippingStatus: React.FC<DeviceShippingStatusProps> = ({
         </CardContent>
       </Card>
 
-      {/* Connect Device Card - Now placed second */}
+      {/* Connect Device Card */}
       <Card>
         <CardContent className="p-4">
           <h2 className="text-lg font-medium mb-4">{translate('connectYourDevice')}</h2>
+          
+          {/* Added device image above serial number */}
+          <div className="flex justify-center mb-4">
+            <img 
+              src="https://accu-tech.pro/wp-content/uploads/2024/08/device.png" 
+              alt="GlucoVista Device" 
+              className="w-32 h-auto rounded-lg shadow-md"
+            />
+          </div>
           
           <div className="space-y-4">
             <div>
