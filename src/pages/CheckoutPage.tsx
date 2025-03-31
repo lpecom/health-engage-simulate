@@ -4,12 +4,10 @@ import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useUser } from '@/contexts/UserContext';
 import { Button } from '@/components/ui/button';
-import { ShieldCheck, ArrowLeft, Truck, CreditCard, Package, Wallet } from 'lucide-react';
+import { ShieldCheck, ArrowLeft, Truck, Package, Wallet, AlertCircle, Info } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent } from '@/components/ui/card';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
-import { useForm } from 'react-hook-form';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 // Product offering
 const productOfferings = [
@@ -48,7 +46,6 @@ const CheckoutPage = () => {
   const { userData } = useUser();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const form = useForm();
   
   // Form state
   const [firstName, setFirstName] = useState('');
@@ -59,7 +56,6 @@ const CheckoutPage = () => {
   const [city, setCity] = useState('');
   const [province, setProvince] = useState('');
   const [postalCode, setPostalCode] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState('credit-card');
   
   // Product selection from onboarding
   const [selectedOffering, setSelectedOffering] = useState(productOfferings[0]);
@@ -124,7 +120,7 @@ const CheckoutPage = () => {
         postalCode,
         phone
       },
-      paymentMethod,
+      paymentMethod: 'cash',
       total
     }));
     
@@ -167,7 +163,7 @@ const CheckoutPage = () => {
         </div>
         
         {/* Order Progress */}
-        <Card className="mb-8 bg-white">
+        <Card className="mb-6 bg-white">
           <CardContent className="p-6">
             <h2 className="text-lg font-bold mb-4">{translate('purchaseDevice')}</h2>
             <div className="flex items-center justify-between mb-6">
@@ -183,7 +179,7 @@ const CheckoutPage = () => {
               </div>
               <div className="flex flex-col items-center opacity-70">
                 <div className="w-10 h-10 bg-gray-200 text-gray-500 rounded-full flex items-center justify-center mb-2">
-                  <CreditCard className="h-5 w-5" />
+                  <Package className="h-5 w-5" />
                 </div>
                 <span className="text-sm font-medium">{translate('completeOrder')}</span>
               </div>
@@ -191,6 +187,14 @@ const CheckoutPage = () => {
           </CardContent>
         </Card>
         
+        {/* Cash on Delivery Banner */}
+        <Alert className="mb-6 bg-yellow-50 border-yellow-200">
+          <Wallet className="h-5 w-5 text-yellow-600" />
+          <AlertDescription className="text-yellow-800">
+            <span className="font-semibold">{translate('cashOnDeliveryOnly')}</span> - {translate('cashOnDeliveryBanner')}
+          </AlertDescription>
+        </Alert>
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main checkout area */}
           <div className="lg:col-span-2">
@@ -231,6 +235,7 @@ const CheckoutPage = () => {
                       className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accu-tech-blue"
                       required
                     />
+                    <p className="mt-1 text-sm text-gray-500">{translate('phoneRequired')}</p>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Email*</label>
@@ -288,48 +293,20 @@ const CheckoutPage = () => {
                   </div>
                 </div>
                 
-                {/* Payment Method Selection */}
-                <div className="mt-6 border-t pt-6">
-                  <h3 className="text-lg font-semibold mb-4">{translate('paymentMethod')}</h3>
-                  
-                  <RadioGroup defaultValue="credit-card" className="grid grid-cols-1 md:grid-cols-2 gap-4" value={paymentMethod} onValueChange={setPaymentMethod}>
-                    <div 
-                      className={`border rounded-lg p-4 cursor-pointer ${paymentMethod === 'credit-card' ? 'border-accu-tech-blue bg-accu-tech-lightest' : 'border-gray-200'}`}
-                      onClick={() => setPaymentMethod('credit-card')}
-                    >
-                      <div className="flex items-center space-x-3">
-                        <div className={`w-5 h-5 rounded-full border flex items-center justify-center ${paymentMethod === 'credit-card' ? 'border-accu-tech-blue' : 'border-gray-400'}`}>
-                          {paymentMethod === 'credit-card' && (
-                            <div className="w-3 h-3 rounded-full bg-accu-tech-blue" />
-                          )}
-                        </div>
-                        <div className="flex items-center">
-                          <CreditCard className="h-5 w-5 mr-2 text-gray-700" />
-                          <label className="text-sm font-medium cursor-pointer">{translate('creditCard')}</label>
-                        </div>
-                      </div>
+                {/* Cash on Delivery Information */}
+                <div className="mt-4 border rounded-lg border-yellow-200 bg-yellow-50 p-4">
+                  <div className="flex items-start">
+                    <Wallet className="h-5 w-5 text-yellow-600 mt-0.5 mr-3 flex-shrink-0" />
+                    <div>
+                      <h3 className="font-medium text-yellow-800">{translate('cashOnDelivery')}</h3>
+                      <p className="text-sm text-yellow-700 mt-1">{translate('cashOnDeliveryDescription')}</p>
+                      <ul className="mt-2 text-sm text-yellow-700 space-y-1 list-disc pl-5">
+                        <li>{translate('prepareExactAmount')}</li>
+                        <li>{translate('courierCallBefore')}</li>
+                        <li>{translate('receiptProvided')}</li>
+                      </ul>
                     </div>
-                    
-                    <div 
-                      className={`border rounded-lg p-4 cursor-pointer ${paymentMethod === 'cash' ? 'border-accu-tech-blue bg-accu-tech-lightest' : 'border-gray-200'}`}
-                      onClick={() => setPaymentMethod('cash')}
-                    >
-                      <div className="flex items-center space-x-3">
-                        <div className={`w-5 h-5 rounded-full border flex items-center justify-center ${paymentMethod === 'cash' ? 'border-accu-tech-blue' : 'border-gray-400'}`}>
-                          {paymentMethod === 'cash' && (
-                            <div className="w-3 h-3 rounded-full bg-accu-tech-blue" />
-                          )}
-                        </div>
-                        <div className="flex items-center">
-                          <Wallet className="h-5 w-5 mr-2 text-gray-700" />
-                          <label className="text-sm font-medium cursor-pointer">{translate('cashOnDelivery')}</label>
-                        </div>
-                      </div>
-                      {paymentMethod === 'cash' && (
-                        <p className="text-sm text-gray-500 mt-2 ml-8">{translate('cashOnDeliveryDescription')}</p>
-                      )}
-                    </div>
-                  </RadioGroup>
+                  </div>
                 </div>
                 
                 <div className="pt-4">
@@ -337,7 +314,7 @@ const CheckoutPage = () => {
                     type="submit"
                     className="w-full buy-button"
                   >
-                    {translate('finishOrder')}
+                    {translate('completeOrderCOD')}
                   </Button>
                 </div>
               </form>
@@ -385,19 +362,37 @@ const CheckoutPage = () => {
                 </div>
               </div>
               
-              <div className="flex justify-between items-center text-lg font-bold mb-6">
+              <div className="flex justify-between items-center text-lg font-bold mb-4">
                 <span>{translate('total')}</span>
                 <span>{formatCurrency(total)}</span>
               </div>
               
-              {paymentMethod === 'cash' && (
-                <div className="bg-yellow-50 rounded-lg p-3 mb-4 text-sm border border-yellow-200">
-                  <p className="text-yellow-800">
-                    {translate('cashOnDeliveryNote')}
-                  </p>
-                </div>
-              )}
+              {/* Payment Method - Cash on Delivery Only */}
+              <div className="flex items-center p-3 bg-yellow-50 border border-yellow-200 rounded-lg mb-4">
+                <Wallet className="h-4 w-4 text-yellow-600 mr-2" />
+                <span className="text-sm font-medium text-yellow-800">{translate('payOnDelivery')}</span>
+              </div>
               
+              {/* Shipping Timeline */}
+              <div className="border rounded-lg p-3 mb-4">
+                <h3 className="font-medium text-gray-800 text-sm mb-2 flex items-center">
+                  <Info className="h-4 w-4 mr-2 text-gray-500" />
+                  {translate('deliveryTimeline')}
+                </h3>
+                <div className="flex items-center justify-between text-xs text-gray-600 mb-1">
+                  <span>{translate('order')}</span>
+                  <span>{translate('today')}</span>
+                </div>
+                <div className="flex items-center justify-between text-xs text-gray-600 mb-1">
+                  <span>{translate('processing')}</span>
+                  <span>1-2 {translate('days')}</span>
+                </div>
+                <div className="flex items-center justify-between text-xs text-gray-600">
+                  <span>{translate('delivery')}</span>
+                  <span>2-4 {translate('days')}</span>
+                </div>
+              </div>
+
               <div className="bg-gray-50 rounded-lg p-4 space-y-2">
                 <div className="flex items-center text-sm text-gray-600">
                   <ShieldCheck className="h-4 w-4 mr-2 text-green-600" />
@@ -405,7 +400,7 @@ const CheckoutPage = () => {
                 </div>
                 <div className="flex items-center text-sm text-gray-600">
                   <ShieldCheck className="h-4 w-4 mr-2 text-green-600" />
-                  <span>{translate('secureTransaction')}</span>
+                  <span>{translate('noPaymentBeforeDelivery')}</span>
                 </div>
               </div>
             </div>

@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useCallback } from 'react';
 
 const LanguageContext = createContext({
@@ -72,6 +73,21 @@ export const LanguageProvider = ({ children }) => {
       cashOnDelivery: "Cash on Delivery",
       cashOnDeliveryDescription: "Pay in cash when your order is delivered.",
       cashOnDeliveryNote: "You will need to pay the full amount in cash when your order arrives.",
+      completeOrderCOD: "Complete Order - Pay on Delivery",
+      cashOnDeliveryOnly: "Cash on Delivery Only",
+      cashOnDeliveryBanner: "You will pay when the product is delivered to your address.",
+      phoneRequired: "Required for delivery coordination",
+      prepareExactAmount: "Please prepare the exact amount for a smoother delivery",
+      courierCallBefore: "The courier will call before delivery",
+      receiptProvided: "You'll receive a receipt upon payment",
+      payOnDelivery: "Pay on Delivery - Cash Only",
+      noPaymentBeforeDelivery: "No payment required until delivery",
+      deliveryTimeline: "Estimated Timeline",
+      order: "Order",
+      processing: "Processing",
+      delivery: "Delivery",
+      today: "Today",
+      days: "days",
       
       // Onboarding
       purchaseDevice: "Purchase Your Device",
@@ -166,6 +182,21 @@ export const LanguageProvider = ({ children }) => {
       cashOnDelivery: "Pago Contra Entrega",
       cashOnDeliveryDescription: "Paga en efectivo cuando tu pedido sea entregado.",
       cashOnDeliveryNote: "Necesitarás pagar el monto total en efectivo cuando llegue tu pedido.",
+      completeOrderCOD: "Completar Pedido - Pagar al Recibir",
+      cashOnDeliveryOnly: "Solo Pago Contra Entrega",
+      cashOnDeliveryBanner: "Pagarás cuando el producto sea entregado en tu dirección.",
+      phoneRequired: "Requerido para coordinar la entrega",
+      prepareExactAmount: "Por favor, prepara el monto exacto para una entrega más rápida",
+      courierCallBefore: "El mensajero llamará antes de la entrega",
+      receiptProvided: "Recibirás un recibo al momento del pago",
+      payOnDelivery: "Pago al Recibir - Solo Efectivo",
+      noPaymentBeforeDelivery: "No se requiere pago hasta la entrega",
+      deliveryTimeline: "Cronograma Estimado",
+      order: "Pedido",
+      processing: "Procesamiento",
+      delivery: "Entrega",
+      today: "Hoy",
+      days: "días",
       
       // Onboarding
       purchaseDevice: "Compra Tu Dispositivo",
