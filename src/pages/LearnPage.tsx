@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -80,30 +79,30 @@ const LearnPage = () => {
               
               <div className="bg-gray-50 p-4 rounded-lg">
                 <h3 className="font-medium mb-3">
-                  {language === 'es' ? 'Datos clave sobre la glucosa' : 'Dados fundamentais sobre glicose'}
+                  {translate('keyGlucoseData')}
                 </h3>
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>{language === 'es' ? 'Estado' : 'Estado'}</TableHead>
-                      <TableHead>{language === 'es' ? 'Nivel (mg/dL)' : 'Nível (mg/dL)'}</TableHead>
+                      <TableHead>{translate('state')}</TableHead>
+                      <TableHead>{translate('level')} (mg/dL)</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     <TableRow>
-                      <TableCell className="font-medium">{language === 'es' ? 'Hipoglucemia' : 'Hipoglicemia'}</TableCell>
+                      <TableCell className="font-medium">{translate('hypoglycemia')}</TableCell>
                       <TableCell className="text-red-600">{"<"} 70</TableCell>
                     </TableRow>
                     <TableRow>
-                      <TableCell className="font-medium">{language === 'es' ? 'Normal (ayuno)' : 'Normal (jejum)'}</TableCell>
+                      <TableCell className="font-medium">{translate('normalFasting')}</TableCell>
                       <TableCell className="text-green-600">70 - 100</TableCell>
                     </TableRow>
                     <TableRow>
-                      <TableCell className="font-medium">{language === 'es' ? 'Prediabetes (ayuno)' : 'Pré-diabetes (jejum)'}</TableCell>
+                      <TableCell className="font-medium">{translate('prediabeticFasting')}</TableCell>
                       <TableCell className="text-amber-600">100 - 125</TableCell>
                     </TableRow>
                     <TableRow>
-                      <TableCell className="font-medium">{language === 'es' ? 'Diabetes (ayuno)' : 'Diabetes (jejum)'}</TableCell>
+                      <TableCell className="font-medium">{translate('diabeticFasting')}</TableCell>
                       <TableCell className="text-red-600">{">="} 126</TableCell>
                     </TableRow>
                   </TableBody>
@@ -150,30 +149,30 @@ const LearnPage = () => {
               </div>
               
               <div className="bg-accu-tech-light-blue/20 border border-accu-tech-light-blue rounded-lg p-4">
-                <h3 className="font-medium mb-3">{language === 'es' ? 'Comparación con métodos tradicionales' : 'Comparação com métodos tradicionais'}</h3>
+                <h3 className="font-medium mb-3">{translate('comparisonWithTraditional')}</h3>
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>{language === 'es' ? 'Característica' : 'Característica'}</TableHead>
-                      <TableHead>{language === 'es' ? 'GlucoVista' : 'GlucoVista'}</TableHead>
-                      <TableHead>{language === 'es' ? 'Métodos tradicionales' : 'Métodos tradicionais'}</TableHead>
+                      <TableHead>{translate('feature')}</TableHead>
+                      <TableHead>{translate('glucoVista')}</TableHead>
+                      <TableHead>{translate('traditionalMethods')}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     <TableRow>
-                      <TableCell className="font-medium">{language === 'es' ? 'Dolor' : 'Dor'}</TableCell>
-                      <TableCell className="text-green-600">{language === 'es' ? 'Sin dolor' : 'Sem dor'}</TableCell>
-                      <TableCell className="text-red-600">{language === 'es' ? 'Pinchazos dolorosos' : 'Picadas dolorosas'}</TableCell>
+                      <TableCell className="font-medium">{translate('pain')}</TableCell>
+                      <TableCell className="text-green-600">{translate('noPainAtAll')}</TableCell>
+                      <TableCell className="text-red-600">{translate('painfulPricks')}</TableCell>
                     </TableRow>
                     <TableRow>
-                      <TableCell className="font-medium">{language === 'es' ? 'Velocidad' : 'Velocidade'}</TableCell>
-                      <TableCell className="text-green-600">{language === 'es' ? 'Resultados en segundos' : 'Resultados em segundos'}</TableCell>
-                      <TableCell className="text-amber-600">{language === 'es' ? 'Varios minutos' : 'Vários minutos'}</TableCell>
+                      <TableCell className="font-medium">{translate('speed')}</TableCell>
+                      <TableCell className="text-green-600">{translate('resultsInSeconds')}</TableCell>
+                      <TableCell className="text-amber-600">{translate('severalMinutes')}</TableCell>
                     </TableRow>
                     <TableRow>
-                      <TableCell className="font-medium">{language === 'es' ? 'Consumibles' : 'Consumíveis'}</TableCell>
-                      <TableCell className="text-green-600">{language === 'es' ? 'No requiere' : 'Não requer'}</TableCell>
-                      <TableCell className="text-red-600">{language === 'es' ? 'Tiras reactivas costosas' : 'Tiras reativas caras'}</TableCell>
+                      <TableCell className="font-medium">{translate('consumables')}</TableCell>
+                      <TableCell className="text-green-600">{translate('noConsumables')}</TableCell>
+                      <TableCell className="text-red-600">{translate('expensiveStrips')}</TableCell>
                     </TableRow>
                   </TableBody>
                 </Table>
@@ -229,19 +228,13 @@ const LearnPage = () => {
                 
                 <div className="bg-white rounded-lg p-3 border border-gray-100">
                   <h4 className="text-sm font-medium mb-1">
-                    {language === 'es' 
-                      ? 'Estudio clínico: Precisión de la medición no invasiva' 
-                      : 'Estudio clínico: Precisão da medição não invasiva'}
+                    {translate('clinicalStudyTitle')}
                   </h4>
                   <p className="text-xs text-gray-600 mb-2">
-                    {language === 'es' 
-                      ? 'Journal of Medical Technology, 2023' 
-                      : 'Revista de Tecnologia Médica, 2023'}
+                    {translate('journalReference')}
                   </p>
                   <p className="text-sm text-gray-700">
-                    {language === 'es' 
-                      ? 'En un estudio con 157 participantes, la tecnología de GlucoVista mostró una precisión del 96.8% comparado con métodos de análisis de sangre de laboratorio.' 
-                      : 'Em um estudo com 157 participantes, a tecnologia do GlucoVista mostrou uma precisão de 96.8% em comparação com métodos de análise de sangre de laboratorio.'}
+                    {translate('studyResults')}
                   </p>
                 </div>
               </div>
@@ -253,7 +246,7 @@ const LearnPage = () => {
                   onClick={() => window.open("https://www.fda.gov/medical-devices", "_blank")}
                   className="text-xs flex items-center"
                 >
-                  <span>{language === 'es' ? 'Más información sobre certificaciones' : 'Mais informações sobre certificações'}</span>
+                  <span>{translate('moreCertificationInfo')}</span>
                   <ChevronLeft className="h-3 w-3 ml-1 rotate-180" />
                 </Button>
               </div>
@@ -270,7 +263,7 @@ const LearnPage = () => {
               className="mt-4"
               onClick={() => navigate('/plan')}
             >
-              {language === 'es' ? 'Volver al plan' : 'Voltar ao plano'}
+              {translate('backToPlan')}
             </Button>
           </div>
         );
@@ -302,7 +295,7 @@ const LearnPage = () => {
             <div className="flex items-center bg-white/20 px-2 py-1 rounded-full">
               <CheckCircle size={14} className="text-green-300 mr-1" />
               <span className="text-xs font-medium">
-                {language === 'es' ? 'Completado' : 'Concluído'}
+                {translate('completed')}
               </span>
             </div>
           )}
@@ -317,7 +310,7 @@ const LearnPage = () => {
             variant="outline" 
             onClick={() => navigate('/home')}
           >
-            {language === 'es' ? 'Volver al plan' : 'Voltar ao plano'}
+            {translate('backToPlan')}
           </Button>
           
           {!isTopicRead() && (
@@ -328,14 +321,14 @@ const LearnPage = () => {
                 navigate('/home');
                 
                 toast({
-                  title: language === 'es' ? '¡Tema completado!' : 'Tema concluído!',
-                  description: language === 'es' ? '+25 puntos' : '+25 pontos',
+                  title: translate('topicCompleted'),
+                  description: `+25 ${translate('points')}`,
                   duration: 3000,
                 });
               }}
               className="bg-accu-tech-blue hover:bg-accu-tech-dark-blue"
             >
-              {language === 'es' ? 'Marcar como leído' : 'Marcar como lido'}
+              {translate('markAsRead')}
             </Button>
           )}
         </div>
