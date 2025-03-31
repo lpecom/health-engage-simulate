@@ -5,10 +5,41 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useUser } from "@/contexts/UserContext";
 import LanguageSelector from "@/components/LanguageSelector";
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, ArrowRight, Syringe, CircleCheck } from 'lucide-react';
+import { Check, ArrowRight, Syringe, CircleCheck, ShieldCheck } from 'lucide-react';
 import { Progress } from "@/components/ui/progress";
 
 const OnboardingSteps = ['language', 'purchase', 'welcome', 'technology', 'benefits', 'profile', 'tutorial'];
+
+const productOfferings = [
+  { 
+    id: 1, 
+    quantity: 1, 
+    price: 199.99, 
+    discount: 0,
+    image: "https://h00ktt-1h.myshopify.com/cdn/shop/files/gempages_559218299439678285-292f3a7c-297f-4208-b019-985346c4ef7b.jpg?v=10467499079061507992" 
+  },
+  { 
+    id: 2, 
+    quantity: 2, 
+    price: 399.98, 
+    discount: 10,
+    image: "https://h00ktt-1h.myshopify.com/cdn/shop/files/gempages_559218299439678285-48536be6-1e97-4f93-beec-f90b62a0a0b5.jpg?v=4986797994953195968" 
+  },
+  { 
+    id: 3, 
+    quantity: 3, 
+    price: 599.97, 
+    discount: 20,
+    image: "https://h00ktt-1h.myshopify.com/cdn/shop/files/gempages_559218299439678285-9bda3efb-a7a6-4d37-9d5c-e9d0fd0bfb62.jpg?v=8693849955267883844" 
+  },
+  { 
+    id: 4, 
+    quantity: 4, 
+    price: 799.96, 
+    discount: 25,
+    image: "https://h00ktt-1h.myshopify.com/cdn/shop/files/gempages_559218299439678285-9bda3efb-a7a6-4d37-9d5c-e9d0fd0bfb62.jpg?v=8693849955267883844" 
+  }
+];
 
 const OnboardingPage = () => {
   const { translate } = useLanguage();
@@ -17,6 +48,7 @@ const OnboardingPage = () => {
   const [name, setName] = useState('');
   const [age, setAge] = useState('');
   const [diabetesType, setDiabetesType] = useState<string | null>(null);
+  const [selectedOffering, setSelectedOffering] = useState(productOfferings[0]);
 
   const [currentStep, setCurrentStep] = useState(() => {
     const savedStep = sessionStorage.getItem('onboardingStep');
@@ -29,7 +61,8 @@ const OnboardingPage = () => {
 
   const goToNextStep = () => {
     if (currentStep < OnboardingSteps.length - 1) {
-      if (OnboardingSteps[currentStep] === 'purchase') {
+      if (currentStep === 1) {
+        sessionStorage.setItem('selectedOffering', JSON.stringify(selectedOffering));
         navigate('/checkout');
       } else {
         setCurrentStep(currentStep + 1);
@@ -70,6 +103,17 @@ const OnboardingPage = () => {
     }
   }, [currentStep]);
 
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD'
+    }).format(amount);
+  };
+
+  const handleProductSelect = (offering) => {
+    setSelectedOffering(offering);
+  };
+
   const progressPercentage = (currentStep + 1) / OnboardingSteps.length * 100;
 
   const renderStep = () => {
@@ -88,24 +132,82 @@ const OnboardingPage = () => {
             <h1 className="text-2xl font-bold mb-3 text-accu-tech-blue">{translate('purchaseDevice')}</h1>
             <p className="text-gray-600 mb-6">{translate('deviceArrivalMessage')}</p>
             
-            <div className="mb-6 flex justify-center">
-              <img 
-                src="https://h00ktt-1h.myshopify.com/cdn/shop/files/gempages_559218299439678285-292f3a7c-297f-4208-b019-985346c4ef7b.jpg?v=10467499079061507992" 
-                alt="Accu-Tech Laser Glucometer" 
-                className="w-64 h-auto object-contain rounded-lg shadow-md" 
-              />
+            <div className="space-y-3 mb-6">
+              {productOfferings.map((offering) => {
+                const offeringPrice = offering.price;
+                const offeringDiscount = offeringPrice * (offering.discount / 100);
+                const finalPrice = offeringPrice - offeringDiscount;
+                
+                return (
+                  <div 
+                    key={offering.id}
+                    onClick={() => handleProductSelect(offering)}
+                    className={`border rounded-lg overflow-hidden transition-all cursor-pointer hover:shadow-md ${
+                      selectedOffering.id === offering.id 
+                        ? 'border-accu-tech-blue bg-accu-tech-lightest' 
+                        : 'border-gray-200'
+                    }`}
+                  >
+                    <div className="flex items-center p-3">
+                      <div className={`w-6 h-6 rounded-full flex items-center justify-center mr-3 ${
+                        selectedOffering.id === offering.id 
+                          ? 'bg-accu-tech-blue text-white' 
+                          : 'border border-gray-300'
+                      }`}>
+                        {selectedOffering.id === offering.id && <Check className="h-3 w-3" />}
+                      </div>
+                      
+                      <div className="flex-1 flex items-center">
+                        <img 
+                          src={offering.image} 
+                          alt={`${offering.quantity} ${translate('deviceName')}`}
+                          className="w-16 h-16 object-contain mr-3"
+                        />
+                        
+                        <div className="flex-1 text-left mr-3">
+                          <div className="font-medium">
+                            {offering.quantity} {offering.quantity === 1 ? translate('unit') : translate('units')}
+                          </div>
+                          {offering.discount > 0 && (
+                            <div className="text-sm text-green-700">
+                              {offering.discount}% {translate('discount')}
+                            </div>
+                          )}
+                          {offering.id === 4 && (
+                            <span className="inline-block text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full mt-1">
+                              {translate('buy3get1')}
+                            </span>
+                          )}
+                        </div>
+                        
+                        <div className="text-right">
+                          <div className="font-bold">{formatCurrency(finalPrice)}</div>
+                          {offering.discount > 0 && (
+                            <div className="text-xs text-gray-500 line-through">{formatCurrency(offeringPrice)}</div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
             
-            <div className="bg-accu-tech-lightest p-4 rounded-lg mb-6">
-              <h3 className="font-bold mb-2">{translate('deviceName')}</h3>
-              <p className="text-sm mb-3">{translate('deviceDescription')}</p>
-              <p className="font-bold text-accu-tech-blue text-xl mb-1">$199.99</p>
-              <p className="text-sm text-gray-600">{translate('installments', { count: 12, value: '$16.67' })}</p>
+            <div className="bg-accu-tech-lightest p-4 rounded-lg mb-6 flex items-center">
+              <ShieldCheck className="h-5 w-5 text-green-600 mr-2" />
+              <p className="text-sm text-gray-600">
+                {translate('moneyBackGuarantee', { days: 30 })}
+              </p>
             </div>
             
-            <p className="text-sm text-gray-500 mb-4">
-              {translate('moneyBackGuarantee', { days: 30 })}
-            </p>
+            <div className="text-center mb-4">
+              <p className="text-sm text-gray-500">
+                {translate('installments', {
+                  count: 12, 
+                  value: formatCurrency(selectedOffering.price / 12)
+                })}
+              </p>
+            </div>
           </div>;
 
       case 'welcome':
