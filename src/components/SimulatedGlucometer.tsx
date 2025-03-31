@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -97,6 +98,68 @@ const SimulatedGlucometer: React.FC = () => {
       return <div className="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-medium">{translate('lowAlert')}</div>;
     }
   };
-  return;
+  
+  return (
+    <div className="bg-white rounded-lg shadow-md p-4">
+      <h2 className="text-lg font-medium mb-3">{translate('simulatedGlucometer')}</h2>
+      
+      <div className="flex flex-col items-center">
+        {measurementState === MeasurementState.READY && (
+          <>
+            <div className="text-center mb-4">
+              <p className="text-gray-600 mb-2">{translate('readyToMeasure')}</p>
+              <Button onClick={startMeasurement} className="gap-2">
+                <Play className="h-4 w-4" />
+                {translate('startMeasurement')}
+              </Button>
+            </div>
+          </>
+        )}
+        
+        {measurementState === MeasurementState.MEASURING && (
+          <>
+            <div className="w-full bg-gray-200 rounded-full h-2.5 mb-4">
+              <div 
+                className="bg-medical-primary h-2.5 rounded-full transition-all duration-300"
+                style={{ width: `${progress}%` }} 
+              />
+            </div>
+            <p className="text-sm text-gray-500 mb-4">{translate('measuring')} {progress}%</p>
+            <Button 
+              variant="outline" 
+              onClick={() => setMeasurementState(MeasurementState.READY)}
+              className="gap-2"
+            >
+              <Pause className="h-4 w-4" />
+              {translate('cancel')}
+            </Button>
+          </>
+        )}
+        
+        {measurementState === MeasurementState.COMPLETE && currentReading !== null && (
+          <>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="text-4xl font-bold">{currentReading}</div>
+              <div className="text-gray-500 text-sm">{translate('mgdl')}</div>
+              {getTrendIcon(userData.glucoseReadings)}
+            </div>
+            
+            <div className="mb-4">
+              {renderReadingStatus()}
+            </div>
+            
+            <Button 
+              onClick={resetMeasurement}
+              className="gap-2"
+            >
+              <Play className="h-4 w-4" />
+              {translate('newMeasurement')}
+            </Button>
+          </>
+        )}
+      </div>
+    </div>
+  );
 };
+
 export default SimulatedGlucometer;

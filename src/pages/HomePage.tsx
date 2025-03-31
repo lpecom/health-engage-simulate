@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -52,6 +53,59 @@ const HomePage = () => {
       });
     }
   }, [userData.achievements, toast, translate]);
+  
+  // Learn About GlucoVista Component
+  const LearnAboutGlucoVista = () => (
+    <Card className="mb-4">
+      <CardContent className="p-4">
+        <h2 className="text-lg font-medium mb-4">{translate('learnAboutGlucoVista')}</h2>
+        
+        <div className="space-y-3">
+          <Button 
+            variant="outline" 
+            className="w-full justify-between py-6 px-4"
+            onClick={() => navigate('/learn/how-it-works')}
+          >
+            <div className="flex items-center">
+              <div className="w-8 h-8 rounded-full bg-medical-light/50 flex items-center justify-center mr-3">
+                <History className="h-4 w-4 text-medical-dark" />
+              </div>
+              <span className="font-medium">{translate('howitworks')}</span>
+            </div>
+            <ChevronRight className="h-5 w-5 text-gray-400" />
+          </Button>
+          
+          <Button 
+            variant="outline" 
+            className="w-full justify-between py-6 px-4"
+            onClick={() => navigate('/learn/benefits')}
+          >
+            <div className="flex items-center">
+              <div className="w-8 h-8 rounded-full bg-warm-light/50 flex items-center justify-center mr-3">
+                <Award className="h-4 w-4 text-warm-primary" />
+              </div>
+              <span className="font-medium">{translate('benefits')}</span>
+            </div>
+            <ChevronRight className="h-5 w-5 text-gray-400" />
+          </Button>
+          
+          <Button 
+            variant="outline" 
+            className="w-full justify-between py-6 px-4"
+            onClick={() => navigate('/learn/safety')}
+          >
+            <div className="flex items-center">
+              <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-3">
+                <div className="h-4 w-4 text-green-600">✓</div>
+              </div>
+              <span className="font-medium">{translate('safety')}</span>
+            </div>
+            <ChevronRight className="h-5 w-5 text-gray-400" />
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
   
   return (
     <div className="min-h-screen bg-gray-50 pb-16">
@@ -113,6 +167,9 @@ const HomePage = () => {
           />
         )}
       
+        {/* Learn About GlucoVista section moved here, before the tabs */}
+        <LearnAboutGlucoVista />
+        
         <Tabs defaultValue="measure" className="w-full">
           <TabsList className="grid grid-cols-4 bg-white rounded-lg shadow-md">
             <TabsTrigger value="measure" className="py-2">
@@ -220,55 +277,7 @@ const HomePage = () => {
           </TabsContent>
           
           <TabsContent value="learn" className="mt-4">
-            <Card>
-              <CardContent className="p-4">
-                <h2 className="text-lg font-medium mb-4">{translate('learnAboutGlucoVista')}</h2>
-                
-                <div className="space-y-3">
-                  <Button 
-                    variant="outline" 
-                    className="w-full justify-between py-6 px-4"
-                    onClick={() => navigate('/learn/how-it-works')}
-                  >
-                    <div className="flex items-center">
-                      <div className="w-8 h-8 rounded-full bg-medical-light/50 flex items-center justify-center mr-3">
-                        <History className="h-4 w-4 text-medical-dark" />
-                      </div>
-                      <span className="font-medium">{translate('howitworks')}</span>
-                    </div>
-                    <ChevronRight className="h-5 w-5 text-gray-400" />
-                  </Button>
-                  
-                  <Button 
-                    variant="outline" 
-                    className="w-full justify-between py-6 px-4"
-                    onClick={() => navigate('/learn/benefits')}
-                  >
-                    <div className="flex items-center">
-                      <div className="w-8 h-8 rounded-full bg-warm-light/50 flex items-center justify-center mr-3">
-                        <Award className="h-4 w-4 text-warm-primary" />
-                      </div>
-                      <span className="font-medium">{translate('benefits')}</span>
-                    </div>
-                    <ChevronRight className="h-5 w-5 text-gray-400" />
-                  </Button>
-                  
-                  <Button 
-                    variant="outline" 
-                    className="w-full justify-between py-6 px-4"
-                    onClick={() => navigate('/learn/safety')}
-                  >
-                    <div className="flex items-center">
-                      <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-3">
-                        <div className="h-4 w-4 text-green-600">✓</div>
-                      </div>
-                      <span className="font-medium">{translate('safety')}</span>
-                    </div>
-                    <ChevronRight className="h-5 w-5 text-gray-400" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+            {/* Removed the Learn About GlucoVista section from here since it's now shown above the tabs */}
           </TabsContent>
           
           <TabsContent value="awards" className="mt-4">
