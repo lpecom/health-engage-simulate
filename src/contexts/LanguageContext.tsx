@@ -148,6 +148,14 @@ export const LanguageProvider = ({ children }) => {
       getStarted: "Comenzar",
       proceedToPayment: "Proceder al Pago",
       selectOfferDescription: "Elige el paquete perfecto para tus necesidades",
+      
+      // Language
+      language: "Idioma",
+      selectLanguage: "Seleccionar Idioma",
+      saveAndReturn: "Guardar y Volver",
+      spanish: "Español",
+      portuguese: "Portugués",
+      english: "Inglés",
 
       // Device
       deviceName: "Glucómetro Láser Accu-Tech",
@@ -243,6 +251,85 @@ export const LanguageProvider = ({ children }) => {
       trackProgressDescription: "Ver tendencias y patrones en tus niveles de glucosa a lo largo del tiempo.",
       earnAchievements: "Ganar Logros",
       earnAchievementsDescription: "Completa objetivos y desbloquea recompensas mientras mantienes niveles saludables.",
+      
+      // Home page
+      lastReading: "Última Lectura",
+      mmolL: "mmol/L",
+      mgdl: "mg/dL",
+      viewTrends: "Ver Tendencias",
+      yourDevice: "Tu Dispositivo",
+      connect: "Conectar",
+      connected: "Conectado",
+      takeMeasurement: "Tomar Medición",
+      dailyTips: "Consejos Diarios",
+      learnMore: "Aprender Más",
+      recentReadings: "Lecturas Recientes",
+      time: "Hora",
+      value: "Valor",
+      viewAll: "Ver Todo",
+      learningCenter: "Centro de Aprendizaje",
+      todayTip: "Consejo del Día",
+      exerciseTip: "El ejercicio puede ayudar a mejorar la sensibilidad a la insulina y reducir los niveles de glucosa en sangre.",
+      waterTip: "Mantenerse hidratado es importante para mantener niveles saludables de glucosa.",
+      sleepTip: "El sueño adecuado puede mejorar el control de la glucosa en sangre.",
+      foodTip: "Las comidas equilibradas con proteínas, grasas saludables y fibra pueden prevenir picos de glucosa.",
+      stressTip: "Manejar el estrés puede ayudar a mantener estables los niveles de glucosa en sangre.",
+      high: "Alto",
+      normal: "Normal",
+      low: "Bajo",
+      
+      // Profile
+      profile: "Perfil",
+      personalInformation: "Información Personal",
+      healthMetrics: "Métricas de Salud",
+      targetRange: "Rango Objetivo",
+      weight: "Peso",
+      height: "Altura",
+      updateProfile: "Actualizar Perfil",
+      settings: "Configuración",
+      notifications: "Notificaciones",
+      darkMode: "Modo Oscuro",
+      unitPreference: "Preferencia de Unidad",
+      logOut: "Cerrar Sesión",
+      accountSettings: "Configuración de la Cuenta",
+      changePassword: "Cambiar Contraseña",
+      deleteAccount: "Eliminar Cuenta",
+      emailNotifications: "Notificaciones por Correo",
+      appNotifications: "Notificaciones de la Aplicación",
+      
+      // Learning center
+      diabetesBasics: "Conceptos Básicos de la Diabetes",
+      nutrition: "Nutrición",
+      exercise: "Ejercicio",
+      mentalHealth: "Salud Mental",
+      medication: "Medicación",
+      
+      // Error messages
+      connectionFailed: "Falló la conexión. Inténtalo de nuevo.",
+      invalidReading: "Lectura no válida. Asegúrate de que el dispositivo esté correctamente posicionado.",
+      sessionExpired: "Tu sesión ha expirado. Por favor, inicia sesión de nuevo.",
+      incompleteForm: "Por favor, completa todos los campos requeridos.",
+      
+      // Success messages
+      profileUpdated: "Perfil actualizado con éxito.",
+      readingSaved: "Lectura guardada con éxito.",
+      deviceConnected: "Dispositivo conectado correctamente.",
+      passwordChanged: "Contraseña cambiada con éxito.",
+      
+      // Personalized plan
+      personalizedPlan: "Plan Personalizado",
+      yourGoals: "Tus Objetivos",
+      weeklyProgress: "Progreso Semanal",
+      dailyTasks: "Tareas Diarias",
+      completedTasks: "Tareas Completadas",
+      streakDays: "Días Consecutivos",
+      mealPlan: "Plan de Comidas",
+      activityPlan: "Plan de Actividades",
+      medicationSchedule: "Horario de Medicación",
+      updatePlan: "Actualizar Plan",
+      viewDetails: "Ver Detalles",
+      completed: "Completado",
+      pending: "Pendiente",
     },
   };
 
