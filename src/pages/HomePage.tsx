@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -9,6 +10,7 @@ import SimulatedGlucometer from "@/components/SimulatedGlucometer";
 import DeviceShippingStatus from "@/components/DeviceShippingStatus";
 import { ActivitySquare, Award, Book, ChevronRight, History, Home, TrendingUp, User, LineChart, BarChart } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+
 const formatDateTime = (timestamp: number) => {
   return new Date(timestamp).toLocaleString(undefined, {
     month: 'short',
@@ -17,6 +19,7 @@ const formatDateTime = (timestamp: number) => {
     minute: '2-digit'
   });
 };
+
 const HomePage = () => {
   const {
     translate,
@@ -31,12 +34,14 @@ const HomePage = () => {
   } = useToast();
   const navigate = useNavigate();
   const [showDeviceConnector, setShowDeviceConnector] = useState(true);
+
   useEffect(() => {
     if (!userData.onboarded) {
       navigate('/onboarding');
     }
     checkAchievements();
   }, [userData.onboarded, navigate, checkAchievements]);
+
   useEffect(() => {
     const unlockedAchievements = userData.achievements.filter(a => a.unlocked);
     const latestAchievement = unlockedAchievements[unlockedAchievements.length - 1];
@@ -89,6 +94,7 @@ const HomePage = () => {
         </div>
       </CardContent>
     </Card>;
+
   return <div className="min-h-screen bg-gray-50 pb-16">
       <div className="gradient-medical text-white px-4 pt-6 pb-6">
         <div className="flex items-center mb-4">
@@ -134,11 +140,12 @@ const HomePage = () => {
       
       <div className="px-4 -mt-4">
         {showDeviceConnector && <DeviceShippingStatus onConnect={() => setShowDeviceConnector(false)} />}
+        
+        {/* Bluetooth Connection Component */}
+        <SimulatedGlucometer />
       
-        {/* Learn About GlucoVista section moved here, before the tabs */}
+        {/* Learn About GlucoVista section */}
         <LearnAboutGlucoVista />
-        
-        
       </div>
       
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-6 py-2">
@@ -156,4 +163,5 @@ const HomePage = () => {
       </div>
     </div>;
 };
+
 export default HomePage;
