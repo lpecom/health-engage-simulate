@@ -8,6 +8,20 @@ import { ShieldCheck, ArrowLeft, Truck, Package, Wallet, AlertCircle, Info } fro
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { 
+  Form, 
+  FormField, 
+  FormItem, 
+  FormLabel, 
+  FormControl, 
+  FormDescription, 
+  FormMessage 
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 // Product offering
 const productOfferings = [
@@ -41,24 +55,50 @@ const productOfferings = [
   }
 ];
 
+// Form validation schema
+const formSchema = z.object({
+  firstName: z.string().min(2, { message: 'First name must be at least 2 characters' }),
+  lastName: z.string().min(2, { message: 'Last name must be at least 2 characters' }),
+  email: z.string().email({ message: 'Please enter a valid email address' }),
+  phone: z.string().min(10, { message: 'Phone number must be at least 10 digits' })
+    .regex(/^[0-9+\s()-]+$/, { message: 'Please enter a valid phone number' }),
+  address1: z.string().min(5, { message: 'Address must be at least 5 characters' }),
+  address2: z.string().optional(),
+  city: z.string().min(2, { message: 'City must be at least 2 characters' }),
+  province: z.string().min(2, { message: 'Province/State must be at least 2 characters' }),
+  postalCode: z.string().min(4, { message: 'Postal/ZIP code must be at least 4 characters' }),
+  country: z.string().default('United States'),
+  orderNotes: z.string().optional(),
+});
+
+type CheckoutFormValues = z.infer<typeof formSchema>;
+
 const CheckoutPage = () => {
   const { translate } = useLanguage();
   const { userData } = useUser();
   const navigate = useNavigate();
   const { toast } = useToast();
   
-  // Form state
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [phone, setPhone] = useState('');
-  const [email, setEmail] = useState('');
-  const [address, setAddress] = useState('');
-  const [city, setCity] = useState('');
-  const [province, setProvince] = useState('');
-  const [postalCode, setPostalCode] = useState('');
-  
   // Product selection from onboarding
   const [selectedOffering, setSelectedOffering] = useState(productOfferings[0]);
+  
+  // Create form
+  const form = useForm<CheckoutFormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      firstName: '',
+      lastName: '',
+      email: '',
+      phone: '',
+      address1: '',
+      address2: '',
+      city: '',
+      province: '',
+      postalCode: '',
+      country: 'United States',
+      orderNotes: '',
+    },
+  });
   
   // Calculate prices
   const subtotal = selectedOffering.price;
@@ -85,26 +125,15 @@ const CheckoutPage = () => {
     };
   }, []);
   
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    
-    // Validation
-    if (!firstName || !lastName || !phone || !email || !address || !city || !province || !postalCode) {
-      toast({
-        title: "Error",
-        description: "Please fill in all required fields",
-        variant: "destructive",
-      });
-      return;
-    }
-    
+  // Form submission handler
+  const onSubmit = (values: CheckoutFormValues) => {    
     // Process order
     const orderNumber = `AC-${Math.floor(100000 + Math.random() * 900000)}`;
     
     // Save order data to session storage for confirmation page
     sessionStorage.setItem('order', JSON.stringify({
       orderNumber,
-      email,
+      email: values.email,
       product: {
         name: translate('deviceName'),
         quantity: selectedOffering.quantity,
@@ -112,14 +141,17 @@ const CheckoutPage = () => {
         discount: selectedOffering.discount
       },
       shipping: {
-        firstName,
-        lastName,
-        address,
-        city,
-        province,
-        postalCode,
-        phone
+        firstName: values.firstName,
+        lastName: values.lastName,
+        address1: values.address1,
+        address2: values.address2 || '',
+        city: values.city,
+        province: values.province,
+        postalCode: values.postalCode,
+        country: values.country,
+        phone: values.phone
       },
+      notes: values.orderNotes,
       paymentMethod: 'cash',
       total
     }));
@@ -201,123 +233,204 @@ const CheckoutPage = () => {
             <div className="bg-white rounded-lg shadow-md p-6 mb-6">
               <h2 className="text-xl font-bold mb-4">{translate('enterShippingAddress')}</h2>
               
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">{translate('firstName')}*</label>
-                    <input
-                      type="text"
-                      value={firstName}
-                      onChange={(e) => setFirstName(e.target.value)}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accu-tech-blue"
-                      required
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="firstName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{translate('firstName')}*</FormLabel>
+                          <FormControl>
+                            <Input placeholder="John" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="lastName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{translate('lastName')}*</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Doe" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
                     />
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">{translate('lastName')}*</label>
-                    <input
-                      type="text"
-                      value={lastName}
-                      onChange={(e) => setLastName(e.target.value)}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accu-tech-blue"
-                      required
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Email*</FormLabel>
+                          <FormControl>
+                            <Input type="email" placeholder="john.doe@example.com" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="phone"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>
+                            <div className="flex items-center gap-1">
+                              {translate('phone')}*
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger>
+                                    <Info className="h-4 w-4 text-gray-400" />
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>{translate('phoneRequired')}</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            </div>
+                          </FormLabel>
+                          <FormControl>
+                            <Input type="tel" placeholder="+1 (555) 123-4567" {...field} />
+                          </FormControl>
+                          <FormDescription className="text-xs">
+                            {translate('phoneRequired')}
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
                     />
                   </div>
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">{translate('phone')}*</label>
-                    <input
-                      type="tel"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accu-tech-blue"
-                      required
-                    />
-                    <p className="mt-1 text-sm text-gray-500">{translate('phoneRequired')}</p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Email*</label>
-                    <input
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accu-tech-blue"
-                      required
-                    />
-                  </div>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">{translate('address')}*</label>
-                  <input
-                    type="text"
-                    value={address}
-                    onChange={(e) => setAddress(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accu-tech-blue"
-                    required
+                  
+                  <FormField
+                    control={form.control}
+                    name="address1"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{translate('address')} 1*</FormLabel>
+                        <FormControl>
+                          <Input placeholder="123 Main St" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">{translate('city')}*</label>
-                    <input
-                      type="text"
-                      value={city}
-                      onChange={(e) => setCity(e.target.value)}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accu-tech-blue"
-                      required
+                  
+                  <FormField
+                    control={form.control}
+                    name="address2"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{translate('address')} 2 ({translate('optional')})</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Apartment, suite, unit, etc." {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="city"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{translate('city')}*</FormLabel>
+                          <FormControl>
+                            <Input placeholder="New York" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="province"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{translate('province')}*</FormLabel>
+                          <FormControl>
+                            <Input placeholder="NY" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="postalCode"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{translate('postalCode')}*</FormLabel>
+                          <FormControl>
+                            <Input placeholder="10001" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
                     />
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">{translate('province')}*</label>
-                    <input
-                      type="text"
-                      value={province}
-                      onChange={(e) => setProvince(e.target.value)}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accu-tech-blue"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">{translate('postalCode')}*</label>
-                    <input
-                      type="text"
-                      value={postalCode}
-                      onChange={(e) => setPostalCode(e.target.value)}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accu-tech-blue"
-                      required
-                    />
-                  </div>
-                </div>
-                
-                {/* Cash on Delivery Information */}
-                <div className="mt-4 border rounded-lg border-yellow-200 bg-yellow-50 p-4">
-                  <div className="flex items-start">
-                    <Wallet className="h-5 w-5 text-yellow-600 mt-0.5 mr-3 flex-shrink-0" />
-                    <div>
-                      <h3 className="font-medium text-yellow-800">{translate('cashOnDelivery')}</h3>
-                      <p className="text-sm text-yellow-700 mt-1">{translate('cashOnDeliveryDescription')}</p>
-                      <ul className="mt-2 text-sm text-yellow-700 space-y-1 list-disc pl-5">
-                        <li>{translate('prepareExactAmount')}</li>
-                        <li>{translate('courierCallBefore')}</li>
-                        <li>{translate('receiptProvided')}</li>
-                      </ul>
+                  
+                  <FormField
+                    control={form.control}
+                    name="orderNotes"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{translate('orderNotes')} ({translate('optional')})</FormLabel>
+                        <FormControl>
+                          <textarea 
+                            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accu-tech-blue min-h-[80px]"
+                            placeholder={translate('additionalInfo')}
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          {translate('orderNotesDescription')}
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  {/* Cash on Delivery Information */}
+                  <div className="mt-4 border rounded-lg border-yellow-200 bg-yellow-50 p-4">
+                    <div className="flex items-start">
+                      <Wallet className="h-5 w-5 text-yellow-600 mt-0.5 mr-3 flex-shrink-0" />
+                      <div>
+                        <h3 className="font-medium text-yellow-800">{translate('cashOnDelivery')}</h3>
+                        <p className="text-sm text-yellow-700 mt-1">{translate('cashOnDeliveryDescription')}</p>
+                        <ul className="mt-2 text-sm text-yellow-700 space-y-1 list-disc pl-5">
+                          <li>{translate('prepareExactAmount')}</li>
+                          <li>{translate('courierCallBefore')}</li>
+                          <li>{translate('receiptProvided')}</li>
+                        </ul>
+                      </div>
                     </div>
                   </div>
-                </div>
-                
-                <div className="pt-4">
-                  <Button
-                    type="submit"
-                    className="w-full buy-button"
-                  >
-                    {translate('completeOrderCOD')}
-                  </Button>
-                </div>
-              </form>
+                  
+                  <div className="pt-4">
+                    <Button
+                      type="submit"
+                      className="w-full buy-button"
+                    >
+                      {translate('completeOrderCOD')}
+                    </Button>
+                  </div>
+                </form>
+              </Form>
             </div>
           </div>
           
