@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Check, ArrowRight, Syringe, CircleCheck } from 'lucide-react';
 import { Progress } from "@/components/ui/progress";
 
-const OnboardingSteps = ['language', 'welcome', 'technology', 'benefits', 'profile', 'tutorial'];
+const OnboardingSteps = ['language', 'purchase', 'welcome', 'technology', 'benefits', 'profile', 'tutorial'];
 
 const OnboardingPage = () => {
   const { translate } = useLanguage();
@@ -21,7 +21,11 @@ const OnboardingPage = () => {
 
   const goToNextStep = () => {
     if (currentStep < OnboardingSteps.length - 1) {
-      setCurrentStep(currentStep + 1);
+      if (OnboardingSteps[currentStep] === 'purchase') {
+        navigate('/checkout');
+      } else {
+        setCurrentStep(currentStep + 1);
+      }
     } else {
       completeOnboarding();
     }
@@ -50,6 +54,14 @@ const OnboardingPage = () => {
     navigate('/home');
   };
 
+  useEffect(() => {
+    const fromCheckout = sessionStorage.getItem('fromCheckout');
+    if (fromCheckout === 'true' && currentStep === 1) {
+      setCurrentStep(2);
+      sessionStorage.removeItem('fromCheckout');
+    }
+  }, [currentStep]);
+
   const progressPercentage = (currentStep + 1) / OnboardingSteps.length * 100;
 
   const renderStep = () => {
@@ -61,6 +73,31 @@ const OnboardingPage = () => {
             <h1 className="text-3xl font-bold mb-2 text-accu-tech-blue">Accu-Tech Healthineers</h1>
             <p className="text-gray-600 mb-6">{translate('welcomeToApp')}</p>
             <LanguageSelector />
+          </div>;
+
+      case 'purchase':
+        return <div className="text-center">
+            <h1 className="text-2xl font-bold mb-3 text-accu-tech-blue">{translate('purchaseDevice')}</h1>
+            <p className="text-gray-600 mb-6">{translate('deviceArrivalMessage')}</p>
+            
+            <div className="mb-6 flex justify-center">
+              <img 
+                src="https://h00ktt-1h.myshopify.com/cdn/shop/files/gempages_559218299439678285-292f3a7c-297f-4208-b019-985346c4ef7b.jpg?v=10467499079061507992" 
+                alt="Accu-Tech Laser Glucometer" 
+                className="w-64 h-auto object-contain rounded-lg shadow-md" 
+              />
+            </div>
+            
+            <div className="bg-accu-tech-lightest p-4 rounded-lg mb-6">
+              <h3 className="font-bold mb-2">{translate('deviceName')}</h3>
+              <p className="text-sm mb-3">{translate('deviceDescription')}</p>
+              <p className="font-bold text-accu-tech-blue text-xl mb-1">$199.99</p>
+              <p className="text-sm text-gray-600">{translate('installments', { count: 12, value: '$16.67' })}</p>
+            </div>
+            
+            <p className="text-sm text-gray-500 mb-4">
+              {translate('moneyBackGuarantee', { days: 30 })}
+            </p>
           </div>;
 
       case 'welcome':
@@ -304,7 +341,9 @@ const OnboardingPage = () => {
               </Button>}
             
             <Button className="buy-button" onClick={goToNextStep}>
-              {currentStep === OnboardingSteps.length - 1 ? translate('getStarted') : translate('next')}
+              {currentStep === 1 ? translate('checkout') : 
+               currentStep === OnboardingSteps.length - 1 ? translate('getStarted') : 
+               translate('next')}
             </Button>
           </div>
         </div>

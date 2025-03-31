@@ -1,386 +1,376 @@
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Form, FormField, FormItem, FormLabel, FormControl } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Checkbox } from "@/components/ui/checkbox";
-import { useLanguage } from "@/contexts/LanguageContext";
-import { ChevronLeft, Check, Clock, ShieldCheck } from "lucide-react";
-import { useForm } from "react-hook-form";
+import { useLanguage } from '@/contexts/LanguageContext';
+import { useUser } from '@/contexts/UserContext';
+import { Button } from '@/components/ui/button';
+import { Check, ShieldCheck, ArrowLeft } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
-type ShippingInfo = {
-  firstName: string;
-  lastName: string;
-  phone: string;
-  address: string;
-  province: string;
-  city: string;
-  postalCode: string;
-};
-
-type ProductOption = {
-  id: number;
-  title: string;
-  price: number;
-  originalPrice: number;
-  units: number;
-  discount: string;
-  installments?: string;
-};
+// Product offering
+const productOfferings = [
+  { id: 1, quantity: 1, price: 199.99, discount: 0 },
+  { id: 2, quantity: 2, price: 399.98, discount: 10 },
+  { id: 3, quantity: 3, price: 599.97, discount: 20 },
+  { id: 4, quantity: 4, price: 799.96, discount: 25 }
+];
 
 const CheckoutPage = () => {
-  const { translate, language } = useLanguage();
+  const { translate } = useLanguage();
+  const { userData } = useUser();
   const navigate = useNavigate();
-  const [step, setStep] = useState<'products' | 'shipping'>('products');
-  const [selectedProduct, setSelectedProduct] = useState<ProductOption | null>(null);
+  const { toast } = useToast();
   
-  const productOptions: ProductOption[] = [
-    {
-      id: 1,
-      title: "Compra 1",
-      price: 45.03,
-      originalPrice: 75.80,
-      units: 1,
-      discount: "30% OFF",
-      installments: `${translate('installments', { count: 12, value: '€3.75' })}`
-    },
-    {
-      id: 2,
-      title: "Compra 2",
-      price: 59.00,
-      originalPrice: 118.00,
-      units: 2,
-      discount: "50% OFF",
-      installments: `${translate('installments', { count: 12, value: '€4.92' })}`
-    },
-    {
-      id: 3,
-      title: "Compra 3",
-      price: 69.00,
-      originalPrice: 118.00,
-      units: 3,
-      discount: `${translate('buy3get1')}`
-    }
-  ];
+  // Form state
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
+  const [address, setAddress] = useState('');
+  const [city, setCity] = useState('');
+  const [province, setProvince] = useState('');
+  const [postalCode, setPostalCode] = useState('');
   
-  const form = useForm<ShippingInfo>({
-    defaultValues: {
-      firstName: '',
-      lastName: '',
-      phone: '',
-      address: '',
-      province: '',
-      city: '',
-      postalCode: ''
-    }
-  });
+  // Product selection state
+  const [selectedOffering, setSelectedOffering] = useState(productOfferings[0]);
+  const [step, setStep] = useState(1); // 1 = product selection, 2 = shipping info
+  
+  // Calculate prices
+  const subtotal = selectedOffering.price;
+  const discount = subtotal * (selectedOffering.discount / 100);
+  const discountedSubtotal = subtotal - discount;
+  const shipping = 0; // Free shipping
+  const total = discountedSubtotal + shipping;
 
-  const handleProductSelect = (product: ProductOption) => {
-    setSelectedProduct(product);
+  // Handle returning to onboarding
+  useEffect(() => {
+    // Mark that we're coming from checkout if we're part of the onboarding
+    return () => {
+      if (window.location.pathname.includes('/checkout')) {
+        sessionStorage.setItem('fromCheckout', 'true');
+      }
+    };
+  }, []);
+  
+  const handleProductSelect = (offering) => {
+    setSelectedOffering(offering);
   };
   
-  const goToShipping = () => {
-    if (selectedProduct) {
-      setStep('shipping');
-    }
+  const proceedToShipping = () => {
+    setStep(2);
   };
   
-  const handleBackToProducts = () => {
-    setStep('products');
+  const goBackToProductSelection = () => {
+    setStep(1);
   };
   
-  const onSubmit = (data: ShippingInfo) => {
-    // Here you would typically send the order to your backend
-    console.log("Order submitted:", { product: selectedProduct, shipping: data });
+  const handleSubmit = (e) => {
+    e.preventDefault();
     
-    // Navigate to a success page or show a success message
+    // Validation
+    if (!firstName || !lastName || !phone || !email || !address || !city || !province || !postalCode) {
+      toast({
+        title: "Error",
+        description: "Please fill in all required fields",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // Process order
+    const orderNumber = `AC-${Math.floor(100000 + Math.random() * 900000)}`;
+    
+    // Save order data to session storage for confirmation page
+    sessionStorage.setItem('order', JSON.stringify({
+      orderNumber,
+      email,
+      product: {
+        name: translate('deviceName'),
+        quantity: selectedOffering.quantity,
+        price: selectedOffering.price,
+        discount: selectedOffering.discount
+      },
+      shipping: {
+        firstName,
+        lastName,
+        address,
+        city,
+        province,
+        postalCode,
+        phone
+      },
+      total
+    }));
+    
+    // Navigate to success page
     navigate('/order-success');
   };
 
-  // Product selection step
-  if (step === 'products') {
-    return (
-      <div className="min-h-screen bg-gray-50 pb-16 px-4 pt-6">
-        <h1 className="text-xl font-bold mb-4 text-center">{translate('selectOffer')}</h1>
-        
-        <div className="space-y-3 mb-6">
-          {productOptions.map((product) => (
-            <Card 
-              key={product.id} 
-              className={`border ${selectedProduct?.id === product.id ? 'border-accu-tech-blue' : 'border-gray-200'}`}
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD'
+    }).format(amount);
+  };
+  
+  const goBackToOnboarding = () => {
+    navigate('/onboarding');
+  };
+  
+  return (
+    <div className="min-h-screen bg-gray-50 pt-6 pb-12">
+      <div className="max-w-5xl mx-auto px-4">
+        <div className="flex justify-between items-center mb-8">
+          <div className="flex items-center">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="mr-2" 
+              onClick={goBackToOnboarding}
             >
-              <CardContent className="p-4">
-                <div className="flex items-start gap-3">
-                  <RadioGroup value={selectedProduct?.id.toString()} className="mt-1">
-                    <div className="flex items-center">
-                      <RadioGroupItem 
-                        value={product.id.toString()} 
-                        id={`product-${product.id}`} 
-                        onClick={() => handleProductSelect(product)}
-                      />
-                    </div>
-                  </RadioGroup>
-                  
-                  <div className="flex-1">
-                    <div className="flex items-center mb-1">
-                      <img 
-                        src="/lovable-uploads/12563003-3a79-4683-b6fa-482a7ee135e9.png" 
-                        alt="Accu-Tech 1" 
-                        className="w-12 h-12 object-contain mr-3" 
-                      />
-                      <div>
-                        <h3 className="font-semibold">
-                          {product.title} {product.discount && <span className="text-accu-tech-blue ml-1">{product.discount}</span>}
-                        </h3>
-                        <div className="flex items-center gap-2">
-                          <span className="font-bold">€{product.price.toFixed(2)}</span>
-                          {product.originalPrice && (
-                            <span className="text-gray-500 line-through text-sm">€{product.originalPrice.toFixed(2)}</span>
+              <ArrowLeft className="mr-1 h-4 w-4" />
+              {translate('back')}
+            </Button>
+            <img 
+              src="https://accu-tech.pro/wp-content/uploads/2024/08/Accu-Tech-1.png" 
+              alt="Accu-Tech Logo" 
+              className="h-8" 
+            />
+          </div>
+          <h1 className="text-xl font-bold text-gray-800">{translate('checkout')}</h1>
+        </div>
+        
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Main checkout area */}
+          <div className="lg:col-span-2">
+            {step === 1 ? (
+              <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+                <h2 className="text-xl font-bold mb-4">{translate('selectOffer')}</h2>
+                
+                {/* Product offerings */}
+                <div className="space-y-4 mb-6">
+                  {productOfferings.map(offering => (
+                    <div 
+                      key={offering.id}
+                      onClick={() => handleProductSelect(offering)}
+                      className={`border rounded-lg p-4 cursor-pointer transition-all ${
+                        selectedOffering.id === offering.id 
+                          ? 'border-accu-tech-blue bg-accu-tech-lightest' 
+                          : 'border-gray-200 hover:border-gray-300'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center">
+                          <div className={`w-5 h-5 rounded-full flex items-center justify-center mr-3 ${
+                            selectedOffering.id === offering.id 
+                              ? 'bg-accu-tech-blue text-white' 
+                              : 'border border-gray-300'
+                          }`}>
+                            {selectedOffering.id === offering.id && <Check className="h-3 w-3" />}
+                          </div>
+                          <div>
+                            <h3 className="font-medium">
+                              {offering.quantity} {offering.quantity === 1 ? translate('unit') : translate('unit') + 's'}
+                            </h3>
+                            {offering.id === 4 && (
+                              <span className="text-sm bg-green-100 text-green-800 px-2 py-0.5 rounded-full">
+                                {translate('buy3get1')}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-bold">{formatCurrency(offering.price - (offering.price * (offering.discount / 100)))}</p>
+                          {offering.discount > 0 && (
+                            <p className="text-sm text-gray-500 line-through">{formatCurrency(offering.price)}</p>
                           )}
                         </div>
                       </div>
                     </div>
-                    
-                    {product.installments && (
-                      <p className="text-sm text-gray-600 mt-1">{product.installments}</p>
-                    )}
+                  ))}
+                </div>
+                
+                <Button 
+                  className="w-full buy-button" 
+                  onClick={proceedToShipping}
+                >
+                  {translate('next')}
+                </Button>
+              </div>
+            ) : (
+              <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+                <h2 className="text-xl font-bold mb-4">{translate('enterShippingAddress')}</h2>
+                
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">{translate('firstName')}*</label>
+                      <input
+                        type="text"
+                        value={firstName}
+                        onChange={(e) => setFirstName(e.target.value)}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accu-tech-blue"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">{translate('lastName')}*</label>
+                      <input
+                        type="text"
+                        value={lastName}
+                        onChange={(e) => setLastName(e.target.value)}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accu-tech-blue"
+                        required
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">{translate('phone')}*</label>
+                      <input
+                        type="tel"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accu-tech-blue"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Email*</label>
+                      <input
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accu-tech-blue"
+                        required
+                      />
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{translate('address')}*</label>
+                    <input
+                      type="text"
+                      value={address}
+                      onChange={(e) => setAddress(e.target.value)}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accu-tech-blue"
+                      required
+                    />
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">{translate('city')}*</label>
+                      <input
+                        type="text"
+                        value={city}
+                        onChange={(e) => setCity(e.target.value)}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accu-tech-blue"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">{translate('province')}*</label>
+                      <input
+                        type="text"
+                        value={province}
+                        onChange={(e) => setProvince(e.target.value)}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accu-tech-blue"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">{translate('postalCode')}*</label>
+                      <input
+                        type="text"
+                        value={postalCode}
+                        onChange={(e) => setPostalCode(e.target.value)}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accu-tech-blue"
+                        required
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="pt-4 flex space-x-4">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={goBackToProductSelection}
+                    >
+                      {translate('back')}
+                    </Button>
+                    <Button
+                      type="submit"
+                      className="flex-1 buy-button"
+                    >
+                      {translate('finishOrder')}
+                    </Button>
+                  </div>
+                </form>
+              </div>
+            )}
+          </div>
+          
+          {/* Order summary */}
+          <div className="lg:col-span-1">
+            <div className="bg-white rounded-lg shadow-md p-6 sticky top-6">
+              <h2 className="text-lg font-bold mb-4">{translate('yourOrder')}</h2>
+              
+              <div className="border-b pb-4 mb-4">
+                <div className="flex items-start space-x-4">
+                  <img
+                    src="https://h00ktt-1h.myshopify.com/cdn/shop/files/gempages_559218299439678285-292f3a7c-297f-4208-b019-985346c4ef7b.jpg?v=10467499079061507992"
+                    alt={translate('deviceName')}
+                    className="w-16 h-16 object-contain rounded-md"
+                  />
+                  <div>
+                    <h3 className="font-medium">{translate('deviceName')}</h3>
+                    <p className="text-sm text-gray-500">{translate('deviceDescription')}</p>
+                    <div className="flex items-center mt-1">
+                      <span className="text-sm font-medium">Qty: {selectedOffering.quantity}</span>
+                    </div>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-        
-        <Button 
-          onClick={goToShipping} 
-          disabled={!selectedProduct}
-          className="w-full bg-accu-tech-blue hover:bg-accu-tech-dark-blue rounded-full py-3"
-        >
-          {translate('buy')} - €{selectedProduct?.price.toFixed(2) || '0.00'}
-        </Button>
-        
-        <Button 
-          variant="outline" 
-          className="w-full mt-3 border-gray-300 text-gray-600"
-          onClick={() => window.navigator.clipboard.writeText('ACCUTECH30')}
-        >
-          {translate('copyPromoCode')}
-        </Button>
-      </div>
-    );
-  }
-  
-  // Shipping information step
-  return (
-    <div className="min-h-screen bg-gray-50 pb-16">
-      <div className="gradient-medical text-white px-4 pt-6 pb-4">
-        <div className="flex items-center mb-4">
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="bg-white/10 hover:bg-white/20 rounded-full p-2 mr-3"
-            onClick={handleBackToProducts}
-          >
-            <ChevronLeft className="h-5 w-5" />
-          </Button>
-          <h1 className="text-xl font-bold">{translate('paymentOnDelivery')}</h1>
-        </div>
-      </div>
-      
-      <div className="px-4">
-        <Card className="mb-4 mt-4">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3 border-b pb-3 mb-3">
-              <img 
-                src="/lovable-uploads/12563003-3a79-4683-b6fa-482a7ee135e9.png" 
-                alt="Accu-Tech" 
-                className="w-12 h-12 object-contain" 
-              />
-              <div>
-                <p className="text-sm">Accu-Tech 1 {translate('unit')}</p>
-                <p className="text-xs text-gray-500">{selectedProduct?.units} {translate('unit')}</p>
               </div>
-              <div className="ml-auto">
-                <p className="font-bold">€{selectedProduct?.price.toFixed(2)}</p>
-                <p className="text-xs text-accu-tech-blue">{selectedProduct?.discount}</p>
+              
+              <div className="space-y-2 border-b pb-4 mb-4">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">{translate('subtotal')}</span>
+                  <span className="font-medium">{formatCurrency(subtotal)}</span>
+                </div>
+                
+                {selectedOffering.discount > 0 && (
+                  <div className="flex justify-between text-green-600">
+                    <span>{translate('discount')} ({selectedOffering.discount}%)</span>
+                    <span>-{formatCurrency(discount)}</span>
+                  </div>
+                )}
+                
+                <div className="flex justify-between">
+                  <span className="text-gray-600">{translate('shipping')}</span>
+                  <span className="font-medium text-green-600">{translate('free')}</span>
+                </div>
               </div>
-            </div>
-            
-            <div className="space-y-1 text-sm">
-              <div className="flex justify-between">
-                <span>{translate('subtotal')}</span>
-                <span>€{selectedProduct?.price.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>{translate('shipping')}</span>
-                <span className="text-accu-tech-blue">{translate('free')}</span>
-              </div>
-              <div className="flex justify-between font-bold pt-2 border-t mt-2">
+              
+              <div className="flex justify-between items-center text-lg font-bold mb-6">
                 <span>{translate('total')}</span>
-                <span>€{selectedProduct?.price.toFixed(2)}</span>
+                <span>{formatCurrency(total)}</span>
               </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card className="mb-4">
-          <CardContent className="p-4">
-            <h3 className="font-medium mb-3">{translate('shippingMethod')}</h3>
-            <div className="flex items-start gap-3 mb-1">
-              <RadioGroup value="free" className="mt-1">
-                <div className="flex items-center">
-                  <RadioGroupItem value="free" id="shipping-free" checked />
+              
+              <div className="bg-gray-50 rounded-lg p-4 space-y-2">
+                <div className="flex items-center text-sm text-gray-600">
+                  <ShieldCheck className="h-4 w-4 mr-2 text-green-600" />
+                  <span>{translate('moneyBackGuarantee', { days: 30 })}</span>
                 </div>
-              </RadioGroup>
-              <div className="flex items-center gap-2 flex-1">
-                <div className="w-8 h-8 rounded-full bg-accu-tech-lightest flex items-center justify-center">
-                  <Clock className="h-4 w-4 text-accu-tech-blue" />
-                </div>
-                <div>
-                  <p className="font-medium">{translate('freeShipping')}</p>
-                  <p className="text-sm text-gray-500">1-3 {translate('days')}</p>
-                </div>
-                <span className="ml-auto text-accu-tech-blue">{translate('free')}</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card className="mb-4">
-          <CardContent className="p-4">
-            <div className="flex items-start gap-3">
-              <Checkbox id="money-back" checked />
-              <div>
-                <label htmlFor="money-back" className="font-medium cursor-pointer">
-                  {translate('moneyBackGuarantee', { days: 90 })}
-                </label>
-                <div className="flex items-center mt-1 text-xs text-gray-500">
-                  <ShieldCheck className="h-3 w-3 mr-1" />
+                <div className="flex items-center text-sm text-gray-600">
+                  <ShieldCheck className="h-4 w-4 mr-2 text-green-600" />
                   <span>{translate('secureTransaction')}</span>
                 </div>
               </div>
             </div>
-          </CardContent>
-        </Card>
-        
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <Card>
-              <CardContent className="p-4">
-                <h3 className="font-medium mb-4">{translate('enterShippingAddress')}</h3>
-                
-                <div className="grid grid-cols-2 gap-4 mb-4">
-                  <FormField
-                    control={form.control}
-                    name="firstName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{translate('firstName')}</FormLabel>
-                        <FormControl>
-                          <Input placeholder="João" {...field} required />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="lastName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{translate('lastName')}</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Silva" {...field} required />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                
-                <FormField
-                  control={form.control}
-                  name="phone"
-                  render={({ field }) => (
-                    <FormItem className="mb-4">
-                      <FormLabel>{translate('phone')}</FormLabel>
-                      <FormControl>
-                        <Input placeholder="912345678" {...field} required />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="address"
-                  render={({ field }) => (
-                    <FormItem className="mb-4">
-                      <FormLabel>{translate('address')}</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Rua das Flores, 123" {...field} required />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                
-                <div className="grid grid-cols-2 gap-4 mb-4">
-                  <FormField
-                    control={form.control}
-                    name="province"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{translate('province')}</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Lisboa" {...field} required />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="city"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{translate('city')}</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Lisboa" {...field} required />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                
-                <FormField
-                  control={form.control}
-                  name="postalCode"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{translate('postalCode')}</FormLabel>
-                      <FormControl>
-                        <Input placeholder="1000-001" {...field} required />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-              </CardContent>
-            </Card>
-            
-            <div className="pt-2 pb-4">
-              <div className="flex justify-between mb-3">
-                <span className="font-medium">{translate('total')}:</span>
-                <span className="font-bold">€{selectedProduct?.price.toFixed(2)}</span>
-              </div>
-              
-              <Button type="submit" className="w-full bg-black text-white rounded-full py-3">
-                {translate('finishOrder')}
-              </Button>
-            </div>
-          </form>
-        </Form>
+          </div>
+        </div>
       </div>
     </div>
   );
