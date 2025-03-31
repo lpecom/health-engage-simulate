@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -30,7 +30,15 @@ const App = () => {
               <Sonner />
               <BrowserRouter>
                 <Routes>
-                  <Route path="/" element={<Navigate to="/onboarding" replace />} />
+                  <Route 
+                    path="/" 
+                    element={
+                      <Navigate 
+                        to={localStorage.getItem('onboardingComplete') === 'true' ? '/home' : '/onboarding'} 
+                        replace 
+                      />
+                    } 
+                  />
                   <Route path="/onboarding" element={<OnboardingPage />} />
                   <Route path="/checkout" element={<CheckoutPage />} />
                   <Route path="/home" element={<HomePage />} />

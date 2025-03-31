@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -52,9 +51,19 @@ const OnboardingPage = () => {
   const [selectedOffering, setSelectedOffering] = useState(productOfferings[0]);
 
   const [currentStep, setCurrentStep] = useState(() => {
+    const onboardingComplete = localStorage.getItem('onboardingComplete');
+    
+    if (onboardingComplete === 'true') {
+      const savedStep = sessionStorage.getItem('onboardingStep');
+      if (savedStep) {
+        sessionStorage.removeItem('onboardingStep');
+        return parseInt(savedStep);
+      }
+      return 2;
+    }
+    
     const savedStep = sessionStorage.getItem('onboardingStep');
     if (savedStep) {
-      // Clear the session storage after getting the step
       sessionStorage.removeItem('onboardingStep');
       return parseInt(savedStep);
     }
@@ -75,6 +84,11 @@ const OnboardingPage = () => {
   };
 
   const goToPreviousStep = () => {
+    const onboardingComplete = localStorage.getItem('onboardingComplete');
+    if (onboardingComplete === 'true' && currentStep <= 2) {
+      return;
+    }
+    
     if (currentStep > 0) {
       setCurrentStep(currentStep - 1);
     }
@@ -87,6 +101,7 @@ const OnboardingPage = () => {
       age: age ? parseInt(age) : userData.age,
       diabetesType: diabetesType as any || userData.diabetesType
     });
+    localStorage.setItem('onboardingComplete', 'true');
     navigate('/home');
   };
 
@@ -94,14 +109,14 @@ const OnboardingPage = () => {
     updateUserData({
       onboarded: true
     });
+    localStorage.setItem('onboardingComplete', 'true');
     navigate('/home');
   };
 
   useEffect(() => {
-    const fromCheckout = sessionStorage.getItem('fromCheckout');
-    if (fromCheckout === 'true' && currentStep === 1) {
+    const onboardingComplete = localStorage.getItem('onboardingComplete');
+    if (onboardingComplete === 'true' && currentStep < 2) {
       setCurrentStep(2);
-      sessionStorage.removeItem('fromCheckout');
     }
   }, [currentStep]);
 
@@ -427,30 +442,42 @@ const OnboardingPage = () => {
         
         <AnimatePresence mode="wait">
           <motion.div key={currentStep} initial={{
-          opacity: 0,
-          x: 20
-        }} animate={{
-          opacity: 1,
-          x: 0
-        }} exit={{
-          opacity: 0,
-          x: -20
-        }} transition={{
-          duration: 0.3
-        }} className="bg-white rounded-xl shadow-lg p-6 mb-8">
+            opacity: 0,
+            x: 20
+          }} animate={{
+            opacity: 1,
+            x: 0
+          }} exit={{
+            opacity: 0,
+            x: -20
+          }} transition={{
+            duration: 0.3
+          }} className="bg-white rounded-xl shadow-lg p-6 mb-8">
             {renderStep()}
           </motion.div>
         </AnimatePresence>
         
         <div className="flex justify-between">
-          {currentStep > 0 ? <Button variant="outline" onClick={goToPreviousStep}>
+          {currentStep > 0 && (
+            <Button 
+              variant="outline" 
+              onClick={goToPreviousStep}
+              disabled={localStorage.getItem('onboardingComplete') === 'true' && currentStep <= 2}
+            >
               {translate('back')}
-            </Button> : <div></div>}
+            </Button>
+          )}
           
           <div className="flex space-x-2">
-            {currentStep < OnboardingSteps.length - 1 && <Button variant="ghost" onClick={skipOnboarding}>
+            {currentStep < OnboardingSteps.length - 1 && (
+              <Button 
+                variant="ghost" 
+                onClick={skipOnboarding}
+                disabled={localStorage.getItem('onboardingComplete') === 'true' && currentStep <= 2}
+              >
                 {translate('skip')}
-              </Button>}
+              </Button>
+            )}
             
             <Button className="buy-button" onClick={goToNextStep}>
               {currentStep === 1 ? translate('proceedToPayment') : 
