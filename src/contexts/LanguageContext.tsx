@@ -103,7 +103,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       'other': 'Other',
       'profilePrivacyMessage': 'Your information is kept private and used only to customize your experience',
       'readyToStart': 'Ready to Start Your Journey',
-      'tutorialDescription': 'Here's a quick guide to using your glucose monitoring system',
+      'tutorialDescription': 'Here\'s a quick guide to using your glucose monitoring system',
       'measureGlucose': 'Measure Glucose',
       'measureGlucoseDescription': 'Use the device to take readings multiple times per day',
       'trackProgress': 'Track Progress',
