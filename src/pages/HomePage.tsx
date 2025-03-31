@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useUser } from "@/contexts/UserContext";
-import SimulatedGlucometer from "@/components/SimulatedGlucometer";
+import BluetoothConnector from "@/components/BluetoothConnector";
 import DeviceShippingStatus from "@/components/DeviceShippingStatus";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -119,7 +119,7 @@ const HomePage = () => {
           </TabsList>
           
           <div className="bg-gradient-to-r from-accu-tech-lightest to-white rounded-xl p-3 mb-4 shadow-sm border border-accu-tech-light-blue/20">
-            <h3 className="text-sm font-medium text-accu-tech-blue mb-2">Daily Tips for You</h3>
+            <h3 className="text-sm font-medium text-accu-tech-blue mb-2">Consejos Diarios</h3>
             <div className="space-y-2">
               {getTips().map((tip, index) => (
                 <div key={index} className="flex items-center text-sm">
@@ -131,7 +131,7 @@ const HomePage = () => {
           </div>
           
           <TabsContent value="measure" className="mt-1">
-            <SimulatedGlucometer />
+            <BluetoothConnector />
             
             {userData.glucoseReadings.length > 0 && (
               <div className="mt-6">
