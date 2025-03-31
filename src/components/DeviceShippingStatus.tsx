@@ -24,7 +24,7 @@ interface DeviceShippingStatusProps {
 const DeviceShippingStatus: React.FC<DeviceShippingStatusProps> = ({
   onConnect
 }) => {
-  const { translate } = useLanguage();
+  const { translate, language } = useLanguage();
   
   // Calculate estimated delivery date (24-48 hours from now)
   const getDeliveryDate = () => {
@@ -33,7 +33,7 @@ const DeviceShippingStatus: React.FC<DeviceShippingStatusProps> = ({
     const maxDelivery = new Date(now.getTime() + 48 * 60 * 60 * 1000);
     
     const formatDate = (date: Date) => {
-      return date.toLocaleDateString(undefined, { 
+      return date.toLocaleDateString(language === 'es' ? 'es-ES' : language === 'pt' ? 'pt-BR' : 'en-US', { 
         month: 'short', 
         day: 'numeric'
       });
