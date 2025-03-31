@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -290,7 +291,7 @@ const LearnPage = () => {
               variant="ghost" 
               size="icon" 
               className="mr-2 bg-white/10 hover:bg-white/20 rounded-full h-8 w-8"
-              onClick={() => navigate('/plan')}
+              onClick={() => navigate('/home')}
             >
               <ChevronLeft className="h-5 w-5" />
             </Button>
@@ -314,7 +315,7 @@ const LearnPage = () => {
         <div className="mt-8 flex justify-between">
           <Button 
             variant="outline" 
-            onClick={() => navigate('/plan')}
+            onClick={() => navigate('/home')}
           >
             {language === 'es' ? 'Volver al plan' : 'Voltar ao plano'}
           </Button>
@@ -324,7 +325,7 @@ const LearnPage = () => {
               onClick={() => {
                 earnPoints(25);
                 localStorage.setItem(`learn_${topic}`, 'true');
-                navigate('/plan');
+                navigate('/home');
                 
                 toast({
                   title: language === 'es' ? '¡Tema completado!' : 'Tema concluído!',
