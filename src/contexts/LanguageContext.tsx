@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 // Define the structure for translations
@@ -7,10 +8,15 @@ interface Translations {
   };
 }
 
+// Translation parameters interface
+interface TranslateParams {
+  [key: string]: string | number;
+}
+
 // Define the context type
 interface LanguageContextProps {
   language: string;
-  translate: (key: string) => string;
+  translate: (key: string, params?: TranslateParams) => string;
   setLanguage: (lang: string) => void;
 }
 
@@ -32,9 +38,18 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     localStorage.setItem('language', language);
   }, [language]);
 
-  // Function to translate a key to the current language
-  const translate = (key: string): string => {
-    return translations[language]?.[key] || key;
+  // Function to translate a key to the current language with parameter replacement
+  const translate = (key: string, params?: TranslateParams): string => {
+    let translation = translations[language]?.[key] || key;
+    
+    // Replace parameters if provided
+    if (params) {
+      Object.entries(params).forEach(([paramKey, paramValue]) => {
+        translation = translation.replace(`{{${paramKey}}}`, String(paramValue));
+      });
+    }
+    
+    return translation;
   };
 
   // Define translations for different languages
@@ -53,10 +68,8 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       'deviceOnTheWay': 'Your Device is On The Way',
       'yourDeviceIsBeingShipped': 'Your GlucoVista device is currently being shipped to your address. Please be ready to receive it.',
       'ordered': 'Ordered',
-      'shipping': 'Shipping',
       'delivered': 'Delivered',
       'estimatedDelivery': 'Estimated Delivery',
-      'days': 'days',
       'completed': 'Completed',
       'inProgress': 'In Progress',
       'pending': 'Pending',
@@ -170,6 +183,8 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       'deviceDescription': "Non-invasive glucose monitoring device",
       'installments': "In up to {{count}} installments of {{value}}",
       'buy3get1': "Buy 3 Get 1 Free",
+      'language': "Language",
+      'saveAndReturn': "Save and Return",
     },
     es: {
       'hello': 'Hola',
@@ -185,10 +200,8 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       'deviceOnTheWay': 'Tu Dispositivo está en Camino',
       'yourDeviceIsBeingShipped': 'Tu dispositivo GlucoVista está siendo enviado a tu dirección. Por favor, prepárate para recibirlo.',
       'ordered': 'Pedido',
-      'shipping': 'Enviando',
       'delivered': 'Entregado',
       'estimatedDelivery': 'Entrega Estimada',
-      'days': 'días',
       'completed': 'Completado',
       'inProgress': 'En Progreso',
       'pending': 'Pendiente',
@@ -270,7 +283,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       'buyNow': "Comprar Ahora",
       'selectOffer': "Seleccioná la oferta",
       'copyPromoCode': "Copiar código HTML",
-      'paymentOnDelivery': "PAGAMENTO NA ENTREGA",
+      'paymentOnDelivery': "PAGO A LA ENTREGA",
       'unit': "unidad",
       'subtotal': "Subtotal",
       'shipping': "Envío",
@@ -281,13 +294,13 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       'days': "días",
       'moneyBackGuarantee': "Garantía de devolución del dinero en {{days}} días",
       'secureTransaction': "Transacción segura",
-      'enterShippingAddress': "Introduzca o seu endereço de envio",
+      'enterShippingAddress': "Ingrese su dirección de envío",
       'firstName': "Nombre",
-      'lastName': "Sobrenome",
+      'lastName': "Apellido",
       'phone': "Teléfono",
-      'address': "Endereço",
+      'address': "Dirección",
       'province': "Provincia",
-      'city': "Cidade",
+      'city': "Ciudad",
       'postalCode': "Código Postal",
       'finishOrder': "Finalizar Pedido",
       'orderConfirmed': "¡Pedido Confirmado!",
@@ -302,6 +315,8 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       'deviceDescription': "Dispositivo de monitoreo de glucosa no invasivo",
       'installments': "En hasta {{count}} cuotas de {{value}}",
       'buy3get1': "Compra 3 y Llévate 1 Gratis",
+      'language': "Idioma",
+      'saveAndReturn': "Guardar y Volver",
     },
     pt: {
       'hello': 'Olá',
@@ -317,10 +332,8 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       'deviceOnTheWay': 'Seu Dispositivo está a Caminho',
       'yourDeviceIsBeingShipped': 'Seu dispositivo GlucoVista está sendo enviado para seu endereço. Por favor, esteja pronto para recebê-lo.',
       'ordered': 'Pedido',
-      'shipping': 'Enviando',
       'delivered': 'Entregue',
       'estimatedDelivery': 'Entrega Estimada',
-      'days': 'dias',
       'completed': 'Concluído',
       'inProgress': 'Em Andamento',
       'pending': 'Pendente',
@@ -434,6 +447,8 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       'deviceDescription': "Dispositivo de monitoramento de glicose não invasivo",
       'installments': "Em até {{count}} parcelas de {{value}}",
       'buy3get1': "Compre 3 e Leve 1 Grátis",
+      'language': "Idioma",
+      'saveAndReturn': "Salvar e Voltar",
     },
   };
 
