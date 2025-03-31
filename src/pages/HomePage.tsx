@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from "@/components/ui/card";
@@ -12,10 +11,12 @@ import Footer from "@/components/Footer";
 import { Progress } from "@/components/ui/progress";
 import { 
   ActivitySquare, Award, Book, ChevronRight, 
-  TrendingUp, LineChart, BarChart, Trophy, CalendarDays
+  TrendingUp, LineChart, BarChart, Trophy, CalendarDays,
+  HeartPulse, Target, Coffee
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const formatDateTime = (timestamp: number) => {
   return new Date(timestamp).toLocaleString(undefined, {
@@ -31,6 +32,7 @@ const HomePage = () => {
   const { userData, checkAchievements, markAchievementAsSeen } = useUser();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const [showDeviceConnector, setShowDeviceConnector] = useState(true);
   
   useEffect(() => {
@@ -71,6 +73,24 @@ const HomePage = () => {
     </div>
   );
   
+  const getTips = () => {
+    if (userData.diabetesType === 'type1') {
+      return [
+        { icon: <Coffee className="h-4 w-4 text-orange-500" />, text: "Try to maintain consistent meal times" },
+        { icon: <HeartPulse className="h-4 w-4 text-red-500" />, text: "Exercise can lower your blood glucose levels" }
+      ];
+    } else if (userData.diabetesType === 'type2') {
+      return [
+        { icon: <Target className="h-4 w-4 text-blue-500" />, text: "Aim for 30 minutes of exercise daily" },
+        { icon: <Coffee className="h-4 w-4 text-orange-500" />, text: "Limit processed carbohydrates" }
+      ];
+    }
+    return [
+      { icon: <HeartPulse className="h-4 w-4 text-red-500" />, text: "Regular monitoring helps build healthy habits" },
+      { icon: <Target className="h-4 w-4 text-blue-500" />, text: "Stay hydrated throughout the day" }
+    ];
+  };
+  
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
       <Header />
@@ -98,22 +118,17 @@ const HomePage = () => {
             </TabsTrigger>
           </TabsList>
           
-          {/* Progress summary above tabs - NEW */}
-          {userData.glucoseReadings.length > 0 && (
-            <div className="bg-white rounded-lg p-3 mb-4 shadow-sm border border-gray-100">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <CalendarDays className="h-4 w-4 text-accu-tech-blue mr-2" />
-                  <span className="text-sm font-medium">{translate('yourDailyProgress')}</span>
+          <div className="bg-gradient-to-r from-accu-tech-lightest to-white rounded-xl p-3 mb-4 shadow-sm border border-accu-tech-light-blue/20">
+            <h3 className="text-sm font-medium text-accu-tech-blue mb-2">Daily Tips for You</h3>
+            <div className="space-y-2">
+              {getTips().map((tip, index) => (
+                <div key={index} className="flex items-center text-sm">
+                  <div className="mr-2">{tip.icon}</div>
+                  <p className="text-gray-700">{tip.text}</p>
                 </div>
-                <span className="text-xs text-gray-500">
-                  {userData.lastMeasurementDate === new Date().toDateString() 
-                    ? translate('todayCompleted') 
-                    : translate('needTodayReading')}
-                </span>
-              </div>
+              ))}
             </div>
-          )}
+          </div>
           
           <TabsContent value="measure" className="mt-1">
             <SimulatedGlucometer />
@@ -171,7 +186,6 @@ const HomePage = () => {
                       <LineChart className="h-8 w-8 text-gray-400" />
                       <p className="text-sm text-gray-500 ml-2">{translate('glucoseChart')}</p>
                       
-                      {/* Fake chart overlay for visual appeal */}
                       <div className="absolute inset-0 flex items-center justify-center opacity-30">
                         <svg width="90%" height="70%" viewBox="0 0 100 50">
                           <path 
@@ -233,7 +247,6 @@ const HomePage = () => {
               </CardContent>
             </Card>
             
-            {/* Personalized Goal Card - NEW */}
             {userData.goal && (
               <Card className="border-0 shadow-md overflow-hidden mt-4">
                 <CardContent className="p-4">

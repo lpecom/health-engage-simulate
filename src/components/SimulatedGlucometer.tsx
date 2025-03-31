@@ -3,9 +3,10 @@ import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useUser } from "@/contexts/UserContext";
-import { Play, Pause, ArrowUp, ArrowRight, ArrowDown, Zap } from "lucide-react";
+import { Play, Pause, ArrowUp, ArrowRight, ArrowDown, Zap, Clock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Progress } from "@/components/ui/progress";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 // Generate a somewhat realistic glucose reading
 const generateReading = (targetLow: number, targetHigh: number): number => {
@@ -50,18 +51,14 @@ const SimulatedGlucometer: React.FC = () => {
   const { translate } = useLanguage();
   const { userData, addGlucoseReading } = useUser();
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   
   const [measurementState, setMeasurementState] = useState<MeasurementState>(MeasurementState.READY);
   const [progress, setProgress] = useState(0);
   const [currentReading, setCurrentReading] = useState<number | null>(null);
   
-  // Get time of day for personalized greetings
-  const getTimeBasedGreeting = () => {
-    const hours = new Date().getHours();
-    if (hours < 12) return translate('goodMorning');
-    if (hours < 18) return translate('goodAfternoon');
-    return translate('goodEvening');
-  };
+  // Check if user has measured today
+  const hasMeasuredToday = userData.lastMeasurementDate === new Date().toDateString();
   
   useEffect(() => {
     if (measurementState === MeasurementState.MEASURING) {
@@ -103,11 +100,18 @@ const SimulatedGlucometer: React.FC = () => {
     setCurrentReading(null);
   };
   
-  const getMotivationalMessage = () => {
-    if (userData.streak > 0) {
-      return `${translate('keepYourStreak')} ${userData.streak} ${translate('days')} 🔥`;
-    }
-    return translate('startYourJourney');
+  const getTimeUntilNextReading = () => {
+    if (!hasMeasuredToday) return null;
+    
+    const now = new Date();
+    const midnight = new Date();
+    midnight.setHours(24, 0, 0, 0);
+    
+    const diffMs = midnight.getTime() - now.getTime();
+    const diffHrs = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffMins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+    
+    return `${diffHrs}h ${diffMins}m`;
   };
   
   const renderReadingStatus = () => {
@@ -140,21 +144,33 @@ const SimulatedGlucometer: React.FC = () => {
   return (
     <div className="medical-card flex flex-col items-center">
       <div className="w-full max-w-sm mx-auto">
-        {/* Personalized greeting and motivation */}
-        <div className="text-center mb-3">
-          <p className="text-lg text-accu-tech-blue font-medium">{getTimeBasedGreeting()}</p>
-          <p className="text-sm text-gray-600">{getMotivationalMessage()}</p>
-        </div>
-        
         {/* Device simulation */}
-        <div className="relative rounded-xl overflow-hidden bg-gray-100 aspect-[2/3] mb-6 border-2 border-gray-200 shadow-md">
+        <div className={`relative rounded-xl overflow-hidden bg-gray-100 aspect-[2/3] mb-6 border-2 border-gray-200 shadow-lg ${isMobile ? 'max-h-[450px]' : ''}`}>
           {/* Screen */}
           <div className="absolute inset-4 bg-gray-800 rounded-lg flex flex-col items-center justify-center">
             {measurementState === MeasurementState.READY && (
               <div className="text-center text-white">
-                <div className="text-xl font-semibold mb-3">{translate('readyForYourGlucoseCheck')}</div>
-                <Play className="h-12 w-12 mx-auto text-accu-tech-blue animate-pulse-slow" />
-                <p className="text-sm text-gray-300 mt-3">{translate('quickAndEasy')}</p>
+                <div className="text-xl font-semibold mb-3">
+                  {hasMeasuredToday 
+                    ? translate('alreadyMeasured') 
+                    : translate('readyForYourGlucoseCheck')}
+                </div>
+                
+                {hasMeasuredToday ? (
+                  <div className="bg-accu-tech-blue/30 p-3 rounded-lg mb-3 flex items-center justify-center flex-col">
+                    <Clock className="h-8 w-8 mb-2 text-accu-tech-blue" />
+                    <p className="text-sm text-gray-300">Next reading available in:</p>
+                    <p className="text-xl font-bold text-white mt-1">{getTimeUntilNextReading()}</p>
+                  </div>
+                ) : (
+                  <Play className="h-12 w-12 mx-auto text-accu-tech-blue animate-pulse-slow" />
+                )}
+                
+                <p className="text-sm text-gray-300 mt-3">
+                  {hasMeasuredToday 
+                    ? `You've already checked your glucose today. Great job!` 
+                    : translate('quickAndEasy')}
+                </p>
               </div>
             )}
             
@@ -193,16 +209,16 @@ const SimulatedGlucometer: React.FC = () => {
                   </div>
                 )}
                 
-                <div className="mt-3 px-3 py-1 bg-accu-tech-lightest text-accu-tech-blue rounded-lg text-xs">
-                  <Zap className="h-3 w-3 inline mr-1" />
-                  {translate('pointsEarned')}: +10
+                <div className="mt-3 px-3 py-2 bg-accu-tech-lightest text-accu-tech-blue rounded-lg text-sm flex items-center justify-center">
+                  <Zap className="h-4 w-4 inline mr-1" />
+                  {translate('pointsEarned')}: +10 points
                 </div>
               </div>
             )}
           </div>
           
           {/* Button at bottom of device */}
-          <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 w-12 h-12 rounded-full bg-accu-tech-blue flex items-center justify-center shadow-lg hover:bg-accu-tech-blue/90 transition-colors">
+          <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 w-14 h-14 rounded-full bg-accu-tech-blue flex items-center justify-center shadow-lg hover:bg-accu-tech-blue/90 transition-all">
             {measurementState === MeasurementState.MEASURING ? (
               <Pause className="h-6 w-6 text-white" />
             ) : (
@@ -216,9 +232,12 @@ const SimulatedGlucometer: React.FC = () => {
           {measurementState === MeasurementState.READY && (
             <Button 
               onClick={startMeasurement}
-              className="bg-accu-tech-blue hover:bg-accu-tech-blue/90 text-white py-6 px-8 rounded-full font-medium text-lg shadow-md hover:shadow-lg transform transition hover:scale-105"
+              disabled={hasMeasuredToday}
+              className={`bg-accu-tech-blue hover:bg-accu-tech-blue/90 text-white py-6 px-8 rounded-full font-medium text-lg shadow-md hover:shadow-lg transform transition hover:scale-105 ${hasMeasuredToday ? 'opacity-70' : 'animate-pulse-slow'}`}
             >
-              {translate('checkYourGlucoseNow')}
+              {hasMeasuredToday 
+                ? translate('alreadyMeasuredToday')
+                : translate('checkYourGlucoseNow')}
             </Button>
           )}
           
