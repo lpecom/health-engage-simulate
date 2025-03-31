@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useUser } from "@/contexts/UserContext";
 import DeviceShippingStatus from "@/components/DeviceShippingStatus";
-import { ActivitySquare, Award, Book, ChevronRight, History, Home, TrendingUp, User, LineChart, BarChart } from "lucide-react";
+import { ActivitySquare, Award, Book, ChevronRight, History, Home, TrendingUp, User, LineChart, BarChart, ShoppingCart } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const formatDateTime = (timestamp: number) => {
@@ -142,6 +142,35 @@ const HomePage = () => {
         
         {/* BluetoothConnection component has been removed */}
       
+        {/* Buy Device Button */}
+        <Card className="mb-4 mt-4">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-4">
+              <img 
+                src="/lovable-uploads/dfc13871-35f5-4edb-9b1e-7851ddce07ac.png" 
+                alt="Accu-Tech Device" 
+                className="w-20 h-20 object-contain" 
+              />
+              <div className="flex-1">
+                <h3 className="font-semibold text-lg mb-1">Accu-Tech 1</h3>
+                <p className="text-sm text-gray-600 mb-2">{translate('deviceDescription')}</p>
+                <div className="flex items-center">
+                  <span className="font-bold text-xl mr-2">€45.03</span>
+                  <span className="text-gray-500 line-through text-sm">€75.80</span>
+                  <span className="ml-2 px-2 py-0.5 bg-accu-tech-light-blue text-accu-tech-blue rounded-full text-xs font-medium">30% OFF</span>
+                </div>
+              </div>
+            </div>
+            <Button 
+              onClick={() => navigate('/checkout')}
+              className="w-full mt-4 bg-accu-tech-blue hover:bg-accu-tech-dark-blue rounded-full"
+            >
+              <ShoppingCart className="mr-2 h-4 w-4" />
+              {translate('buyNow')}
+            </Button>
+          </CardContent>
+        </Card>
+        
         {/* Learn About GlucoVista section */}
         <LearnAboutGlucoVista />
       </div>

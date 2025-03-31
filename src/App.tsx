@@ -13,6 +13,8 @@ import ProfilePage from "./pages/ProfilePage";
 import LearnPage from "./pages/LearnPage";
 import LanguagePage from "./pages/LanguagePage";
 import PersonalizedPlanPage from "./pages/PersonalizedPlanPage";
+import CheckoutPage from "./pages/CheckoutPage";
+import OrderSuccessPage from "./pages/OrderSuccessPage";
 import NotFound from "./pages/NotFound";
 
 // Create a new QueryClient instance
@@ -36,6 +38,8 @@ const App = () => {
                   <Route path="/learn/:topic" element={<LearnPage />} />
                   <Route path="/language" element={<LanguagePage />} />
                   <Route path="/plan" element={<PersonalizedPlanPage />} />
+                  <Route path="/checkout" element={<CheckoutPage />} />
+                  <Route path="/order-success" element={<OrderSuccessPage />} />
                   {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                   <Route path="*" element={<NotFound />} />
                 </Routes>
