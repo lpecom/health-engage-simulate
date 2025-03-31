@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useUser } from '@/contexts/UserContext';
 import { Button } from '@/components/ui/button';
-import { Check, ShieldCheck, ArrowLeft, Package, CreditCard, Truck } from 'lucide-react';
+import { ShieldCheck, ArrowLeft, Truck, CreditCard } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent } from '@/components/ui/card';
 
@@ -56,9 +56,8 @@ const CheckoutPage = () => {
   const [province, setProvince] = useState('');
   const [postalCode, setPostalCode] = useState('');
   
-  // Product selection state
+  // Product selection from onboarding
   const [selectedOffering, setSelectedOffering] = useState(productOfferings[0]);
-  const [step, setStep] = useState(1); // 1 = product selection, 2 = shipping info
   
   // Calculate prices
   const subtotal = selectedOffering.price;
@@ -66,6 +65,14 @@ const CheckoutPage = () => {
   const discountedSubtotal = subtotal - discount;
   const shipping = 0; // Free shipping
   const total = discountedSubtotal + shipping;
+
+  // Load selected offering from session storage
+  useEffect(() => {
+    const savedOffering = sessionStorage.getItem('selectedOffering');
+    if (savedOffering) {
+      setSelectedOffering(JSON.parse(savedOffering));
+    }
+  }, []);
 
   // Handle returning to onboarding
   useEffect(() => {
@@ -76,18 +83,6 @@ const CheckoutPage = () => {
       }
     };
   }, []);
-  
-  const handleProductSelect = (offering) => {
-    setSelectedOffering(offering);
-  };
-  
-  const proceedToShipping = () => {
-    setStep(2);
-  };
-  
-  const goBackToProductSelection = () => {
-    setStep(1);
-  };
   
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -170,21 +165,13 @@ const CheckoutPage = () => {
           <CardContent className="p-6">
             <h2 className="text-lg font-bold mb-4">{translate('purchaseDevice')}</h2>
             <div className="flex items-center justify-between mb-6">
-              <div className="flex flex-col items-center">
+              <div className="flex flex-col items-center opacity-70">
                 <div className="w-10 h-10 bg-accu-tech-blue text-white rounded-full flex items-center justify-center mb-2">
-                  <Package className="h-5 w-5" />
-                </div>
-                <span className="text-sm font-medium">{translate('selectOffer')}</span>
-              </div>
-              <div className="flex-1 h-1 mx-4 bg-gray-200">
-                <div className={`h-full bg-accu-tech-blue ${step >= 2 ? 'w-full' : 'w-0'} transition-all duration-500`}></div>
-              </div>
-              <div className="flex flex-col items-center">
-                <div className={`w-10 h-10 ${step >= 2 ? 'bg-accu-tech-blue text-white' : 'bg-gray-200 text-gray-500'} rounded-full flex items-center justify-center mb-2`}>
                   <Truck className="h-5 w-5" />
                 </div>
                 <span className="text-sm font-medium">{translate('enterShippingAddress')}</span>
               </div>
+              
               <div className="flex-1 h-1 mx-4 bg-gray-200">
                 <div className="h-full bg-accu-tech-blue w-0 transition-all duration-500"></div>
               </div>
@@ -201,186 +188,110 @@ const CheckoutPage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main checkout area */}
           <div className="lg:col-span-2">
-            {step === 1 ? (
-              <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-                <h2 className="text-xl font-bold mb-4">{translate('selectOffer')}</h2>
-                
-                {/* Product offerings */}
-                <div className="space-y-4 mb-6">
-                  {productOfferings.map(offering => (
-                    <div 
-                      key={offering.id}
-                      onClick={() => handleProductSelect(offering)}
-                      className={`border rounded-lg p-4 cursor-pointer transition-all ${
-                        selectedOffering.id === offering.id 
-                          ? 'border-accu-tech-blue bg-accu-tech-lightest' 
-                          : 'border-gray-200 hover:border-gray-300'
-                      }`}
-                    >
-                      <div className="flex items-center">
-                        <div className={`w-5 h-5 rounded-full flex items-center justify-center mr-3 ${
-                          selectedOffering.id === offering.id 
-                            ? 'bg-accu-tech-blue text-white' 
-                            : 'border border-gray-300'
-                        }`}>
-                          {selectedOffering.id === offering.id && <Check className="h-3 w-3" />}
-                        </div>
-                        
-                        <div className="flex-1 flex items-center">
-                          <img 
-                            src={offering.image} 
-                            alt={`${offering.quantity} ${translate('deviceName')}`}
-                            className="w-16 h-16 object-contain mr-4"
-                          />
-                          
-                          <div className="flex-1">
-                            <h3 className="font-medium">
-                              {offering.quantity} {offering.quantity === 1 ? translate('unit') : translate('unit') + 's'}
-                            </h3>
-                            {offering.discount > 0 && (
-                              <span className="text-sm text-green-700">
-                                {offering.discount}% {translate('discount')}
-                              </span>
-                            )}
-                            {offering.id === 4 && (
-                              <span className="block text-sm bg-green-100 text-green-800 px-2 py-0.5 rounded-full mt-1 w-fit">
-                                {translate('buy3get1')}
-                              </span>
-                            )}
-                          </div>
-                          
-                          <div className="text-right">
-                            <p className="font-bold">{formatCurrency(offering.price - (offering.price * (offering.discount / 100)))}</p>
-                            {offering.discount > 0 && (
-                              <p className="text-sm text-gray-500 line-through">{formatCurrency(offering.price)}</p>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                
-                <Button 
-                  className="w-full buy-button" 
-                  onClick={proceedToShipping}
-                >
-                  {translate('next')}
-                </Button>
-              </div>
-            ) : (
-              <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-                <h2 className="text-xl font-bold mb-4">{translate('enterShippingAddress')}</h2>
-                
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">{translate('firstName')}*</label>
-                      <input
-                        type="text"
-                        value={firstName}
-                        onChange={(e) => setFirstName(e.target.value)}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accu-tech-blue"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">{translate('lastName')}*</label>
-                      <input
-                        type="text"
-                        value={lastName}
-                        onChange={(e) => setLastName(e.target.value)}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accu-tech-blue"
-                        required
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">{translate('phone')}*</label>
-                      <input
-                        type="tel"
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accu-tech-blue"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Email*</label>
-                      <input
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accu-tech-blue"
-                        required
-                      />
-                    </div>
-                  </div>
-                  
+            <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+              <h2 className="text-xl font-bold mb-4">{translate('enterShippingAddress')}</h2>
+              
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">{translate('address')}*</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{translate('firstName')}*</label>
                     <input
                       type="text"
-                      value={address}
-                      onChange={(e) => setAddress(e.target.value)}
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
                       className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accu-tech-blue"
                       required
                     />
                   </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">{translate('city')}*</label>
-                      <input
-                        type="text"
-                        value={city}
-                        onChange={(e) => setCity(e.target.value)}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accu-tech-blue"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">{translate('province')}*</label>
-                      <input
-                        type="text"
-                        value={province}
-                        onChange={(e) => setProvince(e.target.value)}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accu-tech-blue"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">{translate('postalCode')}*</label>
-                      <input
-                        type="text"
-                        value={postalCode}
-                        onChange={(e) => setPostalCode(e.target.value)}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accu-tech-blue"
-                        required
-                      />
-                    </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{translate('lastName')}*</label>
+                    <input
+                      type="text"
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accu-tech-blue"
+                      required
+                    />
                   </div>
-                  
-                  <div className="pt-4 flex space-x-4">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={goBackToProductSelection}
-                    >
-                      {translate('back')}
-                    </Button>
-                    <Button
-                      type="submit"
-                      className="flex-1 buy-button"
-                    >
-                      {translate('finishOrder')}
-                    </Button>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{translate('phone')}*</label>
+                    <input
+                      type="tel"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accu-tech-blue"
+                      required
+                    />
                   </div>
-                </form>
-              </div>
-            )}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Email*</label>
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accu-tech-blue"
+                      required
+                    />
+                  </div>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{translate('address')}*</label>
+                  <input
+                    type="text"
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accu-tech-blue"
+                    required
+                  />
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{translate('city')}*</label>
+                    <input
+                      type="text"
+                      value={city}
+                      onChange={(e) => setCity(e.target.value)}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accu-tech-blue"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{translate('province')}*</label>
+                    <input
+                      type="text"
+                      value={province}
+                      onChange={(e) => setProvince(e.target.value)}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accu-tech-blue"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{translate('postalCode')}*</label>
+                    <input
+                      type="text"
+                      value={postalCode}
+                      onChange={(e) => setPostalCode(e.target.value)}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accu-tech-blue"
+                      required
+                    />
+                  </div>
+                </div>
+                
+                <div className="pt-4">
+                  <Button
+                    type="submit"
+                    className="w-full buy-button"
+                  >
+                    {translate('finishOrder')}
+                  </Button>
+                </div>
+              </form>
+            </div>
           </div>
           
           {/* Order summary */}
@@ -432,7 +343,7 @@ const CheckoutPage = () => {
               <div className="bg-gray-50 rounded-lg p-4 space-y-2">
                 <div className="flex items-center text-sm text-gray-600">
                   <ShieldCheck className="h-4 w-4 mr-2 text-green-600" />
-                  <span>{translate('moneyBackGuarantee', { days: 30 })}</span>
+                  <span>{translate('moneyBackGuarantee')}</span>
                 </div>
                 <div className="flex items-center text-sm text-gray-600">
                   <ShieldCheck className="h-4 w-4 mr-2 text-green-600" />

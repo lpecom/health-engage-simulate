@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -130,9 +131,9 @@ const OnboardingPage = () => {
       case 'purchase':
         return <div className="text-center">
             <h1 className="text-2xl font-bold mb-3 text-accu-tech-blue">{translate('purchaseDevice')}</h1>
-            <p className="text-gray-600 mb-6">{translate('deviceArrivalMessage')}</p>
+            <p className="text-gray-600 mb-4">{translate('selectOfferDescription')}</p>
             
-            <div className="space-y-3 mb-6">
+            <div className="space-y-3 mb-5">
               {productOfferings.map((offering) => {
                 const offeringPrice = offering.price;
                 const offeringDiscount = offeringPrice * (offering.discount / 100);
@@ -193,14 +194,14 @@ const OnboardingPage = () => {
               })}
             </div>
             
-            <div className="bg-accu-tech-lightest p-4 rounded-lg mb-6 flex items-center">
-              <ShieldCheck className="h-5 w-5 text-green-600 mr-2" />
+            <div className="bg-accu-tech-lightest p-4 rounded-lg mb-4 flex items-center">
+              <ShieldCheck className="h-5 w-5 text-green-600 mr-2 flex-shrink-0" />
               <p className="text-sm text-gray-600">
-                {translate('moneyBackGuarantee', { days: 30 })}
+                {translate('moneyBackGuarantee')}
               </p>
             </div>
             
-            <div className="text-center mb-4">
+            <div className="text-center mb-3">
               <p className="text-sm text-gray-500">
                 {translate('installments', {
                   count: 12, 
@@ -451,7 +452,7 @@ const OnboardingPage = () => {
               </Button>}
             
             <Button className="buy-button" onClick={goToNextStep}>
-              {currentStep === 1 ? translate('checkout') : 
+              {currentStep === 1 ? translate('proceedToPayment') : 
                currentStep === OnboardingSteps.length - 1 ? translate('getStarted') : 
                translate('next')}
             </Button>
