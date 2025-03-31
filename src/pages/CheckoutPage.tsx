@@ -177,6 +177,7 @@ const CheckoutPage = () => {
   };
   
   const goBackToOnboarding = () => {
+    sessionStorage.setItem('onboardingStep', '1');
     navigate('/onboarding');
   };
   
