@@ -27,11 +27,15 @@ const MainNavigation = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { translate } = useLanguage();
-  const { userData } = useUser();
+  const { userData, markAchievementAsSeen } = useUser();
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
 
   const isActive = (path: string) => {
     return location.pathname === path;
+  };
+
+  const handleNotificationClick = (achievementId: string) => {
+    markAchievementAsSeen(achievementId);
   };
 
   return (
@@ -140,7 +144,11 @@ const MainNavigation = () => {
                 userData.achievements
                   .filter(a => a.unlocked && !a.seen)
                   .map((achievement) => (
-                    <DropdownMenuItem key={achievement.id} className="py-2">
+                    <DropdownMenuItem 
+                      key={achievement.id} 
+                      className="py-2"
+                      onClick={() => handleNotificationClick(achievement.id)}
+                    >
                       <div className="flex items-center">
                         <div className="mr-2">{achievement.icon}</div>
                         <div>
