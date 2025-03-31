@@ -6,7 +6,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useUser } from "@/contexts/UserContext";
-import BluetoothConnection from "@/components/BluetoothConnection";
 import DeviceShippingStatus from "@/components/DeviceShippingStatus";
 import { ActivitySquare, Award, Book, ChevronRight, History, Home, TrendingUp, User, LineChart, BarChart } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -141,8 +140,7 @@ const HomePage = () => {
       <div className="px-4 -mt-4">
         {showDeviceConnector && <DeviceShippingStatus onConnect={() => setShowDeviceConnector(false)} />}
         
-        {/* Bluetooth Connection Component */}
-        <BluetoothConnection />
+        {/* BluetoothConnection component has been removed */}
       
         {/* Learn About GlucoVista section */}
         <LearnAboutGlucoVista />
