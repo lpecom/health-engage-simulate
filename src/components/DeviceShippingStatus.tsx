@@ -37,6 +37,15 @@ const DeviceShippingStatus: React.FC<DeviceShippingStatusProps> = ({
             {translate('deviceOnTheWay')}
           </h3>
           
+          {/* Device image added here */}
+          <div className="my-3">
+            <img 
+              src="https://accu-tech.pro/wp-content/uploads/2024/08/device.png" 
+              alt="GlucoVista Device" 
+              className="w-40 h-auto rounded-lg shadow-md"
+            />
+          </div>
+          
           <p className="text-sm text-gray-600 max-w-xs">
             {translate('yourDeviceIsBeingShipped')}
           </p>
