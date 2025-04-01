@@ -27,29 +27,38 @@ serve(async (req) => {
     if (tableError) {
       console.error('Error creating settings table:', tableError)
       
-      // Try direct SQL if RPC fails
-      const { error: sqlError } = await supabaseClient.from('_manual_sql').select('*').eq('name', 'create_settings_table').single()
+      // Create settings table directly if RPC fails
+      const { error: directError } = await supabaseClient.rpc('exec', {
+        sql: `
+          CREATE TABLE IF NOT EXISTS public.settings (
+            id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+            key TEXT NOT NULL UNIQUE,
+            value JSONB NOT NULL DEFAULT '{}'::jsonb,
+            created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL,
+            updated_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL
+          );
+          
+          -- Create a function to handle updating the updated_at timestamp if it doesn't exist
+          CREATE OR REPLACE FUNCTION public.handle_updated_at()
+          RETURNS TRIGGER AS $$
+          BEGIN
+            NEW.updated_at = now();
+            RETURN NEW;
+          END;
+          $$ LANGUAGE plpgsql;
+          
+          -- Create a trigger for updating the timestamp
+          DROP TRIGGER IF EXISTS set_updated_at ON public.settings;
+          CREATE TRIGGER set_updated_at
+          BEFORE UPDATE ON public.settings
+          FOR EACH ROW
+          EXECUTE FUNCTION public.handle_updated_at();
+        `
+      })
       
-      if (sqlError) {
-        console.error('Error running manual SQL:', sqlError)
-        
-        // Last resort: create table directly
-        const { error: directError } = await supabaseClient.rpc('exec', {
-          sql: `
-            CREATE TABLE IF NOT EXISTS public.settings (
-              id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-              key TEXT NOT NULL UNIQUE,
-              value JSONB NOT NULL DEFAULT '{}'::jsonb,
-              created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL,
-              updated_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL
-            );
-          `
-        })
-        
-        if (directError) {
-          console.error('Error creating settings table directly:', directError)
-          throw new Error('Could not create settings table')
-        }
+      if (directError) {
+        console.error('Error creating settings table directly:', directError)
+        throw new Error('Could not create settings table')
       }
     }
 

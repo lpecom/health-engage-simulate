@@ -35,6 +35,14 @@ const ShopifySettings = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [ordersCount, setOrdersCount] = useState<number | null>(null);
   
+  // Update local state when context values change
+  useEffect(() => {
+    setLocalShopName(shopName);
+    setLocalAccessToken(accessToken);
+    setLocalApiKey(apiKey);
+    setLocalApiSecret(apiSecret);
+  }, [shopName, accessToken, apiKey, apiSecret]);
+  
   // Check if we have any orders in Supabase
   useEffect(() => {
     const fetchOrdersCount = async () => {
@@ -56,13 +64,16 @@ const ShopifySettings = () => {
     fetchOrdersCount();
   }, []);
   
+  // Set connection status based on isConfigured
   useEffect(() => {
-    // Set connection status based on isConfigured
     setConnectionStatus(isConfigured ? 'success' : 'idle');
   }, [isConfigured]);
   
+  useEffect(() => {
+    setConnectionStatus(isConnecting ? 'connecting' : connectionStatus);
+  }, [isConnecting]);
+  
   const handleConnect = async () => {
-    setConnectionStatus('connecting');
     setErrorMessage('');
     
     setShopName(localShopName);

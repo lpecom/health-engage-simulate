@@ -2,7 +2,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from '@/integrations/supabase/client';
-import ShopifyService, { ShopifyOrderPayload } from '@/services/ShopifyService';
+import { ShopifyOrderPayload } from '@/services/ShopifyService';
 
 interface ShopifyContextType {
   isConfigured: boolean;
@@ -41,87 +41,79 @@ export interface CheckoutOrderData {
   };
 }
 
-// Default Shopify test store credentials
-const DEFAULT_SHOPIFY_STORE = 'h00ktt-1h';
-const DEFAULT_SHOPIFY_TOKEN = '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';
-const DEFAULT_SHOPIFY_API_KEY = '503954b7fa4651188b15be6895625719';
-const DEFAULT_SHOPIFY_API_SECRET = '09283c1b816d60e082382805f8521908';
-
 const ShopifyContext = createContext<ShopifyContextType | undefined>(undefined);
 
 export const ShopifyProvider: React.FC<ShopifyProviderProps> = ({ children }) => {
   const { toast } = useToast();
-  const [shopName, setShopName] = useState<string>(() => {
-    return localStorage.getItem('shopify_shop_name') || DEFAULT_SHOPIFY_STORE;
-  });
-  
-  const [accessToken, setAccessToken] = useState<string>(() => {
-    return localStorage.getItem('shopify_access_token') || DEFAULT_SHOPIFY_TOKEN;
-  });
-
-  const [apiKey, setApiKey] = useState<string>(() => {
-    return localStorage.getItem('shopify_api_key') || DEFAULT_SHOPIFY_API_KEY;
-  });
-
-  const [apiSecret, setApiSecret] = useState<string>(() => {
-    return localStorage.getItem('shopify_api_secret') || DEFAULT_SHOPIFY_API_SECRET;
-  });
-  
+  const [shopName, setShopName] = useState<string>('');
+  const [accessToken, setAccessToken] = useState<string>('');
+  const [apiKey, setApiKey] = useState<string>('');
+  const [apiSecret, setApiSecret] = useState<string>('');
   const [isConnecting, setIsConnecting] = useState(false);
   const [isConfigured, setIsConfigured] = useState(false);
   
-  // Save values to localStorage when they change
+  // Load settings from Supabase on mount
   useEffect(() => {
-    if (shopName) {
-      localStorage.setItem('shopify_shop_name', shopName);
-    }
-  }, [shopName]);
-  
-  useEffect(() => {
-    if (accessToken) {
-      localStorage.setItem('shopify_access_token', accessToken);
-    }
-  }, [accessToken]);
-
-  useEffect(() => {
-    if (apiKey) {
-      localStorage.setItem('shopify_api_key', apiKey);
-    }
-  }, [apiKey]);
-
-  useEffect(() => {
-    if (apiSecret) {
-      localStorage.setItem('shopify_api_secret', apiSecret);
-    }
-  }, [apiSecret]);
-  
-  // Check if credentials are valid on mount
-  useEffect(() => {
-    const validateCredentials = async () => {
-      if (shopName && accessToken && apiKey && apiSecret) {
-        try {
-          const shopifyService = new ShopifyService({ 
-            shopName, 
-            accessToken,
-            apiKey,
-            apiSecret
-          });
-          const isValid = await shopifyService.validateCredentials();
-          setIsConfigured(isValid);
-          
-          if (isValid) {
-            console.log('Shopify integration is configured with valid credentials');
-          } else {
-            console.log('Shopify integration is configured but credentials are invalid');
-          }
-        } catch (error) {
-          console.error('Failed to validate Shopify credentials:', error);
+    const loadSettings = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('settings')
+          .select('value')
+          .eq('key', 'shopify')
+          .single();
+        
+        if (error) {
+          console.log('No Shopify settings found or error fetching:', error);
+          return;
         }
+        
+        if (data?.value) {
+          const { shopName: storedShopName, accessToken: storedToken, apiKey: storedKey, apiSecret: storedSecret } = data.value;
+          setShopName(storedShopName || '');
+          setAccessToken(storedToken || '');
+          setApiKey(storedKey || '');
+          setApiSecret(storedSecret || '');
+          
+          // If we have stored values, check if they're valid
+          if (storedShopName && storedToken && storedKey && storedSecret) {
+            validateStoredCredentials();
+          }
+        }
+      } catch (error) {
+        console.error('Failed to load Shopify settings:', error);
       }
     };
     
-    validateCredentials();
-  }, [shopName, accessToken, apiKey, apiSecret]);
+    loadSettings();
+  }, []);
+  
+  // Validate stored credentials
+  const validateStoredCredentials = async () => {
+    try {
+      const { data: validationData, error: validationError } = await supabase.functions.invoke('shopify', {
+        body: {
+          action: 'validateCredentials'
+        }
+      });
+      
+      if (validationError) {
+        console.error('Error validating credentials:', validationError);
+        setIsConfigured(false);
+        return;
+      }
+      
+      if (validationData.success) {
+        console.log('Shopify credentials validated successfully');
+        setIsConfigured(true);
+      } else {
+        console.log('Stored Shopify credentials are invalid');
+        setIsConfigured(false);
+      }
+    } catch (error) {
+      console.error('Failed to validate Shopify credentials:', error);
+      setIsConfigured(false);
+    }
+  };
   
   const connectToShopify = async (): Promise<boolean> => {
     if (!shopName || !accessToken || !apiKey || !apiSecret) {
@@ -136,54 +128,58 @@ export const ShopifyProvider: React.FC<ShopifyProviderProps> = ({ children }) =>
     setIsConnecting(true);
     
     try {
-      const shopifyService = new ShopifyService({ 
-        shopName, 
-        accessToken,
-        apiKey,
-        apiSecret
+      // First store the credentials in Supabase
+      const { error: saveError } = await supabase
+        .from('settings')
+        .upsert({
+          key: 'shopify',
+          value: {
+            shopName,
+            accessToken,
+            apiKey,
+            apiSecret,
+            lastUpdated: new Date().toISOString()
+          }
+        });
+        
+      if (saveError) {
+        console.error('Failed to save Shopify settings:', saveError);
+        toast({
+          title: "Connection Error",
+          description: "Failed to save your Shopify settings",
+          variant: "destructive",
+        });
+        return false;
+      }
+      
+      // Validate the credentials
+      const { data: validationData, error: validationError } = await supabase.functions.invoke('shopify', {
+        body: {
+          action: 'validateCredentials'
+        }
       });
       
-      const isValid = await shopifyService.validateCredentials();
+      if (validationError) {
+        console.error('Error validating credentials:', validationError);
+        toast({
+          title: "Connection Error",
+          description: "Failed to validate Shopify connection",
+          variant: "destructive",
+        });
+        return false;
+      }
       
-      if (isValid) {
+      if (validationData.success) {
         setIsConfigured(true);
-        
-        // Store settings in Supabase if we're connected
-        try {
-          const { data, error } = await supabase
-            .from('settings')
-            .upsert({
-              key: 'shopify',
-              value: {
-                shopName,
-                accessToken: 'REDACTED', // Don't store actual token in database
-                apiKey: 'REDACTED', // Don't store actual key in database
-                apiSecret: 'REDACTED', // Don't store actual secret in database
-                connected: true,
-                lastVerified: new Date().toISOString()
-              }
-            })
-            .select();
-            
-          if (error) {
-            console.error('Error saving Shopify settings to Supabase:', error);
-          } else {
-            console.log('Shopify settings saved to Supabase');
-          }
-        } catch (error) {
-          console.error('Failed to save Shopify settings to Supabase:', error);
-          // Continue even if Supabase save fails
-        }
-        
         toast({
           title: "Connected to Shopify",
-          description: "Your store was successfully connected",
+          description: `Successfully connected to ${shopName} store`,
         });
         return true;
       } else {
         toast({
           title: "Connection Failed",
-          description: "Unable to connect to Shopify. Please check your credentials.",
+          description: "Invalid Shopify credentials. Please check and try again.",
           variant: "destructive",
         });
         return false;
@@ -192,7 +188,7 @@ export const ShopifyProvider: React.FC<ShopifyProviderProps> = ({ children }) =>
       console.error('Error connecting to Shopify:', error);
       toast({
         title: "Connection Error",
-        description: "Failed to connect to Shopify. Please try again.",
+        description: "An unexpected error occurred. Please try again.",
         variant: "destructive",
       });
       return false;
@@ -212,13 +208,6 @@ export const ShopifyProvider: React.FC<ShopifyProviderProps> = ({ children }) =>
     }
     
     try {
-      const shopifyService = new ShopifyService({ 
-        shopName, 
-        accessToken,
-        apiKey,
-        apiSecret
-      });
-      
       // Map local order data to Shopify format
       const payload: ShopifyOrderPayload = {
         order: {
@@ -253,8 +242,34 @@ export const ShopifyProvider: React.FC<ShopifyProviderProps> = ({ children }) =>
       
       console.log('Exporting order to Shopify with payload:', JSON.stringify(payload));
       
-      const response = await shopifyService.createOrder(payload);
-      console.log('Order successfully exported to Shopify:', response);
+      const { data: orderResponse, error: orderError } = await supabase.functions.invoke('shopify', {
+        body: {
+          action: 'createOrder',
+          payload
+        }
+      });
+      
+      if (orderError || !orderResponse) {
+        console.error('Error creating Shopify order:', orderError || 'No response');
+        toast({
+          title: "Export Failed",
+          description: "Failed to create order in Shopify",
+          variant: "destructive",
+        });
+        return false;
+      }
+      
+      if (orderResponse.error) {
+        console.error('Shopify order creation failed:', orderResponse.error);
+        toast({
+          title: "Export Failed",
+          description: orderResponse.error,
+          variant: "destructive",
+        });
+        return false;
+      }
+      
+      console.log('Order successfully exported to Shopify:', orderResponse);
       
       // Save the order to Supabase
       try {
@@ -274,7 +289,7 @@ export const ShopifyProvider: React.FC<ShopifyProviderProps> = ({ children }) =>
             city: orderData.shipping.city,
             zip_code: orderData.shipping.postalCode,
             exported_to_shopify: true,
-            shopify_order_id: response?.order?.id?.toString(),
+            shopify_order_id: orderResponse?.order?.id?.toString(),
             status: 'pending',
             payment_method: 'COD'
           })
