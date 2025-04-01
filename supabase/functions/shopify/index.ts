@@ -1,4 +1,3 @@
-
 // Follow this setup guide to integrate the Deno language server with your editor:
 // https://deno.land/manual/getting_started/setup_your_environment
 // This enables autocomplete, go to definition, etc.
@@ -13,15 +12,18 @@ interface ShopifyRequestPayload {
   payload?: any;
 }
 
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Content-Type': 'application/json',
+};
+
 serve(async (req) => {
   // This is needed if you're planning to invoke your function from a browser.
   if (req.method === 'OPTIONS') {
     return new Response('ok', {
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-      },
+      headers: corsHeaders,
     })
   }
 
@@ -32,14 +34,20 @@ serve(async (req) => {
     // Check for required environment variables
     if (!SHOPIFY_STORE_NAME || !SHOPIFY_ACCESS_TOKEN || !SHOPIFY_API_KEY || !SHOPIFY_API_SECRET) {
       console.error('Missing required Shopify environment variables');
+      
+      // Log which variables are missing for easier debugging
+      const missingVars = [];
+      if (!SHOPIFY_STORE_NAME) missingVars.push('SHOPIFY_STORE_NAME');
+      if (!SHOPIFY_ACCESS_TOKEN) missingVars.push('SHOPIFY_ACCESS_TOKEN');
+      if (!SHOPIFY_API_KEY) missingVars.push('SHOPIFY_API_KEY');
+      if (!SHOPIFY_API_SECRET) missingVars.push('SHOPIFY_API_SECRET');
+      
       return new Response(JSON.stringify({
-        error: 'Shopify is not configured. Missing required environment variables.'
+        error: 'Shopify is not configured. Missing required environment variables.',
+        details: `Missing variables: ${missingVars.join(', ')}`
       }), {
         status: 400,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-        },
+        headers: corsHeaders,
       });
     }
     
@@ -72,44 +80,55 @@ serve(async (req) => {
           headers: headers
         });
 
+        // Log full response for debugging
+        const responseText = await response.text();
+        console.log(`Shopify validation response status: ${response.status}`);
+        console.log(`Shopify validation response body: ${responseText}`);
+        
+        let responseData;
+        try {
+          responseData = JSON.parse(responseText);
+        } catch (e) {
+          responseData = null; 
+        }
+
         if (response.ok) {
-          const shopData = await response.json();
-          console.log('Credentials validated successfully with Access Token');
           return new Response(JSON.stringify({
             success: true,
-            shop: shopData.shop
+            shop: responseData?.shop || responseData
           }), {
-            headers: {
-              'Content-Type': 'application/json',
-              'Access-Control-Allow-Origin': '*',
-            },
+            headers: corsHeaders,
           });
         }
         
-        const responseText = await response.text();
         console.error('Validation failed with status:', response.status, responseText);
         
+        let errorMessage = 'Invalid credentials';
+        let errorDetails = responseText;
+        
+        if (response.status === 401) {
+          errorMessage = 'Authentication failed: Invalid API key or access token';
+        } else if (response.status === 404) {
+          errorMessage = 'Store not found: The Shopify store name may be incorrect';
+          errorDetails = `Could not connect to ${formattedShopName}.myshopify.com - Please verify the store name is correct`;
+        }
+        
         return new Response(JSON.stringify({
-          error: 'Invalid credentials',
+          error: errorMessage,
           status: response.status,
-          details: responseText
+          details: errorDetails
         }), {
-          status: 401,
-          headers: {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*',
-          },
+          status: response.status,
+          headers: corsHeaders,
         });
       } catch (error) {
         console.error('Error during credentials validation:', error);
         return new Response(JSON.stringify({
-          error: 'Error validating credentials: ' + error.message
+          error: 'Error validating credentials: ' + error.message,
+          details: JSON.stringify(error, null, 2)
         }), {
           status: 500,
-          headers: {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*',
-          },
+          headers: corsHeaders,
         });
       }
     }
@@ -120,10 +139,7 @@ serve(async (req) => {
           error: 'Missing order payload'
         }), {
           status: 400,
-          headers: {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*',
-          },
+          headers: corsHeaders,
         })
       }
 
@@ -146,10 +162,7 @@ serve(async (req) => {
             status: response.status
           }), {
             status: response.status,
-            headers: {
-              'Content-Type': 'application/json',
-              'Access-Control-Allow-Origin': '*',
-            },
+            headers: corsHeaders,
           });
         }
 
@@ -213,22 +226,17 @@ serve(async (req) => {
       error: 'Invalid action'
     }), {
       status: 400,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
+      headers: corsHeaders,
     });
 
   } catch (error) {
     console.error('Error in Shopify function:', error);
     return new Response(JSON.stringify({
-      error: error.message
+      error: error.message,
+      details: JSON.stringify(error, null, 2)
     }), {
       status: 500,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
+      headers: corsHeaders,
     });
   }
 })

@@ -7,7 +7,7 @@ import { ShopifyOrderPayload } from '@/services/ShopifyService';
 interface ShopifyContextType {
   isConfigured: boolean;
   isConnecting: boolean;
-  connectToShopify: () => Promise<boolean>;
+  connectToShopify: () => Promise<{success: boolean, error?: string, details?: string}>;
   exportOrder: (orderData: CheckoutOrderData) => Promise<boolean>;
 }
 
@@ -76,35 +76,69 @@ export const ShopifyProvider: React.FC<ShopifyProviderProps> = ({ children }) =>
     }
   };
   
-  const connectToShopify = async (): Promise<boolean> => {
+  const connectToShopify = async (): Promise<{success: boolean, error?: string, details?: string}> => {
     setIsConnecting(true);
     
     try {
       // Validate the credentials using edge function
-      const isValid = await validateCredentials();
+      const { data, error } = await supabase.functions.invoke('shopify', {
+        body: {
+          action: 'validateCredentials'
+        }
+      });
       
-      if (isValid) {
+      if (error) {
+        console.error('Error connecting to Shopify:', error);
+        toast({
+          title: "Connection Error",
+          description: "Failed to connect to the Shopify API: " + error.message,
+          variant: "destructive",
+        });
+        setIsConfigured(false);
+        return {
+          success: false, 
+          error: error.message,
+          details: JSON.stringify(error, null, 2)
+        };
+      }
+      
+      if (data?.success) {
         toast({
           title: "Connected to Shopify",
           description: "Successfully connected to your Shopify store",
         });
-        return true;
+        setIsConfigured(true);
+        return {success: true};
       } else {
+        const errorMessage = data?.error || "Invalid Shopify credentials";
+        const errorDetails = data?.details || (data ? JSON.stringify(data, null, 2) : null);
+        
         toast({
           title: "Connection Failed",
-          description: "Invalid Shopify credentials. Please check your Supabase secrets and try again.",
+          description: errorMessage,
           variant: "destructive",
         });
-        return false;
+        
+        setIsConfigured(false);
+        return {
+          success: false, 
+          error: errorMessage,
+          details: errorDetails
+        };
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error connecting to Shopify:', error);
       toast({
         title: "Connection Error",
-        description: "An unexpected error occurred. Please check the Edge Function logs.",
+        description: "An unexpected error occurred: " + (error.message || "Unknown error"),
         variant: "destructive",
       });
-      return false;
+      setIsConfigured(false);
+      return {
+        success: false, 
+        error: "An unexpected error occurred", 
+        details: error.message
+      };
     } finally {
       setIsConnecting(false);
     }

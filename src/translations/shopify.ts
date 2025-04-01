@@ -14,7 +14,10 @@ export const shopifyTranslations: Record<string, TranslationMap> = {
     'processing': 'Procesando...',
     'shopifyIntegrated': 'Este pedido se exportará a Shopify',
     'orderError': 'Error en el pedido',
-    'orderErrorDesc': 'Ha ocurrido un error procesando tu pedido. Inténtalo de nuevo.'
+    'orderErrorDesc': 'Ha ocurrido un error procesando tu pedido. Inténtalo de nuevo.',
+    'storeNotFound': 'Tienda no encontrada: El nombre de la tienda Shopify puede ser incorrecto',
+    'checkCredentials': 'Comprueba tus credenciales en los secretos de Supabase',
+    'testConnection': 'Probar conexión'
   },
   pt: {
     'shopifyIntegration': 'Integração com Shopify',
@@ -28,7 +31,10 @@ export const shopifyTranslations: Record<string, TranslationMap> = {
     'processing': 'Processando...',
     'shopifyIntegrated': 'Este pedido será exportado para o Shopify',
     'orderError': 'Erro no pedido',
-    'orderErrorDesc': 'Ocorreu um erro ao processar seu pedido. Tente novamente.'
+    'orderErrorDesc': 'Ocorreu um erro ao processar seu pedido. Tente novamente.',
+    'storeNotFound': 'Loja não encontrada: O nome da loja Shopify pode estar incorreto',
+    'checkCredentials': 'Verifique suas credenciais nos segredos do Supabase',
+    'testConnection': 'Testar conexão'
   },
   it: {
     'shopifyIntegration': 'Integrazione con Shopify',
@@ -42,6 +48,9 @@ export const shopifyTranslations: Record<string, TranslationMap> = {
     'processing': 'Elaborazione in corso...',
     'shopifyIntegrated': 'Questo ordine verrà esportato su Shopify',
     'orderError': 'Errore nell\'ordine',
-    'orderErrorDesc': 'Si è verificato un errore durante l\'elaborazione dell\'ordine. Riprova.'
+    'orderErrorDesc': 'Si è verificato un errore durante l\'elaborazione dell\'ordine. Riprova.',
+    'storeNotFound': 'Negozio non trovato: Il nome del negozio Shopify potrebbe essere errato',
+    'checkCredentials': 'Controlla le tue credenziali nei segreti Supabase',
+    'testConnection': 'Testa connessione'
   }
 };
