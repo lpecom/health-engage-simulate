@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 type DiabetesType = 'type1' | 'type2' | 'prediabetes' | 'gestational' | 'other';
@@ -24,6 +23,16 @@ type Achievement = {
   maxProgress?: number;
 };
 
+interface ShippingInfo {
+  firstName: string;
+  lastName: string;
+  phone: string;
+  address: string;
+  city: string;
+  province: string;
+  postalCode: string;
+}
+
 interface UserData {
   name: string;
   age: number | null;
@@ -44,6 +53,7 @@ interface UserData {
   lastMeasurementDate: string | null;
   glucoseReadings: GlucoseReading[];
   achievements: Achievement[];
+  shippingInfo?: ShippingInfo;
 }
 
 interface UserContextType {
@@ -127,7 +137,6 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return savedData ? JSON.parse(savedData) : defaultUserData;
   });
 
-  // Save to localStorage whenever userData changes
   useEffect(() => {
     localStorage.setItem('userData', JSON.stringify(userData));
   }, [userData]);
@@ -136,7 +145,6 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUserData(prevData => {
       const newData = { ...prevData, ...data };
       
-      // Check if profile is now complete to unlock achievement
       if (data.name || data.age || data.diabetesType) {
         if (newData.name && newData.age && newData.diabetesType) {
           checkProfileCompleteAchievement(newData);
@@ -163,26 +171,21 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         lastMeasurementDate: today
       };
       
-      // Add points for taking a measurement
       newData.points += 10;
       
-      return newData;
+      if (userData.glucoseReadings.length === 0) {
+        unlockAchievement('first-measurement');
+        earnPoints(50);
+      }
+      
+      checkAndUpdateStreak();
     });
-
-    // Check for first measurement achievement
-    if (userData.glucoseReadings.length === 0) {
-      unlockAchievement('first-measurement');
-      earnPoints(50); // Bonus points for first measurement
-    }
-    
-    checkAndUpdateStreak();
   };
 
   const checkAndUpdateStreak = () => {
     const today = new Date().toDateString();
     
     if (userData.lastMeasurementDate === null) {
-      // First measurement ever
       setUserData(prevData => ({
         ...prevData,
         streak: 1,
@@ -194,12 +197,10 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const lastDate = new Date(userData.lastMeasurementDate);
     const currentDate = new Date(today);
     
-    // Calculate the difference in days
     const diffTime = Math.abs(currentDate.getTime() - lastDate.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     
     if (diffDays === 1) {
-      // Consecutive day, increase streak
       const newStreak = userData.streak + 1;
       
       setUserData(prevData => ({
@@ -208,7 +209,6 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         lastMeasurementDate: today
       }));
       
-      // Check streak achievements
       if (newStreak === 3) {
         unlockAchievement('three-day-streak');
         earnPoints(100);
@@ -220,14 +220,12 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       
     } else if (diffDays > 1) {
-      // Streak broken
       setUserData(prevData => ({
         ...prevData,
         streak: 1,
         lastMeasurementDate: today
       }));
     }
-    // If diffDays is 0, it's the same day, no change to streak
   };
 
   const earnPoints = (points: number) => {
@@ -284,7 +282,6 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const checkAchievements = () => {
-    // Check profile completion
     if (userData.name && userData.age && userData.diabetesType) {
       const profileAchievement = userData.achievements.find(a => a.id === 'profile-complete');
       if (profileAchievement && !profileAchievement.unlocked) {

@@ -3,12 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useUser } from "@/contexts/UserContext";
+import { useShopify } from "@/contexts/ShopifyContext"; 
 import LanguageSelector from "@/components/LanguageSelector";
 import { motion, AnimatePresence } from 'framer-motion';
 import { Check, ArrowRight, Syringe, CircleCheck, MapPin, CreditCard } from 'lucide-react';
 import { Progress } from "@/components/ui/progress";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useToast } from "@/components/ui/use-toast";
 
 const OnboardingSteps = [
   'language', 
@@ -23,6 +25,8 @@ const OnboardingSteps = [
 const OnboardingPage = () => {
   const { translate } = useLanguage();
   const { userData, updateUserData } = useUser();
+  const { isConfigured, exportOrder } = useShopify();
+  const { toast } = useToast();
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(0);
   const [name, setName] = useState('');
@@ -36,12 +40,73 @@ const OnboardingPage = () => {
   const [city, setCity] = useState('');
   const [province, setProvince] = useState('');
   const [postalCode, setPostalCode] = useState('');
+  const [isProcessingOrder, setIsProcessingOrder] = useState(false);
 
-  const goToNextStep = () => {
+  const goToNextStep = async () => {
+    if (currentStep === 5) { // Purchase step
+      await handlePurchase();
+      return;
+    }
+
     if (currentStep < OnboardingSteps.length - 1) {
       setCurrentStep(currentStep + 1);
     } else {
       completeOnboarding();
+    }
+  };
+
+  const handlePurchase = async () => {
+    if (!firstName || !lastName || !address || !city || !province || !postalCode) {
+      toast({
+        title: translate('formError'),
+        description: translate('fillAllFields'),
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsProcessingOrder(true);
+
+    try {
+      const shippingInfo = {
+        firstName,
+        lastName,
+        phone,
+        address,
+        city,
+        province,
+        postalCode
+      };
+
+      // Save shipping info to user data
+      updateUserData({ shippingInfo });
+
+      // Export to Shopify if configured
+      if (isConfigured) {
+        const orderData = {
+          product: {
+            id: 123456789, // Default product ID for Accu-Tech glucometer
+            title: "Accu-Tech Glucometer",
+            price: 0, // Free product
+            units: 1
+          },
+          shipping: shippingInfo
+        };
+
+        await exportOrder(orderData);
+      }
+
+      // Move to next step
+      setCurrentStep(currentStep + 1);
+    } catch (error) {
+      console.error('Error processing order:', error);
+      toast({
+        title: translate('orderError'),
+        description: translate('orderErrorDesc'),
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessingOrder(false);
     }
   };
 
@@ -56,16 +121,7 @@ const OnboardingPage = () => {
       onboarded: true,
       name: name || userData.name,
       age: age ? parseInt(age) : userData.age,
-      diabetesType: diabetesType as any || userData.diabetesType,
-      shippingInfo: {
-        firstName,
-        lastName,
-        phone,
-        address,
-        city,
-        province,
-        postalCode
-      }
+      diabetesType: diabetesType as any || userData.diabetesType
     });
     navigate('/home');
   };
@@ -370,10 +426,12 @@ const OnboardingPage = () => {
               </div>
             </div>
             
-            <div className="flex items-center mt-4 text-xs text-gray-500">
-              <MapPin className="w-4 h-4 mr-1" />
-              <span>{translate('freeShipping')}</span>
-            </div>
+            {isConfigured && (
+              <div className="flex items-center mt-4 text-xs text-gray-500">
+                <MapPin className="w-4 h-4 mr-1" />
+                <span>{translate('shopifyIntegrated')}</span>
+              </div>
+            )}
           </div>;
 
       case 'tutorial':
@@ -460,9 +518,9 @@ const OnboardingPage = () => {
                 {translate('skip')}
               </Button>}
             
-            <Button className="buy-button" onClick={goToNextStep}>
+            <Button className="buy-button" onClick={goToNextStep} disabled={currentStep === 5 && isProcessingOrder}>
               {currentStep === OnboardingSteps.length - 1 ? translate('getStarted') : 
-               currentStep === 5 ? translate('finishOrder') : translate('next')}
+               currentStep === 5 ? (isProcessingOrder ? translate('processing') : translate('finishOrder')) : translate('next')}
             </Button>
           </div>
         </div>

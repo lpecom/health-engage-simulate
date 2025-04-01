@@ -12,7 +12,7 @@ export interface ShopifyOrderPayload {
     line_items: Array<{
       variant_id: number;
       quantity: number;
-      price: string;
+      price?: string;
     }>;
     customer: {
       first_name: string;
@@ -59,6 +59,13 @@ export class ShopifyService {
    */
   async createOrder(payload: ShopifyOrderPayload): Promise<any> {
     try {
+      // Make price optional to handle free products
+      payload.order.line_items.forEach(item => {
+        if (!item.price && item.price !== "0") {
+          item.price = "0.00";
+        }
+      });
+
       const response = await fetch(`${this.apiUrl}/orders.json`, {
         method: 'POST',
         headers: this.headers,
