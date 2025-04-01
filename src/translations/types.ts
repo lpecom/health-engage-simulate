@@ -1,5 +1,5 @@
 
-export type LanguageCode = 'es' | 'pt' | 'it';
+export type LanguageCode = 'es' | 'pt' | 'it' | 'de';
 
 export type TranslateParams = { [key: string]: string | number };
 

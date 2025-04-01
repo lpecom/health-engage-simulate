@@ -1,305 +1,156 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
 
-type DiabetesType = 'type1' | 'type2' | 'prediabetes' | 'gestational' | 'other';
-type Gender = 'male' | 'female' | 'other' | 'prefer-not-to-say';
-type ExerciseFrequency = 'sedentary' | 'light' | 'moderate' | 'active' | 'very-active';
-type DietType = 'regular' | 'low-carb' | 'low-fat' | 'vegetarian' | 'vegan' | 'other';
-type Goal = 'better-control' | 'lose-weight' | 'more-energy' | 'reduce-medication' | 'custom';
-type WeightUnit = 'kg' | 'lb';
+import React, { createContext, useContext, useState } from 'react';
 
-type GlucoseReading = {
-  value: number;
-  timestamp: number;
-  inRange: boolean;
-};
-
-type Achievement = {
-  id: string;
-  title: string;
-  description: string;
-  icon: string;
-  unlocked: boolean;
-  progress?: number;
-  maxProgress?: number;
-};
-
-interface ShippingInfo {
+export interface ShippingInfo {
   firstName: string;
   lastName: string;
   phone: string;
   address: string;
-  city: string;
   province: string;
+  city: string;
   postalCode: string;
 }
 
-interface UserData {
-  name: string;
-  age: number | null;
-  weight: number | null;
-  weightUnit: WeightUnit;
-  gender: Gender | null;
-  diabetesType: DiabetesType | null;
-  targetRangeLow: number;
-  targetRangeHigh: number;
-  exerciseFrequency: ExerciseFrequency | null;
-  dietType: DietType | null;
-  smoker: boolean;
-  goal: Goal | null;
-  customGoal: string;
+export interface UserData {
   onboarded: boolean;
   points: number;
+  name: string;
+  age: number | null;
+  diabetesType: 'type1' | 'type2' | 'prediabetes' | 'gestational' | 'other' | null;
+  levels: number[];
   streak: number;
-  lastMeasurementDate: string | null;
-  glucoseReadings: GlucoseReading[];
-  achievements: Achievement[];
+  readings: number;
   shippingInfo?: ShippingInfo;
+}
+
+export interface UserStats {
+  averageLevel: number;
+  minLevel: number;
+  maxLevel: number;
+  readingsThisWeek: number;
+  trendDirection: 'up' | 'down' | 'stable';
 }
 
 interface UserContextType {
   userData: UserData;
   updateUserData: (data: Partial<UserData>) => void;
-  addGlucoseReading: (reading: number) => void;
-  checkAndUpdateStreak: () => void;
-  earnPoints: (points: number) => void;
-  checkAchievements: () => void;
+  addGlucoseReading: (value: number) => void;
+  getUserStats: () => UserStats;
+  resetUserData: () => void;
 }
 
 const defaultUserData: UserData = {
-  name: '',
-  age: null,
-  weight: null,
-  weightUnit: 'kg',
-  gender: null,
-  diabetesType: null,
-  targetRangeLow: 70,
-  targetRangeHigh: 180,
-  exerciseFrequency: null,
-  dietType: null,
-  smoker: false,
-  goal: null,
-  customGoal: '',
   onboarded: false,
   points: 0,
+  name: '',
+  age: null,
+  diabetesType: null,
+  levels: [],
   streak: 0,
-  lastMeasurementDate: null,
-  glucoseReadings: [],
-  achievements: [
-    {
-      id: 'first-measurement',
-      title: 'firstMeasurement',
-      description: 'Complete your first glucose measurement',
-      icon: '🎯',
-      unlocked: false
-    },
-    {
-      id: 'three-day-streak',
-      title: 'threeDay',
-      description: 'Measure your glucose for 3 consecutive days',
-      icon: '🔥',
-      unlocked: false,
-      progress: 0,
-      maxProgress: 3
-    },
-    {
-      id: 'seven-day-streak',
-      title: 'sevenDay',
-      description: 'Measure your glucose for 7 consecutive days',
-      icon: '⚡',
-      unlocked: false,
-      progress: 0,
-      maxProgress: 7
-    },
-    {
-      id: 'profile-complete',
-      title: 'profileComplete',
-      description: 'Complete your health profile',
-      icon: '📋',
-      unlocked: false
-    },
-    {
-      id: 'learn-expert',
-      title: 'learnExpert',
-      description: 'Read all educational content',
-      icon: '🧠',
-      unlocked: false,
-      progress: 0,
-      maxProgress: 3
-    }
-  ]
+  readings: 0
 };
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
-export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const UserProvider: React.FC<{children: React.ReactNode}> = ({ children }) => {
   const [userData, setUserData] = useState<UserData>(() => {
-    const savedData = localStorage.getItem('userData');
+    const savedData = localStorage.getItem('user_data');
     return savedData ? JSON.parse(savedData) : defaultUserData;
   });
 
-  useEffect(() => {
-    localStorage.setItem('userData', JSON.stringify(userData));
+  // Save user data to localStorage whenever it changes
+  React.useEffect(() => {
+    localStorage.setItem('user_data', JSON.stringify(userData));
   }, [userData]);
 
   const updateUserData = (data: Partial<UserData>) => {
-    setUserData(prevData => {
-      const newData = { ...prevData, ...data };
-      
-      if (data.name || data.age || data.diabetesType) {
-        if (newData.name && newData.age && newData.diabetesType) {
-          checkProfileCompleteAchievement(newData);
-        }
-      }
-      
-      return newData;
-    });
-  };
-
-  const addGlucoseReading = (reading: number) => {
-    const newReading: GlucoseReading = {
-      value: reading,
-      timestamp: Date.now(),
-      inRange: reading >= userData.targetRangeLow && reading <= userData.targetRangeHigh
-    };
-
-    const today = new Date().toDateString();
-    
-    setUserData(prevData => {
-      const newData = {
-        ...prevData,
-        glucoseReadings: [newReading, ...prevData.glucoseReadings],
-        lastMeasurementDate: today
-      };
-      
-      newData.points += 10;
-      
-      if (userData.glucoseReadings.length === 0) {
-        unlockAchievement('first-measurement');
-        earnPoints(50);
-      }
-      
-      checkAndUpdateStreak();
-    });
-  };
-
-  const checkAndUpdateStreak = () => {
-    const today = new Date().toDateString();
-    
-    if (userData.lastMeasurementDate === null) {
-      setUserData(prevData => ({
-        ...prevData,
-        streak: 1,
-        lastMeasurementDate: today
-      }));
-      return;
-    }
-    
-    const lastDate = new Date(userData.lastMeasurementDate);
-    const currentDate = new Date(today);
-    
-    const diffTime = Math.abs(currentDate.getTime() - lastDate.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
-    if (diffDays === 1) {
-      const newStreak = userData.streak + 1;
-      
-      setUserData(prevData => ({
-        ...prevData,
-        streak: newStreak,
-        lastMeasurementDate: today
-      }));
-      
-      if (newStreak === 3) {
-        unlockAchievement('three-day-streak');
-        earnPoints(100);
-      }
-      
-      if (newStreak === 7) {
-        unlockAchievement('seven-day-streak');
-        earnPoints(200);
-      }
-      
-    } else if (diffDays > 1) {
-      setUserData(prevData => ({
-        ...prevData,
-        streak: 1,
-        lastMeasurementDate: today
-      }));
-    }
-  };
-
-  const earnPoints = (points: number) => {
     setUserData(prevData => ({
       ...prevData,
-      points: prevData.points + points
+      ...data
     }));
   };
 
-  const unlockAchievement = (achievementId: string) => {
+  const addGlucoseReading = (value: number) => {
     setUserData(prevData => {
-      const updatedAchievements = prevData.achievements.map(achievement => {
-        if (achievement.id === achievementId) {
-          return { ...achievement, unlocked: true };
-        }
-        return achievement;
-      });
+      const now = new Date();
+      const today = now.toDateString();
+      const lastReadingDate = localStorage.getItem('last_reading_date');
+      
+      // Check if we should increment the streak
+      let newStreak = prevData.streak;
+      if (lastReadingDate !== today) {
+        newStreak += 1;
+        localStorage.setItem('last_reading_date', today);
+      }
       
       return {
         ...prevData,
-        achievements: updatedAchievements
+        levels: [...prevData.levels, value],
+        readings: prevData.readings + 1,
+        streak: newStreak,
+        points: prevData.points + 10
       };
     });
   };
 
-  const updateAchievementProgress = (achievementId: string, progressValue: number) => {
-    setUserData(prevData => {
-      const updatedAchievements = prevData.achievements.map(achievement => {
-        if (achievement.id === achievementId) {
-          const newProgress = (achievement.progress || 0) + progressValue;
-          const isComplete = achievement.maxProgress && newProgress >= achievement.maxProgress;
-          
-          return { 
-            ...achievement, 
-            progress: newProgress,
-            unlocked: isComplete ? true : achievement.unlocked
-          };
-        }
-        return achievement;
-      });
-      
+  const getUserStats = (): UserStats => {
+    const levels = userData.levels;
+    
+    if (levels.length === 0) {
       return {
-        ...prevData,
-        achievements: updatedAchievements
+        averageLevel: 0,
+        minLevel: 0,
+        maxLevel: 0,
+        readingsThisWeek: 0,
+        trendDirection: 'stable'
       };
-    });
-  };
-
-  const checkProfileCompleteAchievement = (userData: UserData) => {
-    if (userData.name && userData.age && userData.diabetesType) {
-      unlockAchievement('profile-complete');
-      earnPoints(75);
     }
-  };
-
-  const checkAchievements = () => {
-    if (userData.name && userData.age && userData.diabetesType) {
-      const profileAchievement = userData.achievements.find(a => a.id === 'profile-complete');
-      if (profileAchievement && !profileAchievement.unlocked) {
-        unlockAchievement('profile-complete');
-        earnPoints(75);
+    
+    const sum = levels.reduce((a, b) => a + b, 0);
+    const average = sum / levels.length;
+    const min = Math.min(...levels);
+    const max = Math.max(...levels);
+    
+    // Calculate readings from the past week
+    const oneWeekAgo = new Date();
+    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+    const readingsThisWeek = userData.levels.length; // Simplified for this example
+    
+    // Determine trend direction (this is simplified)
+    let trendDirection: 'up' | 'down' | 'stable' = 'stable';
+    if (levels.length >= 3) {
+      const recentAvg = (levels[levels.length-1] + levels[levels.length-2] + levels[levels.length-3]) / 3;
+      const olderAvg = (levels[0] + levels[Math.min(1, levels.length-1)] + levels[Math.min(2, levels.length-1)]) / 3;
+      
+      if (recentAvg > olderAvg + 10) {
+        trendDirection = 'up';
+      } else if (recentAvg < olderAvg - 10) {
+        trendDirection = 'down';
       }
     }
+    
+    return {
+      averageLevel: Math.round(average),
+      minLevel: min,
+      maxLevel: max,
+      readingsThisWeek,
+      trendDirection
+    };
+  };
+
+  const resetUserData = () => {
+    setUserData(defaultUserData);
+    localStorage.removeItem('last_reading_date');
   };
 
   return (
-    <UserContext.Provider 
-      value={{ 
-        userData, 
-        updateUserData, 
-        addGlucoseReading, 
-        checkAndUpdateStreak, 
-        earnPoints,
-        checkAchievements
+    <UserContext.Provider
+      value={{
+        userData,
+        updateUserData,
+        addGlucoseReading,
+        getUserStats,
+        resetUserData
       }}
     >
       {children}

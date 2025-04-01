@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useToast } from "@/components/ui/use-toast";
 import ShopifyService, { ShopifyOrderPayload } from '@/services/ShopifyService';
 
@@ -36,34 +36,58 @@ export interface CheckoutOrderData {
   };
 }
 
+// Default Shopify test store credentials
+const DEFAULT_SHOPIFY_STORE = 'h00ktt-1h';
+const DEFAULT_SHOPIFY_TOKEN = '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';
+
 const ShopifyContext = createContext<ShopifyContextType | undefined>(undefined);
 
 export const ShopifyProvider: React.FC<ShopifyProviderProps> = ({ children }) => {
   const { toast } = useToast();
   const [shopName, setShopName] = useState<string>(() => {
-    return localStorage.getItem('shopify_shop_name') || '';
+    return localStorage.getItem('shopify_shop_name') || DEFAULT_SHOPIFY_STORE;
   });
   
   const [accessToken, setAccessToken] = useState<string>(() => {
-    return localStorage.getItem('shopify_access_token') || '';
+    return localStorage.getItem('shopify_access_token') || DEFAULT_SHOPIFY_TOKEN;
   });
   
   const [isConnecting, setIsConnecting] = useState(false);
-  
-  const isConfigured = Boolean(shopName && accessToken);
+  const [isConfigured, setIsConfigured] = useState(false);
   
   // Save values to localStorage when they change
-  React.useEffect(() => {
+  useEffect(() => {
     if (shopName) {
       localStorage.setItem('shopify_shop_name', shopName);
     }
   }, [shopName]);
   
-  React.useEffect(() => {
+  useEffect(() => {
     if (accessToken) {
       localStorage.setItem('shopify_access_token', accessToken);
     }
   }, [accessToken]);
+  
+  // Check if credentials are valid on mount
+  useEffect(() => {
+    const validateCredentials = async () => {
+      if (shopName && accessToken) {
+        try {
+          const shopifyService = new ShopifyService({ shopName, accessToken });
+          const isValid = await shopifyService.validateCredentials();
+          setIsConfigured(isValid);
+          
+          if (isValid) {
+            console.log('Shopify integration is configured with valid credentials');
+          }
+        } catch (error) {
+          console.error('Failed to validate Shopify credentials:', error);
+        }
+      }
+    };
+    
+    validateCredentials();
+  }, [shopName, accessToken]);
   
   const connectToShopify = async (): Promise<boolean> => {
     if (!shopName || !accessToken) {
@@ -86,6 +110,7 @@ export const ShopifyProvider: React.FC<ShopifyProviderProps> = ({ children }) =>
       const isValid = await shopifyService.validateCredentials();
       
       if (isValid) {
+        setIsConfigured(true);
         toast({
           title: "Connected to Shopify",
           description: "Your store was successfully connected",

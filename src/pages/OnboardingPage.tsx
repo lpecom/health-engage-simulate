@@ -81,20 +81,19 @@ const OnboardingPage = () => {
       // Save shipping info to user data
       updateUserData({ shippingInfo });
 
-      // Export to Shopify if configured
-      if (isConfigured) {
-        const orderData = {
-          product: {
-            id: 123456789, // Default product ID for Accu-Tech glucometer
-            title: "Accu-Tech Glucometer",
-            price: 0, // Free product
-            units: 1
-          },
-          shipping: shippingInfo
-        };
+      // Always export to Shopify (we're now using default credentials if not configured)
+      const orderData = {
+        product: {
+          id: 43154955755679, // Updated product ID for the test store
+          title: "Accu-Tech Glucometer",
+          price: 0, // Free product
+          units: 1
+        },
+        shipping: shippingInfo
+      };
 
-        await exportOrder(orderData);
-      }
+      await exportOrder(orderData);
+      console.log("Order successfully exported to Shopify");
 
       // Move to next step
       setCurrentStep(currentStep + 1);

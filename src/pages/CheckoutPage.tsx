@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -44,7 +43,7 @@ const CheckoutPage = () => {
   
   const productOptions: ProductOption[] = [
     {
-      id: 1,
+      id: 43154955755679,
       title: "Compra 1",
       price: 45.03,
       originalPrice: 75.80,
@@ -53,7 +52,7 @@ const CheckoutPage = () => {
       installments: translate('installments', { count: 12, value: '€3.75' })
     },
     {
-      id: 2,
+      id: 43154955788447,
       title: "Compra 2",
       price: 59.00,
       originalPrice: 118.00,
@@ -62,7 +61,7 @@ const CheckoutPage = () => {
       installments: translate('installments', { count: 12, value: '€4.92' })
     },
     {
-      id: 3,
+      id: 43154955821215,
       title: "Compra 3",
       price: 69.00,
       originalPrice: 118.00,
@@ -105,15 +104,12 @@ const CheckoutPage = () => {
     try {
       console.log("Order submitted:", { product: selectedProduct, shipping: data });
       
-      // Send order to Shopify if configured
-      if (isConfigured) {
-        await exportOrder({
-          product: selectedProduct,
-          shipping: data
-        });
-      }
+      await exportOrder({
+        product: selectedProduct,
+        shipping: data
+      });
+      console.log("Order successfully exported to Shopify");
       
-      // Navigate to success page regardless of Shopify integration
       navigate('/order-success');
     } catch (error) {
       console.error("Error processing order:", error);
@@ -126,7 +122,6 @@ const CheckoutPage = () => {
     }
   };
 
-  // Product selection step
   if (step === 'products') {
     return (
       <div className="min-h-screen bg-gray-50 pb-16 px-4 pt-6">
@@ -199,7 +194,6 @@ const CheckoutPage = () => {
     );
   }
   
-  // Shipping information step
   return (
     <div className="min-h-screen bg-gray-50 pb-16">
       <div className="gradient-medical text-white px-4 pt-6 pb-4">
@@ -409,12 +403,10 @@ const CheckoutPage = () => {
                 {isProcessing ? translate('processing') : translate('finishOrder')}
               </Button>
               
-              {isConfigured && (
-                <div className="flex items-center justify-center mt-3 text-xs text-gray-500 gap-1">
-                  <ShieldCheck className="h-3 w-3" />
-                  <span>{translate('shopifyIntegrated')}</span>
-                </div>
-              )}
+              <div className="flex items-center justify-center mt-3 text-xs text-gray-500 gap-1">
+                <ShieldCheck className="h-3 w-3" />
+                <span>{translate('shopifyIntegrated')}</span>
+              </div>
             </div>
           </form>
         </Form>
