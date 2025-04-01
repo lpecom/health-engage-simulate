@@ -1,0 +1,50 @@
+
+import { TranslationMap } from './types';
+
+export const commonTranslations: Record<string, TranslationMap> = {
+  es: {
+    'hello': 'Hola',
+    'points': 'Puntos',
+    'streak': 'Racha',
+    'readings': 'Lecturas',
+    'home': 'Inicio',
+    'profile': 'Perfil',
+    'back': 'Atrás',
+    'next': 'Siguiente',
+    'skip': 'Omitir',
+    'getStarted': 'Comenzar',
+    'learn': 'Aprender',
+    'language': 'Idioma',
+    'saveAndReturn': 'Guardar y Volver',
+  },
+  pt: {
+    'hello': 'Olá',
+    'points': 'Pontos',
+    'streak': 'Sequência',
+    'readings': 'Leituras',
+    'home': 'Início',
+    'profile': 'Perfil',
+    'back': 'Voltar',
+    'next': 'Próximo',
+    'skip': 'Pular',
+    'getStarted': 'Começar',
+    'learn': 'Aprender',
+    'language': 'Idioma',
+    'saveAndReturn': 'Salvar e Voltar',
+  },
+  it: {
+    'hello': 'Ciao',
+    'points': 'Punti',
+    'streak': 'Serie',
+    'readings': 'Letture',
+    'home': 'Home',
+    'profile': 'Profilo',
+    'back': 'Indietro',
+    'next': 'Avanti',
+    'skip': 'Salta',
+    'getStarted': 'Iniziare',
+    'learn': 'Impara',
+    'language': 'Lingua',
+    'saveAndReturn': 'Salva e Torna Indietro',
+  }
+};
