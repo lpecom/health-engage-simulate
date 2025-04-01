@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Form, FormField, FormItem, FormLabel, FormControl } from "@/components/ui/form";
+import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -10,7 +11,11 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useShopify } from "@/contexts/ShopifyContext";
 import { ChevronLeft, Check, Clock, ShieldCheck } from "lucide-react";
 import { useForm } from "react-hook-form";
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "@/hooks/use-toast";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
+// Import country data for dropdowns
+import { portugueseDistricts, italianRegions, spanishProvinces } from '@/data/countries';
 
 type ShippingInfo = {
   firstName: string;
@@ -20,6 +25,7 @@ type ShippingInfo = {
   province: string;
   city: string;
   postalCode: string;
+  country: string;
 };
 
 type ProductOption = {
@@ -30,43 +36,61 @@ type ProductOption = {
   units: number;
   discount: string;
   installments?: string;
+  shipping: number;
 };
 
 const CheckoutPage = () => {
   const { translate, language } = useLanguage();
   const navigate = useNavigate();
-  const { toast } = useToast();
   const { isConfigured, exportOrder } = useShopify();
   const [step, setStep] = useState<'products' | 'shipping'>('products');
   const [selectedProduct, setSelectedProduct] = useState<ProductOption | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [phoneError, setPhoneError] = useState<string | null>(null);
   
+  // Get country based on language
+  const getCountryFromLanguage = () => {
+    switch(language) {
+      case 'pt': return 'PT';
+      case 'it': return 'IT';
+      case 'es': return 'ES';
+      default: return 'PT';
+    }
+  };
+  
+  const [selectedCountry, setSelectedCountry] = useState(getCountryFromLanguage());
+  const [cities, setCities] = useState<string[]>([]);
+  
+  // Updated product options with fixed price and shipping
   const productOptions: ProductOption[] = [
     {
       id: 43154955755679,
       title: "Compra 1",
-      price: 45.03,
-      originalPrice: 75.80,
+      price: 49,
+      originalPrice: 79,
       units: 1,
-      discount: "30% OFF",
-      installments: translate('installments', { count: 12, value: '€3.75' })
+      discount: "38% OFF",
+      installments: translate('installments', { count: 12, value: '€4.08' }),
+      shipping: 3
     },
     {
       id: 43154955788447,
       title: "Compra 2",
-      price: 59.00,
-      originalPrice: 118.00,
+      price: 89,
+      originalPrice: 158,
       units: 2,
-      discount: "50% OFF",
-      installments: translate('installments', { count: 12, value: '€4.92' })
+      discount: "44% OFF",
+      installments: translate('installments', { count: 12, value: '€7.41' }),
+      shipping: 3
     },
     {
       id: 43154955821215,
       title: "Compra 3",
-      price: 69.00,
-      originalPrice: 118.00,
+      price: 109,
+      originalPrice: 237,
       units: 3,
-      discount: translate('buy3get1')
+      discount: translate('buy3get1'),
+      shipping: 3
     }
   ];
   
@@ -78,9 +102,55 @@ const CheckoutPage = () => {
       address: '',
       province: '',
       city: '',
-      postalCode: ''
+      postalCode: '',
+      country: getCountryFromLanguage()
     }
   });
+
+  // Update cities when province changes
+  useEffect(() => {
+    const province = form.watch('province');
+    if (!province) return;
+    
+    let citiesList: string[] = [];
+    
+    if (selectedCountry === 'PT') {
+      // In a real app, you'd fetch cities based on the district
+      // This is a simplified example with some sample cities
+      const districtCities = {
+        'Lisboa': ['Lisboa', 'Amadora', 'Sintra', 'Cascais'],
+        'Porto': ['Porto', 'Vila Nova de Gaia', 'Matosinhos'],
+        'Faro': ['Faro', 'Albufeira', 'Lagos']
+      };
+      citiesList = districtCities[province as keyof typeof districtCities] || [];
+    } else if (selectedCountry === 'IT') {
+      // Italian regions and some cities
+      const regionCities = {
+        'Lombardia': ['Milano', 'Bergamo', 'Brescia'],
+        'Lazio': ['Roma', 'Viterbo', 'Frosinone'],
+        'Toscana': ['Firenze', 'Siena', 'Pisa']
+      };
+      citiesList = regionCities[province as keyof typeof regionCities] || [];
+    } else if (selectedCountry === 'ES') {
+      // Spanish provinces and some cities
+      const provinceCities = {
+        'Madrid': ['Madrid', 'Alcalá de Henares', 'Móstoles'],
+        'Barcelona': ['Barcelona', 'Sabadell', 'Terrassa'],
+        'Valencia': ['Valencia', 'Alicante', 'Elche']
+      };
+      citiesList = provinceCities[province as keyof typeof provinceCities] || [];
+    }
+    
+    setCities(citiesList);
+    form.setValue('city', '');
+  }, [form.watch('province'), selectedCountry]);
+
+  // Set country based on language when component loads
+  useEffect(() => {
+    const country = getCountryFromLanguage();
+    setSelectedCountry(country);
+    form.setValue('country', country);
+  }, [language]);
 
   const handleProductSelect = (product: ProductOption) => {
     setSelectedProduct(product);
@@ -96,17 +166,83 @@ const CheckoutPage = () => {
     setStep('products');
   };
   
+  const validatePhoneNumber = (phone: string, country: string): boolean => {
+    setPhoneError(null);
+    let pattern: RegExp;
+    
+    // Simplified validation patterns for demonstration
+    switch(country) {
+      case 'PT':
+        pattern = /^(\+351|00351)?\s*9[1236]\d{7}$/;
+        break;
+      case 'IT':
+        pattern = /^(\+39|0039)?\s*3\d{9}$/;
+        break;
+      case 'ES':
+        pattern = /^(\+34|0034)?\s*[67]\d{8}$/;
+        break;
+      default:
+        pattern = /^\+?[0-9]{10,15}$/;
+    }
+    
+    if (!pattern.test(phone)) {
+      setPhoneError(translate('invalidPhone'));
+      return false;
+    }
+    
+    return true;
+  };
+  
+  const formatPhoneNumber = (phone: string, country: string): string => {
+    // Remove spaces and leading zeros
+    let formattedPhone = phone.replace(/\s+/g, '').replace(/^0+/, '');
+    
+    // Add country code if not present
+    if (country === 'PT' && !formattedPhone.startsWith('+')) {
+      if (formattedPhone.startsWith('351')) {
+        formattedPhone = '+' + formattedPhone;
+      } else {
+        formattedPhone = '+351' + formattedPhone;
+      }
+    } else if (country === 'IT' && !formattedPhone.startsWith('+')) {
+      if (formattedPhone.startsWith('39')) {
+        formattedPhone = '+' + formattedPhone;
+      } else {
+        formattedPhone = '+39' + formattedPhone;
+      }
+    } else if (country === 'ES' && !formattedPhone.startsWith('+')) {
+      if (formattedPhone.startsWith('34')) {
+        formattedPhone = '+' + formattedPhone;
+      } else {
+        formattedPhone = '+34' + formattedPhone;
+      }
+    }
+    
+    return formattedPhone;
+  };
+  
   const onSubmit = async (data: ShippingInfo) => {
     if (!selectedProduct) return;
+    
+    // Validate phone number
+    if (!validatePhoneNumber(data.phone, data.country)) {
+      return;
+    }
+    
+    // Format phone number
+    const formattedPhone = formatPhoneNumber(data.phone, data.country);
     
     setIsProcessing(true);
     
     try {
-      console.log("Order submitted:", { product: selectedProduct, shipping: data });
+      console.log("Order submitted:", { 
+        product: selectedProduct, 
+        shipping: {...data, phone: formattedPhone} 
+      });
       
       await exportOrder({
         product: selectedProduct,
-        shipping: data
+        shipping: {...data, phone: formattedPhone}
       });
       console.log("Order successfully exported to Shopify");
       
@@ -119,6 +255,15 @@ const CheckoutPage = () => {
         variant: "destructive",
       });
       setIsProcessing(false);
+    }
+  };
+
+  const getRegions = () => {
+    switch(selectedCountry) {
+      case 'PT': return portugueseDistricts;
+      case 'IT': return italianRegions;
+      case 'ES': return spanishProvinces;
+      default: return [];
     }
   };
 
@@ -236,11 +381,11 @@ const CheckoutPage = () => {
               </div>
               <div className="flex justify-between">
                 <span>{translate('shipping')}</span>
-                <span className="text-accu-tech-blue">{translate('free')}</span>
+                <span>€{selectedProduct?.shipping.toFixed(2)}</span>
               </div>
               <div className="flex justify-between font-bold pt-2 border-t mt-2">
                 <span>{translate('total')}</span>
-                <span>€{selectedProduct?.price.toFixed(2)}</span>
+                <span>€{(selectedProduct ? selectedProduct.price + selectedProduct.shipping : 0).toFixed(2)}</span>
               </div>
             </div>
           </CardContent>
@@ -250,9 +395,9 @@ const CheckoutPage = () => {
           <CardContent className="p-4">
             <h3 className="font-medium mb-3">{translate('shippingMethod')}</h3>
             <div className="flex items-start gap-3 mb-1">
-              <RadioGroup value="free" className="mt-1">
+              <RadioGroup value="standard" className="mt-1">
                 <div className="flex items-center">
-                  <RadioGroupItem value="free" id="shipping-free" checked />
+                  <RadioGroupItem value="standard" id="shipping-standard" checked />
                 </div>
               </RadioGroup>
               <div className="flex items-center gap-2 flex-1">
@@ -260,10 +405,10 @@ const CheckoutPage = () => {
                   <Clock className="h-4 w-4 text-accu-tech-blue" />
                 </div>
                 <div>
-                  <p className="font-medium">{translate('freeShipping')}</p>
+                  <p className="font-medium">{translate('standardShipping')}</p>
                   <p className="text-sm text-gray-500">1-3 {translate('days')}</p>
                 </div>
-                <span className="ml-auto text-accu-tech-blue">{translate('free')}</span>
+                <span className="ml-auto">€3.00</span>
               </div>
             </div>
           </CardContent>
@@ -322,13 +467,47 @@ const CheckoutPage = () => {
                 
                 <FormField
                   control={form.control}
+                  name="country"
+                  render={({ field }) => (
+                    <FormItem className="mb-4">
+                      <FormLabel>{translate('country')}</FormLabel>
+                      <Select 
+                        value={field.value} 
+                        onValueChange={(value) => {
+                          field.onChange(value);
+                          setSelectedCountry(value);
+                          form.setValue('province', '');
+                          form.setValue('city', '');
+                        }}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder={translate('selectCountry')} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="PT">Portugal</SelectItem>
+                          <SelectItem value="ES">España</SelectItem>
+                          <SelectItem value="IT">Italia</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
                   name="phone"
                   render={({ field }) => (
                     <FormItem className="mb-4">
                       <FormLabel>{translate('phone')}</FormLabel>
                       <FormControl>
-                        <Input placeholder="912345678" {...field} required />
+                        <Input 
+                          placeholder={selectedCountry === 'PT' ? '912345678' : selectedCountry === 'IT' ? '3123456789' : '612345678'} 
+                          {...field} 
+                          required 
+                        />
                       </FormControl>
+                      {phoneError && <FormMessage>{phoneError}</FormMessage>}
+                      <p className="text-xs text-gray-500 mt-1">{translate('phoneFormat')}</p>
                     </FormItem>
                   )}
                 />
@@ -353,9 +532,19 @@ const CheckoutPage = () => {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>{translate('province')}</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Lisboa" {...field} required />
-                        </FormControl>
+                        <Select 
+                          value={field.value} 
+                          onValueChange={field.onChange}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder={translate('selectRegion')} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {getRegions().map(region => (
+                              <SelectItem key={region} value={region}>{region}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </FormItem>
                     )}
                   />
@@ -366,9 +555,20 @@ const CheckoutPage = () => {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>{translate('city')}</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Lisboa" {...field} required />
-                        </FormControl>
+                        <Select 
+                          value={field.value} 
+                          onValueChange={field.onChange}
+                          disabled={!form.watch('province')}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder={translate('selectCity')} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {cities.map(city => (
+                              <SelectItem key={city} value={city}>{city}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </FormItem>
                     )}
                   />
@@ -381,7 +581,11 @@ const CheckoutPage = () => {
                     <FormItem>
                       <FormLabel>{translate('postalCode')}</FormLabel>
                       <FormControl>
-                        <Input placeholder="1000-001" {...field} required />
+                        <Input 
+                          placeholder={selectedCountry === 'PT' ? '1000-001' : selectedCountry === 'IT' ? '00100' : '28001'} 
+                          {...field} 
+                          required 
+                        />
                       </FormControl>
                     </FormItem>
                   )}
@@ -392,7 +596,7 @@ const CheckoutPage = () => {
             <div className="pt-2 pb-4">
               <div className="flex justify-between mb-3">
                 <span className="font-medium">{translate('total')}:</span>
-                <span className="font-bold">€{selectedProduct?.price.toFixed(2)}</span>
+                <span className="font-bold">€{(selectedProduct ? selectedProduct.price + selectedProduct.shipping : 0).toFixed(2)}</span>
               </div>
               
               <Button 
