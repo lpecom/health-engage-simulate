@@ -14,8 +14,8 @@ const LanguagePage = () => {
   
   const handleSaveAndReturn = () => {
     toast({
-      title: "Language Saved",
-      description: "Your language preference has been updated.",
+      title: translate('language') + " " + translate('complete'),
+      description: translate('profileUpdated'),
     });
     navigate(-1);
   };
