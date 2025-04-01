@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,44 +5,31 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Progress } from "@/components/ui/progress";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { 
-  Loader2, 
-  Package,
-  Calendar,
-  PackageCheck,
-  Clock,
-  Truck,
-  MapPin,
-  CreditCard
-} from "lucide-react";
-
+import { Loader2, Package, Calendar, PackageCheck, Clock, Truck, MapPin, CreditCard } from "lucide-react";
 interface DeviceShippingStatusProps {
   onConnect?: () => void;
 }
-
 const DeviceShippingStatus: React.FC<DeviceShippingStatusProps> = ({
   onConnect
 }) => {
-  const { translate } = useLanguage();
-  
+  const {
+    translate
+  } = useLanguage();
+
   // Calculate estimated delivery date (24-48 hours from now)
   const getDeliveryDate = () => {
     const now = new Date();
     const minDelivery = new Date(now.getTime() + 24 * 60 * 60 * 1000);
     const maxDelivery = new Date(now.getTime() + 48 * 60 * 60 * 1000);
-    
     const formatDate = (date: Date) => {
-      return date.toLocaleDateString(undefined, { 
-        month: 'short', 
+      return date.toLocaleDateString(undefined, {
+        month: 'short',
         day: 'numeric'
       });
     };
-    
     return `${formatDate(minDelivery)} - ${formatDate(maxDelivery)}`;
   };
-  
-  return (
-    <div className="space-y-4 mb-4">
+  return <div className="space-y-4 mb-4">
       {/* Shipping Status Card */}
       <Card className="overflow-hidden">
         <CardContent className="p-4">
@@ -61,11 +47,7 @@ const DeviceShippingStatus: React.FC<DeviceShippingStatusProps> = ({
             
             {/* Device image added here */}
             <div className="my-3">
-              <img 
-                src="https://accu-tech.pro/wp-content/uploads/2024/08/device.png" 
-                alt="GlucoVista Device" 
-                className="w-40 h-auto rounded-lg shadow-md"
-              />
+              <img alt="GlucoVista Device" className="w-40 h-auto rounded-lg shadow-md" src="https://h00ktt-1h.myshopify.com/cdn/shop/files/Remove-bg.ai_1724344152542.png" />
             </div>
             
             <p className="text-sm text-gray-600 mb-3 max-w-xs">
@@ -143,11 +125,7 @@ const DeviceShippingStatus: React.FC<DeviceShippingStatusProps> = ({
           
           {/* Added device image above serial number */}
           <div className="flex justify-center mb-4">
-            <img 
-              src="https://accu-tech.pro/wp-content/uploads/2024/08/device.png" 
-              alt="GlucoVista Device" 
-              className="w-32 h-auto rounded-lg shadow-md"
-            />
+            <img src="https://accu-tech.pro/wp-content/uploads/2024/08/device.png" alt="GlucoVista Device" className="w-32 h-auto rounded-lg shadow-md" />
           </div>
           
           <div className="space-y-4">
@@ -155,10 +133,7 @@ const DeviceShippingStatus: React.FC<DeviceShippingStatusProps> = ({
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 {translate('deviceSerialNumber')}
               </label>
-              <Input 
-                placeholder={translate('enterSerialNumber')} 
-                disabled
-              />
+              <Input placeholder={translate('enterSerialNumber')} disabled />
             </div>
             
             <ol className="list-decimal pl-5 text-sm text-gray-600 space-y-2">
@@ -167,18 +142,12 @@ const DeviceShippingStatus: React.FC<DeviceShippingStatusProps> = ({
               <li>{translate('enterSerialAndConnect')}</li>
             </ol>
             
-            <Button 
-              className="w-full" 
-              disabled
-              onClick={onConnect}
-            >
+            <Button className="w-full" disabled onClick={onConnect}>
               {translate('connectDevice')}
             </Button>
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>;
 };
-
 export default DeviceShippingStatus;
