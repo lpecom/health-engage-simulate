@@ -56,9 +56,10 @@ export const ShopifyProvider: React.FC<ShopifyProviderProps> = ({ children }) =>
   useEffect(() => {
     const loadSettings = async () => {
       try {
+        // Query the settings table for Shopify settings
         const { data, error } = await supabase
           .from('settings')
-          .select('value')
+          .select('*')
           .eq('key', 'shopify')
           .single();
         
@@ -128,19 +129,48 @@ export const ShopifyProvider: React.FC<ShopifyProviderProps> = ({ children }) =>
     setIsConnecting(true);
     
     try {
-      // First store the credentials in Supabase
-      const { error: saveError } = await supabase
+      // First check if a setting already exists
+      const { data: existingData } = await supabase
         .from('settings')
-        .upsert({
-          key: 'shopify',
-          value: {
-            shopName,
-            accessToken,
-            apiKey,
-            apiSecret,
-            lastUpdated: new Date().toISOString()
-          }
-        });
+        .select('id')
+        .eq('key', 'shopify')
+        .single();
+      
+      let saveError;
+      
+      if (existingData?.id) {
+        // If it exists, update it
+        const { error } = await supabase
+          .from('settings')
+          .update({
+            value: {
+              shopName,
+              accessToken,
+              apiKey,
+              apiSecret,
+              lastUpdated: new Date().toISOString()
+            }
+          })
+          .eq('key', 'shopify');
+          
+        saveError = error;
+      } else {
+        // If it doesn't exist, insert it
+        const { error } = await supabase
+          .from('settings')
+          .insert({
+            key: 'shopify',
+            value: {
+              shopName,
+              accessToken,
+              apiKey,
+              apiSecret,
+              lastUpdated: new Date().toISOString()
+            }
+          });
+          
+        saveError = error;
+      }
         
       if (saveError) {
         console.error('Failed to save Shopify settings:', saveError);
