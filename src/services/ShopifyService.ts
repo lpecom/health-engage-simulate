@@ -58,6 +58,8 @@ export class ShopifyService {
       'Content-Type': 'application/json',
       'X-Shopify-Access-Token': config.accessToken
     };
+
+    console.log(`ShopifyService initialized with shop: ${config.shopName}`);
   }
 
   /**
@@ -65,6 +67,8 @@ export class ShopifyService {
    */
   async createOrder(payload: ShopifyOrderPayload): Promise<any> {
     try {
+      console.log('Creating Shopify order with payload:', JSON.stringify(payload));
+      
       // Make price optional to handle free products
       payload.order.line_items.forEach(item => {
         if (!item.price && item.price !== "0") {
@@ -72,12 +76,16 @@ export class ShopifyService {
         }
       });
 
+      console.log(`Sending request to ${this.apiUrl}/orders.json`);
+      
       const response = await fetch(`${this.apiUrl}/orders.json`, {
         method: 'POST',
         headers: this.headers,
         body: JSON.stringify(payload)
       });
 
+      console.log(`Order creation response status: ${response.status}`);
+      
       if (!response.ok) {
         const errorData = await response.json();
         console.error('Shopify order creation failed:', errorData);
@@ -96,19 +104,50 @@ export class ShopifyService {
    */
   async validateCredentials(): Promise<boolean> {
     try {
-      // We can try to authenticate using the API key and API secret
-      // For API validation, we can use the shop endpoint which is lightweight
-      const basicAuth = btoa(`${this.apiKey}:${this.apiSecret}`);
+      console.log(`Validating credentials for shop: ${this.apiUrl}`);
+      console.log('Using access token and API credentials');
       
+      // Try basic auth first (API key + API secret)
+      const basicAuth = btoa(`${this.apiKey}:${this.apiSecret}`);
+      console.log('Generated Basic Auth header');
+      
+      // First attempt with both types of authentication to maximize chances of success
+      const authHeaders = {
+        ...this.headers,
+        'Authorization': `Basic ${basicAuth}`
+      };
+      
+      console.log('Sending validation request with combined auth');
       const response = await fetch(`${this.apiUrl}/shop.json`, {
         method: 'GET',
-        headers: {
-          ...this.headers,
-          'Authorization': `Basic ${basicAuth}`
-        }
+        headers: authHeaders,
+        mode: 'cors',
       });
       
-      return response.ok;
+      console.log(`Validation response status: ${response.status}`);
+      
+      if (response.ok) {
+        console.log('Credentials validated successfully!');
+        return true;
+      }
+      
+      console.log('Combined auth failed. Trying access token only...');
+      
+      // Second attempt with only access token
+      const tokenResponse = await fetch(`${this.apiUrl}/shop.json`, {
+        method: 'GET',
+        headers: this.headers,
+      });
+      
+      console.log(`Token-only validation response status: ${tokenResponse.status}`);
+      
+      if (tokenResponse.ok) {
+        console.log('Access token validated successfully!');
+        return true;
+      }
+      
+      console.log('Failed to validate with either auth method');
+      return false;
     } catch (error) {
       console.error('Error validating Shopify credentials:', error);
       return false;
