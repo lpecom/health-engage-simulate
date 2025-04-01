@@ -5,6 +5,7 @@
  */
 
 import { supabase } from '@/integrations/supabase/client';
+import { CheckoutOrderData } from '@/types/userData';
 
 export interface ShopifyOrderPayload {
   order: {
@@ -55,17 +56,12 @@ export class ShopifyService {
   /**
    * Creates an order in Shopify using the Supabase edge function
    */
-  async createOrder(payload: ShopifyOrderPayload): Promise<any> {
+  async createOrder(orderData: CheckoutOrderData): Promise<any> {
     try {
-      console.log('Creating Shopify order with payload:', JSON.stringify(payload));
+      console.log('Creating Shopify order with order data:', JSON.stringify(orderData));
       
-      // Make price optional to handle free products
-      payload.order.line_items.forEach(item => {
-        if (!item.price && item.price !== "0") {
-          item.price = "0.00";
-        }
-      });
-
+      const payload: ShopifyOrderPayload = this.createOrderPayload(orderData);
+      
       const { data, error } = await supabase.functions.invoke('shopify', {
         body: {
           action: 'createOrder',
@@ -88,6 +84,50 @@ export class ShopifyService {
       console.error('Error creating Shopify order:', error);
       throw error;
     }
+  }
+
+  /**
+   * Creates the order payload for Shopify from our app's order data
+   */
+  private createOrderPayload(orderData: CheckoutOrderData): ShopifyOrderPayload {
+    // Make price optional to handle free products
+    const price = orderData.product.price ? orderData.product.price.toString() : "0.00";
+    
+    // Generate a placeholder email if not provided (Shopify requires either email or phone)
+    const email = orderData.shipping.email || 
+      `${orderData.shipping.firstName.toLowerCase()}.${orderData.shipping.lastName.toLowerCase()}@example.com`;
+    
+    return {
+      order: {
+        line_items: [
+          {
+            variant_id: orderData.product.id,
+            quantity: orderData.product.units,
+            price
+          }
+        ],
+        customer: {
+          first_name: orderData.shipping.firstName,
+          last_name: orderData.shipping.lastName,
+          email,
+          phone: orderData.shipping.phone
+        },
+        shipping_address: {
+          first_name: orderData.shipping.firstName,
+          last_name: orderData.shipping.lastName,
+          address1: orderData.shipping.address,
+          city: orderData.shipping.city,
+          province: orderData.shipping.province,
+          zip: orderData.shipping.postalCode,
+          country: orderData.shipping.country,
+          phone: orderData.shipping.phone
+        },
+        financial_status: 'pending',
+        send_receipt: true,
+        send_fulfillment_receipt: true,
+        tags: 'accu-tech-app'
+      }
+    };
   }
 
   /**

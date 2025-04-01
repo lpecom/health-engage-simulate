@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { COUNTRIES, getDefaultCountryByLanguage, getRegionLabel } from '@/data/countries';
+import { COUNTRIES, getDefaultCountryByLanguage, getRegionLabel, getRegionsForCountry } from '@/data/countries';
 import { Badge } from "@/components/ui/badge";
 
 const OnboardingSteps = [
@@ -45,7 +45,9 @@ const OnboardingPage = () => {
   const [province, setProvince] = useState('');
   const [postalCode, setPostalCode] = useState('');
   const [isProcessingOrder, setIsProcessingOrder] = useState(false);
-  const [selectedCountry, setSelectedCountry] = useState<string>('');
+  const [selectedCountry, setSelectedCountry] = useState<CountryCode>(getDefaultCountryByLanguage(language));
+  const [selectedRegion, setSelectedRegion] = useState('');
+  const [selectedCity, setSelectedCity] = useState('');
   const [availableCities, setAvailableCities] = useState<string[]>([]);
   const [phoneError, setPhoneError] = useState<string | null>(null);
   
@@ -222,8 +224,7 @@ const OnboardingPage = () => {
   const progressPercentage = (currentStep + 1) / OnboardingSteps.length * 100;
   
   const getRegions = () => {
-    if (!selectedCountry || !COUNTRIES[selectedCountry]) return [];
-    return COUNTRIES[selectedCountry].regions || [];
+    return getRegionsForCountry(selectedCountry);
   };
 
   const renderStep = () => {
@@ -445,22 +446,21 @@ const OnboardingPage = () => {
               <div>
                 <Label htmlFor="country" className="text-sm font-medium text-gray-700">{translate('country')}</Label>
                 <Select 
-                  value={selectedCountry} 
-                  onValueChange={(value) => {
+                  value={selectedCountry}
+                  onValueChange={(value: CountryCode) => {
                     setSelectedCountry(value);
-                    setProvince(''); // Reset province when country changes
-                    setCity(''); // Reset city when country changes
+                    setSelectedRegion('');
+                    setSelectedCity('');
                   }}
                 >
-                  <SelectTrigger className="mt-1">
-                    <SelectValue placeholder={translate('selectCountry')} />
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select country" />
                   </SelectTrigger>
                   <SelectContent>
-                    {Object.values(COUNTRIES).map((country) => (
-                      <SelectItem key={country.code} value={country.code}>
-                        {country.name}
-                      </SelectItem>
-                    ))}
+                    <SelectItem value="ES">España</SelectItem>
+                    <SelectItem value="PT">Portugal</SelectItem>
+                    <SelectItem value="IT">Italia</SelectItem>
+                    <SelectItem value="DE">Deutschland</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -508,18 +508,13 @@ const OnboardingPage = () => {
                   <Label htmlFor="region" className="text-sm font-medium text-gray-700">
                     {translate('region')}
                   </Label>
-                  <Select value={province} onValueChange={(value) => {
-                    setProvince(value);
-                    setCity(''); // Reset city when province changes
-                  }}>
-                    <SelectTrigger className="mt-1">
-                      <SelectValue placeholder={translate('selectRegion')} />
+                  <Select value={selectedRegion} onValueChange={setSelectedRegion} disabled={!selectedCountry}>
+                    <SelectTrigger>
+                      <SelectValue placeholder={translate('selectRegion', { region: getRegionLabel(selectedCountry) })} />
                     </SelectTrigger>
                     <SelectContent>
-                      {getRegions().map((region) => (
-                        <SelectItem key={region.code} value={region.code}>
-                          {region.name}
-                        </SelectItem>
+                      {getRegions().map(region => (
+                        <SelectItem key={region.name} value={region.name}>{region.name}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -530,7 +525,7 @@ const OnboardingPage = () => {
                 <div>
                   <Label htmlFor="city" className="text-sm font-medium text-gray-700">{translate('city')}</Label>
                   <Select value={city} onValueChange={setCity}>
-                    <SelectTrigger className="mt-1">
+                    <SelectTrigger>
                       <SelectValue placeholder={translate('selectCity')} />
                     </SelectTrigger>
                     <SelectContent>

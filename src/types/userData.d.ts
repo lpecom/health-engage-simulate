@@ -162,4 +162,33 @@ declare module '@/types/userData' {
       hyperEvents: number;
     };
   }
+
+  // Shopify Checkout Types
+  export interface ShippingInfo {
+    firstName: string;
+    lastName: string;
+    phone: string;
+    email?: string;
+    address: string;
+    province: string;
+    city: string;
+    postalCode: string;
+    country: string;
+  }
+  
+  export interface ProductOption {
+    id: number;
+    title: string;
+    price: number;
+    originalPrice: number;
+    units: number;
+    discount: string;
+    installments?: string;
+    shipping: number;
+  }
+
+  export interface CheckoutOrderData {
+    product: ProductOption;
+    shipping: ShippingInfo;
+  }
 }

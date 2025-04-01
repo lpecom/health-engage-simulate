@@ -3,7 +3,13 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { toast } from "@/hooks/use-toast";
 import { supabase } from '@/integrations/supabase/client';
 import { ShopifyOrderPayload } from '@/services/ShopifyService';
-import { COUNTRIES, formatPhoneForCountry, isValidPhoneForCountry } from '@/data/countries';
+import { 
+  CountryCode, 
+  formatPhoneForCountry, 
+  isValidPhoneForCountry, 
+  normalizeToE164 
+} from '@/data/countries';
+import { CheckoutOrderData } from '@/types/userData';
 
 interface ShopifyContextType {
   isConfigured: boolean;
@@ -14,27 +20,6 @@ interface ShopifyContextType {
 
 interface ShopifyProviderProps {
   children: React.ReactNode;
-}
-
-export interface CheckoutOrderData {
-  product: {
-    id: number;
-    title: string;
-    price: number;
-    units: number;
-  };
-  shipping: {
-    firstName: string;
-    lastName: string;
-    phone: string;
-    address: string;
-    province: string;
-    city: string;
-    postalCode: string;
-    country: string;
-    cost?: number;
-    email?: string;
-  };
 }
 
 const ShopifyContext = createContext<ShopifyContextType | undefined>(undefined);
@@ -144,40 +129,6 @@ export const ShopifyProvider: React.FC<ShopifyProviderProps> = ({ children }) =>
     }
   };
   
-  const formatPhoneForShopifyAPI = (phone: string, countryCode: string): string => {
-    if (!phone) return '';
-    
-    console.log('Original phone:', phone, 'Country:', countryCode);
-    
-    // First use our country-specific formatter
-    let formatted = formatPhoneForCountry(phone, countryCode);
-    
-    // Then ensure it's in E.164 format (no spaces, parentheses, or other characters)
-    let digitsOnly = formatted.replace(/\s|-|\(|\)/g, '');
-    let hasPlus = digitsOnly.startsWith('+');
-    
-    if (!hasPlus) {
-      digitsOnly = digitsOnly.replace(/\D/g, '');
-      
-      // Add country code based on country
-      if (countryCode === 'ES' && !digitsOnly.startsWith('34')) {
-        digitsOnly = '34' + digitsOnly;
-      } else if (countryCode === 'PT' && !digitsOnly.startsWith('351')) {
-        digitsOnly = '351' + digitsOnly;
-      } else if (countryCode === 'IT' && !digitsOnly.startsWith('39')) {
-        digitsOnly = '39' + digitsOnly;
-      } else if (countryCode === 'DE' && !digitsOnly.startsWith('49')) {
-        digitsOnly = '49' + digitsOnly;
-      }
-      
-      // Add plus sign
-      digitsOnly = '+' + digitsOnly;
-    }
-    
-    console.log(`Formatted phone from ${phone} to ${digitsOnly}`);
-    return digitsOnly;
-  };
-  
   const exportOrder = async (orderData: CheckoutOrderData): Promise<boolean> => {
     if (!isConfigured) {
       toast({
@@ -189,11 +140,21 @@ export const ShopifyProvider: React.FC<ShopifyProviderProps> = ({ children }) =>
     }
     
     try {
-      // Format phone number according to E.164 standard required by Shopify
-      const formattedPhone = formatPhoneForShopifyAPI(orderData.shipping.phone, orderData.shipping.country);
+      // Validate phone number before proceeding
+      if (!isValidPhoneForCountry(orderData.shipping.phone, orderData.shipping.country as CountryCode)) {
+        toast({
+          title: "Invalid Phone Number",
+          description: `Please enter a valid phone number for ${orderData.shipping.country}`,
+          variant: "destructive",
+        });
+        return false;
+      }
+      
+      // Format phone number to E.164 format (required by Shopify API)
+      const formattedPhone = normalizeToE164(orderData.shipping.phone, orderData.shipping.country as CountryCode);
       
       console.log('Original phone:', orderData.shipping.phone);
-      console.log('Formatted E.164 phone:', formattedPhone);
+      console.log('Normalized E.164 phone:', formattedPhone);
       
       const payload: ShopifyOrderPayload = {
         order: {
@@ -208,7 +169,7 @@ export const ShopifyProvider: React.FC<ShopifyProviderProps> = ({ children }) =>
             first_name: orderData.shipping.firstName,
             last_name: orderData.shipping.lastName,
             phone: formattedPhone,
-            email: orderData.shipping.email
+            email: orderData.shipping.email || `${orderData.shipping.firstName.toLowerCase()}.${orderData.shipping.lastName.toLowerCase()}@example.com`
           },
           shipping_address: {
             first_name: orderData.shipping.firstName,
@@ -227,7 +188,7 @@ export const ShopifyProvider: React.FC<ShopifyProviderProps> = ({ children }) =>
         }
       };
       
-      console.log('Exporting order to Shopify with payload:', JSON.stringify(payload));
+      console.log('Exporting order to Shopify with payload:', JSON.stringify(payload, null, 2));
       
       const { data: orderResponse, error: orderError } = await supabase.functions.invoke('shopify', {
         body: {
@@ -236,25 +197,30 @@ export const ShopifyProvider: React.FC<ShopifyProviderProps> = ({ children }) =>
         }
       });
       
-      if (orderError || !orderResponse) {
-        console.error('Error creating Shopify order:', orderError || 'No response');
+      if (orderError) {
+        console.error('Error creating Shopify order:', orderError);
         toast({
           title: "Export Failed",
-          description: "Failed to create order in Shopify",
+          description: "Failed to create order in Shopify: " + orderError.message,
           variant: "destructive",
         });
         return false;
       }
       
-      if (orderResponse.error) {
+      if (orderResponse?.error) {
         console.error('Shopify order creation failed:', orderResponse.error);
+        
+        let errorMessage = "Failed to create order in Shopify";
+        if (orderResponse.error.shopifyError?.errors) {
+          const errors = orderResponse.error.shopifyError.errors;
+          errorMessage = Object.entries(errors)
+            .map(([key, value]) => `${key}: ${value}`)
+            .join(', ');
+        }
+        
         toast({
           title: "Export Failed",
-          description: orderResponse.error.shopifyError?.errors ? 
-            Object.entries(orderResponse.error.shopifyError.errors)
-              .map(([key, value]) => `${key}: ${value}`)
-              .join(', ') 
-            : orderResponse.error,
+          description: errorMessage,
           variant: "destructive",
         });
         return false;
@@ -269,8 +235,8 @@ export const ShopifyProvider: React.FC<ShopifyProviderProps> = ({ children }) =>
             product_name: orderData.product.title,
             product_quantity: orderData.product.units,
             product_price: orderData.product.price,
-            shipping_price: orderData.shipping.cost || 0,
-            total_price: orderData.product.price * orderData.product.units + (orderData.shipping.cost || 0),
+            shipping_price: orderData.product.shipping || 0,
+            total_price: (orderData.product.price * orderData.product.units) + (orderData.product.shipping || 0),
             customer_name: orderData.shipping.firstName,
             customer_surname: orderData.shipping.lastName,
             customer_phone: formattedPhone,
