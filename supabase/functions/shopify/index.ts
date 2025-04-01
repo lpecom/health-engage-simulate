@@ -26,62 +26,41 @@ serve(async (req) => {
   }
 
   try {
-    const { SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY } = Deno.env.toObject()
+    const { SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, SHOPIFY_STORE_NAME, SHOPIFY_ACCESS_TOKEN, SHOPIFY_API_KEY, SHOPIFY_API_SECRET } = Deno.env.toObject()
     const supabaseClient = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
     
-    // Get Shopify credentials from settings table
-    const { data: shopifySettings, error: settingsError } = await supabaseClient
-      .from('settings')
-      .select('value')
-      .eq('key', 'shopify')
-      .single()
-    
-    if (settingsError || !shopifySettings) {
-      console.error('Error fetching Shopify settings:', settingsError)
+    // Check for required environment variables
+    if (!SHOPIFY_STORE_NAME || !SHOPIFY_ACCESS_TOKEN || !SHOPIFY_API_KEY || !SHOPIFY_API_SECRET) {
+      console.error('Missing required Shopify environment variables');
       return new Response(JSON.stringify({
-        error: 'Shopify is not configured. Please set up Shopify credentials first.'
+        error: 'Shopify is not configured. Missing required environment variables.'
       }), {
         status: 400,
         headers: {
           'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': '*',
         },
-      })
+      });
     }
-
-    // Extract shopify credentials from settings
-    const value = shopifySettings.value as any;
-    const shopName = value.shopName;
-    const accessToken = value.accessToken;
-    const apiKey = value.apiKey;
-    const apiSecret = value.apiSecret;
     
-    if (!shopName || !accessToken || !apiKey || !apiSecret) {
-      return new Response(JSON.stringify({
-        error: 'Incomplete Shopify configuration. Please check your settings.'
-      }), {
-        status: 400,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-        },
-      })
-    }
-
     // Format shop name to ensure it's a valid Shopify URL
     // Remove any spaces, special characters, or .myshopify.com if it's already there
-    const formattedShopName = shopName.trim().replace(/\.myshopify\.com$/, '').replace(/[^\w-]/g, '');
+    const formattedShopName = SHOPIFY_STORE_NAME.trim()
+      .replace(/\.myshopify\.com$/, '')
+      .replace(/[^\w-]/g, '');
+    
     const apiUrl = `https://${formattedShopName}.myshopify.com/admin/api/${SHOPIFY_API_VERSION}`;
     
     console.log(`Using Shopify API URL: ${apiUrl}`);
+    console.log(`Using shop name: ${formattedShopName}`);
 
     const headers = {
       'Content-Type': 'application/json',
-      'X-Shopify-Access-Token': accessToken
-    }
+      'X-Shopify-Access-Token': SHOPIFY_ACCESS_TOKEN
+    };
 
-    const reqData: ShopifyRequestPayload = await req.json()
-    const { action, payload } = reqData
+    const reqData: ShopifyRequestPayload = await req.json();
+    const { action, payload } = reqData;
 
     if (action === 'validateCredentials') {
       console.log(`Validating Shopify credentials for shop: ${formattedShopName}`);
@@ -155,12 +134,12 @@ serve(async (req) => {
           method: 'POST',
           headers: headers,
           body: JSON.stringify(payload)
-        })
+        });
 
-        const responseData = await response.json()
+        const responseData = await response.json();
         
         if (!response.ok) {
-          console.error('Failed to create order:', responseData)
+          console.error('Failed to create order:', responseData);
           return new Response(JSON.stringify({
             error: 'Failed to create order',
             shopifyError: responseData,
@@ -171,10 +150,10 @@ serve(async (req) => {
               'Content-Type': 'application/json',
               'Access-Control-Allow-Origin': '*',
             },
-          })
+          });
         }
 
-        console.log('Order created successfully:', responseData)
+        console.log('Order created successfully:', responseData);
         
         // Store the order in Supabase if it doesn't exist yet
         if (responseData.order) {
@@ -200,13 +179,13 @@ serve(async (req) => {
                 payment_method: 'COD'
               }, {
                 onConflict: 'shopify_order_id'
-              })
+              });
 
             if (error) {
-              console.error("Supabase order insertion error:", error)
+              console.error("Supabase order insertion error:", error);
             }
           } catch (error) {
-            console.error("Error saving to database:", error)
+            console.error("Error saving to database:", error);
           }
         }
 
@@ -215,9 +194,9 @@ serve(async (req) => {
             'Content-Type': 'application/json',
             'Access-Control-Allow-Origin': '*',
           },
-        })
+        });
       } catch (error) {
-        console.error('Error creating order:', error)
+        console.error('Error creating order:', error);
         return new Response(JSON.stringify({
           error: 'Error creating order: ' + error.message
         }), {
@@ -226,7 +205,7 @@ serve(async (req) => {
             'Content-Type': 'application/json',
             'Access-Control-Allow-Origin': '*',
           },
-        })
+        });
       }
     }
     
@@ -238,10 +217,10 @@ serve(async (req) => {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',
       },
-    })
+    });
 
   } catch (error) {
-    console.error('Error in Shopify function:', error)
+    console.error('Error in Shopify function:', error);
     return new Response(JSON.stringify({
       error: error.message
     }), {
@@ -250,6 +229,6 @@ serve(async (req) => {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',
       },
-    })
+    });
   }
 })

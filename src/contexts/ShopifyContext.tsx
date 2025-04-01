@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from '@/integrations/supabase/client';
@@ -52,45 +51,13 @@ export const ShopifyProvider: React.FC<ShopifyProviderProps> = ({ children }) =>
   const [isConnecting, setIsConnecting] = useState(false);
   const [isConfigured, setIsConfigured] = useState(false);
   
-  // Load settings from Supabase on mount
+  // Check if Shopify integration is configured on mount
   useEffect(() => {
-    const loadSettings = async () => {
-      try {
-        // Query the settings table for Shopify settings
-        const { data, error } = await supabase
-          .from('settings')
-          .select('*')
-          .eq('key', 'shopify')
-          .single();
-        
-        if (error) {
-          console.log('No Shopify settings found or error fetching:', error);
-          return;
-        }
-        
-        if (data?.value) {
-          const shopifyData = data.value as Record<string, string>;
-          
-          setShopName(shopifyData.shopName || '');
-          setAccessToken(shopifyData.accessToken || '');
-          setApiKey(shopifyData.apiKey || '');
-          setApiSecret(shopifyData.apiSecret || '');
-          
-          // If we have stored values, check if they're valid
-          if (shopifyData.shopName && shopifyData.accessToken && shopifyData.apiKey && shopifyData.apiSecret) {
-            validateStoredCredentials();
-          }
-        }
-      } catch (error) {
-        console.error('Failed to load Shopify settings:', error);
-      }
-    };
-    
-    loadSettings();
+    validateCredentials();
   }, []);
   
-  // Validate stored credentials
-  const validateStoredCredentials = async () => {
+  // Validate Shopify credentials directly using edge function
+  const validateCredentials = async () => {
     try {
       const { data: validationData, error: validationError } = await supabase.functions.invoke('shopify', {
         body: {
@@ -101,19 +68,33 @@ export const ShopifyProvider: React.FC<ShopifyProviderProps> = ({ children }) =>
       if (validationError) {
         console.error('Error validating credentials:', validationError);
         setIsConfigured(false);
-        return;
+        return false;
       }
       
-      if (validationData.success) {
+      if (validationData?.success) {
         console.log('Shopify credentials validated successfully');
+        
+        // If we have shop data, update our local state
+        if (validationData.shop) {
+          // Extract shop name from domain
+          const shopDomain = validationData.shop.domain || '';
+          const extractedName = shopDomain.replace('.myshopify.com', '');
+          if (extractedName) {
+            setShopName(extractedName);
+          }
+        }
+        
         setIsConfigured(true);
+        return true;
       } else {
-        console.log('Stored Shopify credentials are invalid');
+        console.log('Shopify credentials are invalid');
         setIsConfigured(false);
+        return false;
       }
     } catch (error) {
       console.error('Failed to validate Shopify credentials:', error);
       setIsConfigured(false);
+      return false;
     }
   };
   
@@ -130,14 +111,15 @@ export const ShopifyProvider: React.FC<ShopifyProviderProps> = ({ children }) =>
     setIsConnecting(true);
     
     try {
-      // First check if a setting already exists
+      // First, store the credentials securely in Supabase settings
+      let saveError;
+      
+      // Check if a setting already exists
       const { data: existingData } = await supabase
         .from('settings')
         .select('id')
         .eq('key', 'shopify')
         .single();
-      
-      let saveError;
       
       if (existingData?.id) {
         // If it exists, update it
@@ -172,7 +154,7 @@ export const ShopifyProvider: React.FC<ShopifyProviderProps> = ({ children }) =>
           
         saveError = error;
       }
-        
+      
       if (saveError) {
         console.error('Failed to save Shopify settings:', saveError);
         toast({
@@ -183,25 +165,10 @@ export const ShopifyProvider: React.FC<ShopifyProviderProps> = ({ children }) =>
         return false;
       }
       
-      // Validate the credentials
-      const { data: validationData, error: validationError } = await supabase.functions.invoke('shopify', {
-        body: {
-          action: 'validateCredentials'
-        }
-      });
+      // Validate the credentials using edge function
+      const isValid = await validateCredentials();
       
-      if (validationError) {
-        console.error('Error validating credentials:', validationError);
-        toast({
-          title: "Connection Error",
-          description: "Failed to validate Shopify connection",
-          variant: "destructive",
-        });
-        return false;
-      }
-      
-      if (validationData.success) {
-        setIsConfigured(true);
+      if (isValid) {
         toast({
           title: "Connected to Shopify",
           description: `Successfully connected to ${shopName} store`,
@@ -210,7 +177,7 @@ export const ShopifyProvider: React.FC<ShopifyProviderProps> = ({ children }) =>
       } else {
         toast({
           title: "Connection Failed",
-          description: validationData.error || "Invalid Shopify credentials. Please check and try again.",
+          description: "Invalid Shopify credentials. Please check and try again.",
           variant: "destructive",
         });
         return false;

@@ -7,8 +7,9 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useToast } from '@/components/ui/use-toast';
-import { ShieldCheck, AlertCircle, CheckCircle, ExternalLink } from 'lucide-react';
+import { ShieldCheck, AlertCircle, CheckCircle, ExternalLink, Info } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const ShopifySettings = () => {
   const { translate } = useLanguage();
@@ -92,6 +93,10 @@ const ShopifySettings = () => {
       
       if (success) {
         setConnectionStatus('success');
+        toast({
+          title: "Shopify Connected",
+          description: "Your Shopify store has been successfully connected.",
+        });
       } else {
         setConnectionStatus('error');
         setErrorMessage('Failed to connect to Shopify. Please check your credentials and try again.');
@@ -121,6 +126,13 @@ const ShopifySettings = () => {
         </CardDescription>
       </CardHeader>
       <CardContent>
+        <Alert className="mb-4 bg-blue-50 border-blue-200">
+          <Info className="h-4 w-4 text-blue-600" />
+          <AlertDescription className="text-sm text-blue-800">
+            Your Shopify credentials need to be entered here. The system will also store these in Supabase secrets for secure access.
+          </AlertDescription>
+        </Alert>
+        
         <div className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="shopName">{translate('shopifyStoreName')}</Label>
