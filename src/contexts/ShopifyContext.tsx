@@ -1,6 +1,6 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "@/hooks/use-toast"; // Import directly from hooks/use-toast
 import { supabase } from '@/integrations/supabase/client';
 import { ShopifyOrderPayload } from '@/services/ShopifyService';
 
@@ -37,7 +37,7 @@ export interface CheckoutOrderData {
 const ShopifyContext = createContext<ShopifyContextType | undefined>(undefined);
 
 export const ShopifyProvider: React.FC<ShopifyProviderProps> = ({ children }) => {
-  const { toast } = useToast();
+  // Remove useToast hook usage and use the direct toast function
   const [isConnecting, setIsConnecting] = useState(false);
   const [isConfigured, setIsConfigured] = useState(false);
   

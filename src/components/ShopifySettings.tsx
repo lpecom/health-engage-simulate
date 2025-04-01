@@ -4,7 +4,7 @@ import { useShopify } from '@/contexts/ShopifyContext';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useToast } from '@/components/ui/use-toast';
+import { toast } from '@/hooks/use-toast'; // Direct import from hooks
 import { ShieldCheck, AlertCircle, CheckCircle, Info, HelpCircle, ExternalLink } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Alert, AlertDescription } from '@/components/ui/alert';
