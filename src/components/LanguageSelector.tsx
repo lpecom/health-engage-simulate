@@ -32,9 +32,21 @@ const LanguageSelector = () => {
           <span className="text-lg">{translate('portuguese')}</span>
           {language === 'pt' && <Check className="h-5 w-5 ml-2" />}
         </Button>
+        
+        <Button
+          variant={language === 'it' ? "default" : "outline"}
+          className={`relative px-6 py-6 h-auto flex justify-between items-center ${
+            language === 'it' ? 'bg-accu-tech-blue hover:bg-accu-tech-dark-blue' : ''
+          }`}
+          onClick={() => setLanguage('it')}
+        >
+          <span className="text-lg">{translate('italian')}</span>
+          {language === 'it' && <Check className="h-5 w-5 ml-2" />}
+        </Button>
       </div>
     </div>
   );
 };
 
 export default LanguageSelector;
+
