@@ -32,6 +32,9 @@ declare module '@/types/userData' {
       relation: string;
     };
     onboarded?: boolean;
+    age?: number;
+    diabetesType?: 'type1' | 'type2' | 'prediabetes' | 'gestational' | 'other';
+    shippingInfo?: ShippingInfo;
   }
 
   export interface GlucoseReading {

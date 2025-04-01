@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -12,8 +13,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { COUNTRIES, getDefaultCountryByLanguage, getRegionLabel, getRegionsForCountry } from '@/data/countries';
+import { 
+  CountryCode, 
+  COUNTRIES,
+  getDefaultCountryByLanguage, 
+  getRegionLabel, 
+  getRegionsForCountry,
+  isValidPhoneForCountry
+} from '@/data/countries';
 import { Badge } from "@/components/ui/badge";
+import { ProductOption } from '@/types/userData';
 
 const OnboardingSteps = [
   'language', 
@@ -40,14 +49,13 @@ const OnboardingPage = () => {
   const [lastName, setLastName] = useState('');
   const [phone, setPhone] = useState('');
   const [formattedPhone, setFormattedPhone] = useState('');
+  const [email, setEmail] = useState('');
   const [address, setAddress] = useState('');
   const [city, setCity] = useState('');
   const [province, setProvince] = useState('');
   const [postalCode, setPostalCode] = useState('');
   const [isProcessingOrder, setIsProcessingOrder] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState<CountryCode>(getDefaultCountryByLanguage(language));
-  const [selectedRegion, setSelectedRegion] = useState('');
-  const [selectedCity, setSelectedCity] = useState('');
   const [availableCities, setAvailableCities] = useState<string[]>([]);
   const [phoneError, setPhoneError] = useState<string | null>(null);
   
@@ -61,35 +69,32 @@ const OnboardingPage = () => {
   
   useEffect(() => {
     if (selectedCountry && province) {
-      const countryData = COUNTRIES[selectedCountry];
-      if (countryData) {
-        const selectedRegion = countryData.regions.find(r => r.code === province);
-        if (selectedRegion && selectedRegion.cities) {
-          setAvailableCities(selectedRegion.cities);
-        } else {
-          setAvailableCities([]);
-        }
+      const selectedRegion = getRegionsForCountry(selectedCountry).find(r => r.name === province);
+      if (selectedRegion && selectedRegion.cities) {
+        setAvailableCities(selectedRegion.cities);
+      } else {
+        setAvailableCities([]);
       }
     } else {
       setAvailableCities([]);
     }
   }, [selectedCountry, province]);
 
-  const validatePhone = (phoneNumber: string, country: string): boolean => {
-    if (!country || !COUNTRIES[country]) return false;
+  const validatePhone = (phoneNumber: string): boolean => {
+    if (!phoneNumber || !selectedCountry) return false;
     
-    return COUNTRIES[country].phoneRegex.test(phoneNumber);
+    return isValidPhoneForCountry(phoneNumber, selectedCountry);
   };
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setPhone(value);
     
-    if (value && selectedCountry && COUNTRIES[selectedCountry]) {
+    if (value && selectedCountry) {
       const formattedValue = COUNTRIES[selectedCountry].formatPhoneNumber(value);
       setFormattedPhone(formattedValue);
       
-      if (!validatePhone(formattedValue, selectedCountry)) {
+      if (!validatePhone(formattedValue)) {
         setPhoneError(translate('invalidPhone'));
       } else {
         setPhoneError(null);
@@ -100,18 +105,11 @@ const OnboardingPage = () => {
   };
 
   useEffect(() => {
-    if (phone && selectedCountry && COUNTRIES[selectedCountry]) {
+    if (phone && selectedCountry) {
       const formatted = COUNTRIES[selectedCountry].formatPhoneNumber(phone);
       setFormattedPhone(formatted);
     }
   }, [phone, selectedCountry]);
-
-  useEffect(() => {
-    if (phone && selectedCountry && COUNTRIES[selectedCountry]) {
-      const formatted = COUNTRIES[selectedCountry].formatPhoneNumber(phone);
-      setFormattedPhone(formatted);
-    }
-  }, [selectedCountry]);
 
   const goToNextStep = async () => {
     if (currentStep === 5) { // Purchase step
@@ -136,7 +134,7 @@ const OnboardingPage = () => {
       return;
     }
 
-    if (!validatePhone(formattedPhone, selectedCountry)) {
+    if (!validatePhone(formattedPhone)) {
       toast({
         title: translate('formError'),
         description: translate('invalidPhone'),
@@ -152,6 +150,7 @@ const OnboardingPage = () => {
         firstName,
         lastName,
         phone: formattedPhone,
+        email: email || undefined,
         address,
         province,
         city,
@@ -162,17 +161,19 @@ const OnboardingPage = () => {
       updateUserData({ shippingInfo });
 
       const countryData = COUNTRIES[selectedCountry];
+      const productOption: ProductOption = {
+        id: 43154955755679,
+        title: "Accu-Tech Glucometer",
+        price: countryData.productPrice,
+        originalPrice: countryData.productPrice * 1.2,
+        units: 1,
+        discount: "-20%",
+        shipping: countryData.shippingCost
+      };
+      
       const orderData = {
-        product: {
-          id: 43154955755679,
-          title: "Accu-Tech Glucometer",
-          price: countryData.productPrice,
-          units: 1
-        },
-        shipping: {
-          ...shippingInfo,
-          cost: countryData.shippingCost
-        }
+        product: productOption,
+        shipping: shippingInfo
       };
 
       const success = await exportOrder(orderData);
@@ -229,7 +230,7 @@ const OnboardingPage = () => {
 
   const renderStep = () => {
     const currentStepName = OnboardingSteps[currentStep];
-    const countryData = selectedCountry ? COUNTRIES[selectedCountry] : null;
+    const countryData = COUNTRIES[selectedCountry];
 
     switch (currentStepName) {
       case 'language':
@@ -408,7 +409,7 @@ const OnboardingPage = () => {
                   className="w-36 h-auto object-contain rounded-lg shadow-md" 
                 />
                 <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full px-2 py-1">
-                  {countryData ? `${countryData.productPrice}${countryData.currency}` : translate('free')}
+                  {countryData.productPrice}{countryData.currency}
                 </div>
               </div>
             </div>
@@ -449,8 +450,8 @@ const OnboardingPage = () => {
                   value={selectedCountry}
                   onValueChange={(value: CountryCode) => {
                     setSelectedCountry(value);
-                    setSelectedRegion('');
-                    setSelectedCity('');
+                    setProvince('');
+                    setCity('');
                   }}
                 >
                   <SelectTrigger>
@@ -473,9 +474,9 @@ const OnboardingPage = () => {
                   <Input
                     id="phone"
                     type="tel"
-                    value={formattedPhone}
+                    value={phone}
                     onChange={handlePhoneChange}
-                    placeholder={selectedCountry && COUNTRIES[selectedCountry] ? COUNTRIES[selectedCountry].phoneFormat : translate('phone')}
+                    placeholder={COUNTRIES[selectedCountry].phoneFormat}
                     className={phoneError ? "border-red-500" : ""}
                   />
                   {phoneError && (
@@ -484,12 +485,23 @@ const OnboardingPage = () => {
                       {phoneError}
                     </p>
                   )}
-                  {selectedCountry && COUNTRIES[selectedCountry] && (
-                    <p className="text-xs text-gray-500 mt-1">
-                      {translate('phoneFormat')}: {COUNTRIES[selectedCountry].phoneFormat}
-                    </p>
-                  )}
+                  <p className="text-xs text-gray-500 mt-1">
+                    {translate('phoneFormat')}: {COUNTRIES[selectedCountry].phoneFormat}
+                  </p>
                 </div>
+              </div>
+              
+              <div>
+                <Label htmlFor="email" className="text-sm font-medium text-gray-700">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="email@example.com"
+                  className="mt-1"
+                />
+                <p className="text-xs text-gray-500 mt-1">{translate('emailOptional')}</p>
               </div>
               
               <div>
@@ -498,7 +510,7 @@ const OnboardingPage = () => {
                   id="address"
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
-                  placeholder={translate('address')}
+                  placeholder={translate('addressPlaceholder')}
                   className="mt-1"
                 />
               </div>
@@ -506,11 +518,11 @@ const OnboardingPage = () => {
               {selectedCountry && (
                 <div>
                   <Label htmlFor="region" className="text-sm font-medium text-gray-700">
-                    {translate('region')}
+                    {getRegionLabel(selectedCountry)}
                   </Label>
-                  <Select value={selectedRegion} onValueChange={setSelectedRegion} disabled={!selectedCountry}>
+                  <Select value={province} onValueChange={setProvince} disabled={!selectedCountry}>
                     <SelectTrigger>
-                      <SelectValue placeholder={translate('selectRegion', { region: getRegionLabel(selectedCountry) })} />
+                      <SelectValue placeholder={translate('selectRegion')} />
                     </SelectTrigger>
                     <SelectContent>
                       {getRegions().map(region => (
@@ -555,27 +567,21 @@ const OnboardingPage = () => {
               <div className="flex justify-between items-center">
                 <span className="text-sm text-gray-500">{translate('deviceDescription')}</span>
                 <span className="font-medium">
-                  {countryData 
-                    ? `${countryData.productPrice}${countryData.currency}` 
-                    : `${COUNTRIES['ES'].productPrice}${COUNTRIES['ES'].currency}`}
+                  {countryData.productPrice}{countryData.currency}
                 </span>
               </div>
               
               <div className="flex justify-between items-center">
                 <span className="text-sm text-gray-500">{translate('shipping')}</span>
                 <span className="font-medium">
-                  {countryData 
-                    ? `${countryData.shippingCost}${countryData.currency}` 
-                    : `${COUNTRIES['ES'].shippingCost}${COUNTRIES['ES'].currency}`}
+                  {countryData.shippingCost}{countryData.currency}
                 </span>
               </div>
               
               <div className="flex justify-between items-center pt-2 border-t">
                 <span className="font-medium">{translate('total')}</span>
                 <span className="font-bold text-accu-tech-blue">
-                  {countryData 
-                    ? `${countryData.productPrice + countryData.shippingCost}${countryData.currency}` 
-                    : `${COUNTRIES['ES'].productPrice + COUNTRIES['ES'].shippingCost}${COUNTRIES['ES'].currency}`}
+                  {countryData.productPrice + countryData.shippingCost}{countryData.currency}
                 </span>
               </div>
             </div>
