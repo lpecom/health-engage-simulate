@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useShopify } from '@/contexts/ShopifyContext';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -23,24 +23,11 @@ const ShopifySettings = () => {
   const [localShopName, setLocalShopName] = useState(shopName);
   const [localAccessToken, setLocalAccessToken] = useState(accessToken);
   
-  // Update local state when context values change
-  useEffect(() => {
-    setLocalShopName(shopName);
-    setLocalAccessToken(accessToken);
-  }, [shopName, accessToken]);
-  
   const handleConnect = async () => {
     setShopName(localShopName);
     setAccessToken(localAccessToken);
     await connectToShopify();
   };
-  
-  // Auto-connect on component mount if credentials are available
-  useEffect(() => {
-    if (shopName && accessToken && !isConfigured) {
-      connectToShopify();
-    }
-  }, []);
   
   return (
     <Card className="w-full max-w-md mx-auto">

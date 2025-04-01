@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 type DiabetesType = 'type1' | 'type2' | 'prediabetes' | 'gestational' | 'other';
@@ -174,14 +173,12 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       newData.points += 10;
       
-      if (prevData.glucoseReadings.length === 0) {
+      if (userData.glucoseReadings.length === 0) {
         unlockAchievement('first-measurement');
         earnPoints(50);
       }
       
       checkAndUpdateStreak();
-      
-      return newData; // Return the updated data
     });
   };
 

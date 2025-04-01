@@ -3,10 +3,6 @@ import React, { createContext, useContext, useState } from 'react';
 import { useToast } from "@/components/ui/use-toast";
 import ShopifyService, { ShopifyOrderPayload } from '@/services/ShopifyService';
 
-// Default test store credentials
-const DEFAULT_SHOP_NAME = "h00ktt-1h";
-const DEFAULT_ACCESS_TOKEN = "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";
-
 interface ShopifyContextType {
   isConfigured: boolean;
   isConnecting: boolean;
@@ -45,11 +41,11 @@ const ShopifyContext = createContext<ShopifyContextType | undefined>(undefined);
 export const ShopifyProvider: React.FC<ShopifyProviderProps> = ({ children }) => {
   const { toast } = useToast();
   const [shopName, setShopName] = useState<string>(() => {
-    return localStorage.getItem('shopify_shop_name') || DEFAULT_SHOP_NAME;
+    return localStorage.getItem('shopify_shop_name') || '';
   });
   
   const [accessToken, setAccessToken] = useState<string>(() => {
-    return localStorage.getItem('shopify_access_token') || DEFAULT_ACCESS_TOKEN;
+    return localStorage.getItem('shopify_access_token') || '';
   });
   
   const [isConnecting, setIsConnecting] = useState(false);
