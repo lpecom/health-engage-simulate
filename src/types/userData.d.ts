@@ -1,4 +1,3 @@
-
 declare module '@/types/userData' {
   export interface User {
     id: string;

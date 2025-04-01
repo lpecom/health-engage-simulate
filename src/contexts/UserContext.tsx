@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState } from 'react';
-import { ShippingInfo, Achievement as AchievementType } from '@/types/userData';
+import { Achievement as AchievementType, User } from '@/types/userData';
 
-export interface ShippingInfo {
+interface UserShippingInfo {
   firstName: string;
   lastName: string;
   phone: string;
@@ -12,7 +12,6 @@ export interface ShippingInfo {
   country: string;
 }
 
-// Define any achievements the user can earn
 export interface Achievement {
   id: string;
   name: string;
@@ -27,7 +26,6 @@ export interface Achievement {
   category?: 'reading' | 'streak' | 'learning';
 }
 
-// Define a specific glucose reading with timestamp
 export interface GlucoseReading {
   value: number;
   timestamp: Date;
@@ -43,7 +41,7 @@ export interface UserData {
   levels: number[];
   streak: number;
   readings: number;
-  shippingInfo?: ShippingInfo;
+  shippingInfo?: UserShippingInfo;
   targetRangeLow?: number;
   targetRangeHigh?: number;
   achievements?: Achievement[];

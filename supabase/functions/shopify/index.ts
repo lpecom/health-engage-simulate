@@ -119,6 +119,17 @@ function validateAndFormatOrderPayload(orderPayload: any) {
       if (!item.variant_id || !item.quantity) {
         throw new Error(`Missing required fields in line item ${index}: variant_id or quantity`);
       }
+      
+      // Ensure name and title are present for each line item
+      if (!item.name) {
+        item.name = "Accu-Tech Glucometer";
+        console.log(`Added default name to line item ${index}`);
+      }
+      
+      if (!item.title) {
+        item.title = item.name;
+        console.log(`Added title to line item ${index} based on name`);
+      }
     });
   } else {
     throw new Error("Order must contain at least one line item");

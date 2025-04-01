@@ -13,6 +13,8 @@ export interface ShopifyOrderPayload {
       variant_id: number;
       quantity: number;
       price?: string;
+      name?: string;
+      title?: string;
     }>;
     customer: {
       first_name: string;
@@ -103,7 +105,9 @@ export class ShopifyService {
           {
             variant_id: orderData.product.id,
             quantity: orderData.product.units,
-            price
+            price,
+            title: orderData.product.title || "Accu-Tech Glucometer", // Add product title
+            name: orderData.product.title || "Accu-Tech Glucometer"  // Add product name
           }
         ],
         customer: {

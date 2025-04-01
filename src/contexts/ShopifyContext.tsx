@@ -163,6 +163,8 @@ export const ShopifyProvider: React.FC<ShopifyProviderProps> = ({ children }) =>
               variant_id: orderData.product.id,
               quantity: orderData.product.units,
               price: orderData.product.price.toString(),
+              title: orderData.product.title || "Accu-Tech Glucometer", // Add title to line_items
+              name: orderData.product.title || "Accu-Tech Glucometer"  // Add name to line_items
             }
           ],
           customer: {
