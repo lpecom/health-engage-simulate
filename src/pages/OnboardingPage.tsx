@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -53,17 +52,14 @@ const OnboardingPage = () => {
   const [availableCities, setAvailableCities] = useState<string[]>([]);
   const [phoneError, setPhoneError] = useState<string | null>(null);
   
-  // Set the default country based on the selected language
   useEffect(() => {
     const defaultCountry = getDefaultCountryByLanguage(language);
     setSelectedCountry(defaultCountry);
     
-    // Clear the selected province and city when country changes
     setProvince('');
     setCity('');
   }, [language]);
   
-  // Update available cities when province changes
   useEffect(() => {
     if (selectedCountry && province) {
       const countryData = COUNTRIES[selectedCountry];
@@ -80,14 +76,12 @@ const OnboardingPage = () => {
     }
   }, [selectedCountry, province]);
 
-  // Validate phone number format
   const validatePhone = (phoneNumber: string, country: string): boolean => {
     if (!country || !COUNTRIES[country]) return false;
     
     return COUNTRIES[country].phoneRegex.test(phoneNumber);
   };
 
-  // Handle phone input change with validation
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setPhone(value);
@@ -126,7 +120,6 @@ const OnboardingPage = () => {
       return;
     }
 
-    // Validate phone number before submitting
     if (!validatePhone(phone, selectedCountry)) {
       toast({
         title: translate('formError'),
@@ -150,15 +143,13 @@ const OnboardingPage = () => {
         country: selectedCountry
       };
 
-      // Save shipping info to user data
       updateUserData({ shippingInfo });
 
-      // Always export to Shopify (we're now using default credentials if not configured)
       const orderData = {
         product: {
-          id: 43154955755679, // Updated product ID for the test store
+          id: 43154955755679,
           title: "Accu-Tech Glucometer",
-          price: 0, // Free product
+          price: 0,
           units: 1
         },
         shipping: shippingInfo
@@ -167,7 +158,6 @@ const OnboardingPage = () => {
       const success = await exportOrder(orderData);
       if (success) {
         console.log("Order successfully exported to Shopify");
-        // Move to next step
         setCurrentStep(currentStep + 1);
       } else {
         toast({
@@ -213,7 +203,6 @@ const OnboardingPage = () => {
 
   const progressPercentage = (currentStep + 1) / OnboardingSteps.length * 100;
   
-  // Get regions for the selected country
   const getRegions = () => {
     if (!selectedCountry || !COUNTRIES[selectedCountry]) return [];
     return COUNTRIES[selectedCountry].regions || [];

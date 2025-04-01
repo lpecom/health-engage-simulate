@@ -100,3 +100,89 @@ export const spanishProvinces = [
   'Zamora',
   'Zaragoza'
 ];
+
+// Type definitions for country data
+export interface Region {
+  code: string;
+  name: string;
+  cities?: string[];
+}
+
+export interface CountryData {
+  code: string;
+  name: string;
+  phoneRegex: RegExp;
+  phoneFormat: string;
+  regions: Region[];
+}
+
+// Create region objects from arrays
+const portugueseRegions: Region[] = portugueseDistricts.map((district, index) => ({
+  code: `PT-${index + 1}`,
+  name: district,
+  cities: [`${district} City`, `${district} Town`, `${district} Village`] // Example cities, replace with real data if available
+}));
+
+const italianRegionsData: Region[] = italianRegions.map((region, index) => ({
+  code: `IT-${index + 1}`,
+  name: region,
+  cities: [`${region} City`, `${region} Town`, `${region} Village`] // Example cities, replace with real data if available
+}));
+
+const spanishRegions: Region[] = spanishProvinces.map((province, index) => ({
+  code: `ES-${index + 1}`,
+  name: province,
+  cities: [`${province} City`, `${province} Town`, `${province} Village`] // Example cities, replace with real data if available
+}));
+
+// Main countries object
+export const COUNTRIES: Record<string, CountryData> = {
+  'PT': {
+    code: 'PT',
+    name: 'Portugal',
+    phoneRegex: /^\+351\s\d{3}\s\d{3}\s\d{3}$/,
+    phoneFormat: '+351 XXX XXX XXX',
+    regions: portugueseRegions
+  },
+  'ES': {
+    code: 'ES',
+    name: 'España',
+    phoneRegex: /^\+34\s\d{3}\s\d{3}\s\d{3}$/,
+    phoneFormat: '+34 XXX XXX XXX',
+    regions: spanishRegions
+  },
+  'IT': {
+    code: 'IT',
+    name: 'Italia',
+    phoneRegex: /^\+39\s\d{3}\s\d{3}\s\d{3,4}$/,
+    phoneFormat: '+39 XXX XXX XXXX',
+    regions: italianRegionsData
+  }
+};
+
+// Helper functions
+export function getDefaultCountryByLanguage(language: string): string {
+  switch (language) {
+    case 'pt':
+      return 'PT';
+    case 'es':
+      return 'ES';
+    case 'it':
+      return 'IT';
+    default:
+      return 'ES';
+  }
+}
+
+export function getRegionLabel(countryCode: string): string {
+  switch (countryCode) {
+    case 'PT':
+      return 'District';
+    case 'ES':
+      return 'Province';
+    case 'IT':
+      return 'Region';
+    default:
+      return 'Region';
+  }
+}
