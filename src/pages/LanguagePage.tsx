@@ -5,10 +5,20 @@ import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { ChevronLeft } from "lucide-react";
 import LanguageSelector from '@/components/LanguageSelector';
+import { useToast } from "@/components/ui/use-toast";
 
 const LanguagePage = () => {
   const { translate } = useLanguage();
   const navigate = useNavigate();
+  const { toast } = useToast();
+  
+  const handleSaveAndReturn = () => {
+    toast({
+      title: "Language Saved",
+      description: "Your language preference has been updated.",
+    });
+    navigate(-1);
+  };
   
   return (
     <div className="min-h-screen bg-gray-50">
@@ -34,7 +44,7 @@ const LanguagePage = () => {
           <div className="mt-8">
             <Button 
               className="w-full"
-              onClick={() => navigate(-1)}
+              onClick={handleSaveAndReturn}
             >
               {translate('saveAndReturn')}
             </Button>

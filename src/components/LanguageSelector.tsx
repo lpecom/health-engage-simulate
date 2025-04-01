@@ -12,6 +12,17 @@ const LanguageSelector = () => {
       
       <div className="grid grid-cols-1 gap-3 w-full">
         <Button
+          variant={language === 'en' ? "default" : "outline"}
+          className={`relative px-6 py-6 h-auto flex justify-between items-center ${
+            language === 'en' ? 'bg-accu-tech-blue hover:bg-accu-tech-dark-blue' : ''
+          }`}
+          onClick={() => setLanguage('en')}
+        >
+          <span className="text-lg">{translate('english')}</span>
+          {language === 'en' && <Check className="h-5 w-5 ml-2" />}
+        </Button>
+        
+        <Button
           variant={language === 'es' ? "default" : "outline"}
           className={`relative px-6 py-6 h-auto flex justify-between items-center ${
             language === 'es' ? 'bg-accu-tech-blue hover:bg-accu-tech-dark-blue' : ''

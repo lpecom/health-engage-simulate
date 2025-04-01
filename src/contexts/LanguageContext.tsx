@@ -41,6 +41,14 @@ export const LanguageProvider = ({ children }) => {
       selectOfferDescription: "Choose the perfect package for your needs",
       appName: "Healthineers",
       
+      // Language
+      language: "Language",
+      selectLanguage: "Select Language",
+      saveAndReturn: "Save and Return",
+      spanish: "Spanish",
+      portuguese: "Portuguese",
+      english: "English",
+      
       // Device
       deviceName: "Accu-Tech Laser Glucometer",
       deviceDescription: "Advanced blood-free glucose monitoring device",
@@ -113,52 +121,6 @@ export const LanguageProvider = ({ children }) => {
       safety: "Safety",
       achievementUnlocked: "Achievement Unlocked!",
       buyNow: "Buy Now",
-      
-      // Onboarding
-      purchaseDevice: "Purchase Your Device",
-      welcomeHeading: "Welcome to Accu-Tech!",
-      thankYouMessage: "Thank you for choosing our innovative blood-free glucose monitoring solution.",
-      userTestimonial: "Since I started using the Accu-Tech Laser Glucometer, I've been able to track my glucose levels without the pain of finger pricks. It's been life-changing!",
-      testimonialAuthor: "Sarah K., Accu-Tech User",
-      laserTechnologyIntro: "Our patented laser technology allows for completely blood-free glucose monitoring.",
-      laserEmissionTitle: "Laser Emission",
-      laserEmissionDesc: "The device emits a non-harmful laser that penetrates the skin to analyze glucose molecules.",
-      bloodlessAnalysisTitle: "Bloodless Analysis",
-      bloodlessAnalysisDesc: "Advanced algorithms analyze the reflected light to determine precise glucose levels.",
-      instantReadingTitle: "Instant Reading",
-      instantReadingDesc: "Results appear on screen within seconds, allowing immediate action if needed.",
-      scientificallyProven: "Scientifically proven to be as accurate as traditional blood testing methods.",
-      howItWorks: "How It Works",
-      keyBenefits: "Key Benefits",
-      benefitsIntro: "Discover the advantages of our blood-free glucose monitoring technology.",
-      noPainTitle: "Pain-Free",
-      noPainDesc: "No more finger pricks or blood samples.",
-      instantResultsTitle: "Quick Results",
-      instantResultsDesc: "Get readings in seconds, anytime.",
-      expertApprovedTitle: "Expert Approved",
-      expertApprovedDesc: "Validated by medical professionals.",
-      accurateTitle: "Accurate",
-      accurateDesc: "Precision comparable to blood tests.",
-      setupProfile: "Set Up Your Profile",
-      profileSetupIntro: "Help us personalize your experience by providing some basic information.",
-      name: "Name",
-      enterName: "Enter your name",
-      age: "Age",
-      diabetesType: "Diabetes Type",
-      type1: "Type 1",
-      type2: "Type 2",
-      prediabetes: "Prediabetes",
-      gestational: "Gestational",
-      other: "Other",
-      profilePrivacyMessage: "Your information is kept private and secure, and helps us provide personalized insights.",
-      readyToStart: "Ready to Start",
-      tutorialDescription: "Let's get familiar with the app's features and how to use them.",
-      measureGlucose: "Measure Glucose",
-      measureGlucoseDescription: "Connect your device and take blood-free readings anytime.",
-      trackProgress: "Track Progress",
-      trackProgressDescription: "View trends and patterns in your glucose levels over time.",
-      earnAchievements: "Earn Achievements",
-      earnAchievementsDescription: "Complete goals and unlock rewards as you maintain healthy levels.",
     },
     es: {
       // Common
@@ -237,7 +199,6 @@ export const LanguageProvider = ({ children }) => {
       orderThankYou: "Gracias por tu compra. Tu pedido ha sido confirmado.",
       deliveryStatus: "Estado de la Entrega",
       orderPlaced: "Pedido Realizado",
-      // Note: 'shipping' was duplicated and is already defined above
       estimatedProcess: "1-2 días hábiles",
       estimatedDelivery: "Esperado en 2-4 días hábiles",
       orderConfirmationEmail: "Te hemos enviado un correo con los detalles de tu pedido.",
@@ -280,64 +241,114 @@ export const LanguageProvider = ({ children }) => {
       safety: "Seguridad",
       achievementUnlocked: "¡Logro Desbloqueado!",
       buyNow: "Comprar Ahora",
-      
-      // Profile
-      personalInformation: "Información Personal",
-      healthMetrics: "Métricas de Salud",
-      targetRange: "Rango Objetivo",
-      weight: "Peso",
-      height: "Altura",
-      updateProfile: "Actualizar Perfil",
-      settings: "Configuración",
-      notifications: "Notificaciones",
-      darkMode: "Modo Oscuro",
-      unitPreference: "Preferencia de Unidad",
-      logOut: "Cerrar Sesión",
-      accountSettings: "Configuración de la Cuenta",
-      changePassword: "Cambiar Contraseña",
-      deleteAccount: "Eliminar Cuenta",
-      emailNotifications: "Notificaciones por Correo",
-      appNotifications: "Notificaciones de la Aplicación",
-      
-      // Learning center
-      diabetesBasics: "Conceptos Básicos de la Diabetes",
-      nutrition: "Nutrición",
-      exercise: "Ejercicio",
-      mentalHealth: "Salud Mental",
-      medication: "Medicación",
-      
-      // Error messages
-      connectionFailed: "Falló la conexión. Inténtalo de nuevo.",
-      invalidReading: "Lectura no válida. Asegúrate de que el dispositivo esté correctamente posicionado.",
-      sessionExpired: "Tu sesión ha expirado. Por favor, inicia sesión de nuevo.",
-      incompleteForm: "Por favor, completa todos los campos requeridos.",
-      
-      // Success messages
-      profileUpdated: "Perfil actualizado con éxito.",
-      readingSaved: "Lectura guardada con éxito.",
-      deviceConnected: "Dispositivo conectado correctamente.",
-      passwordChanged: "Contraseña cambiada con éxito.",
-      
-      // Personalized plan
-      personalizedPlan: "Plan Personalizado",
-      yourGoals: "Tus Objetivos",
-      weeklyProgress: "Progreso Semanal",
-      dailyTasks: "Tareas Diarias",
-      completedTasks: "Tareas Completadas",
-      streakDays: "Días Consecutivos",
-      mealPlan: "Plan de Comidas",
-      activityPlan: "Plan de Actividades",
-      medicationSchedule: "Horario de Medicación",
-      updatePlan: "Actualizar Plan",
-      viewDetails: "Ver Detalles",
-      completed: "Completado",
-      pending: "Pendiente",
     },
+    pt: {
+      // Common
+      back: "Voltar",
+      next: "Próximo",
+      skip: "Pular",
+      complete: "completo",
+      step: "Etapa",
+      welcomeToApp: "Bem-vindo ao futuro do monitoramento de glicose sem sangue",
+      installments: "Ou pague em {{count}} parcelas de {{value}} cada",
+      buy3get1: "Compre 3 e Ganhe 1 GRÁTIS",
+      getStarted: "Começar",
+      proceedToPayment: "Prosseguir para Pagamento",
+      selectOfferDescription: "Escolha o pacote perfeito para suas necessidades",
+      appName: "Healthineers",
+      
+      // Language
+      language: "Idioma",
+      selectLanguage: "Selecionar Idioma",
+      saveAndReturn: "Salvar e Voltar",
+      spanish: "Espanhol",
+      portuguese: "Português",
+      english: "Inglês",
+      
+      // Device
+      deviceName: "Glicosímetro a Laser Accu-Tech",
+      deviceDescription: "Dispositivo avançado de monitoramento de glicose sem sangue",
+      units: "Unidades",
+      unit: "Unidade",
+      yourNewGlucometer: "Seu novo Glicosímetro a Laser Accu-Tech",
+      deviceArrivalMessage: "Seu dispositivo chegará em 2-4 dias úteis.",
+      
+      // Checkout page
+      checkout: "Finalizar Compra",
+      yourOrder: "Seu Pedido",
+      subtotal: "Subtotal",
+      discount: "Desconto",
+      shipping: "Frete",
+      free: "GRÁTIS",
+      total: "Total",
+      finishOrder: "Concluir Pedido",
+      enterShippingAddress: "Insira Informações de Envio",
+      selectOffer: "Selecione Sua Oferta",
+      address: "Endereço",
+      city: "Cidade",
+      province: "Estado/Província",
+      postalCode: "CEP",
+      firstName: "Nome",
+      lastName: "Sobrenome",
+      phone: "Número de Telefone",
+      moneyBackGuarantee: "Garantia de 30 dias para devolução",
+      secureTransaction: "Transação Segura",
+      paymentMethod: "Método de Pagamento",
+      creditCard: "Cartão de Crédito",
+      cashOnDelivery: "Pagamento na Entrega",
+      cashOnDeliveryDescription: "Pague em dinheiro quando seu pedido for entregue.",
+      cashOnDeliveryNote: "Você precisará pagar o valor total em dinheiro quando seu pedido chegar.",
+      completeOrderCOD: "Concluir Pedido - Pagar na Entrega",
+      cashOnDeliveryOnly: "Apenas Pagamento na Entrega",
+      cashOnDeliveryBanner: "Você pagará quando o produto for entregue em seu endereço.",
+      phoneRequired: "Necessário para coordenação da entrega",
+      prepareExactAmount: "Por favor, prepare o valor exato para facilitar a entrega",
+      courierCallBefore: "O entregador ligará antes da entrega",
+      receiptProvided: "Você receberá um recibo no momento do pagamento",
+      payOnDelivery: "Pague na Entrega - Apenas Dinheiro",
+      noPaymentBeforeDelivery: "Nenhum pagamento necessário até a entrega",
+      deliveryTimeline: "Cronograma Estimado",
+      order: "Pedido",
+      processing: "Processamento",
+      delivery: "Entrega",
+      today: "Hoje",
+      days: "dias",
+      
+      // Order Success Page
+      orderConfirmed: "Pedido Confirmado!",
+      orderThankYou: "Obrigado pela sua compra. Seu pedido foi confirmado.",
+      deliveryStatus: "Status da Entrega",
+      orderPlaced: "Pedido Realizado",
+      estimatedProcess: "1-2 dias úteis",
+      estimatedDelivery: "Previsão em 2-4 dias úteis",
+      orderConfirmationEmail: "Enviamos um e-mail com os detalhes do seu pedido.",
+      continueOnboarding: "Continuar Configuração",
+      
+      // Home Page
+      hello: "Olá",
+      points: "Pontos",
+      streak: "Sequência",
+      readings: "Leituras",
+      home: "Início",
+      profile: "Perfil",
+      learnAboutGlucoVista: "Saiba Mais Sobre o Accu-Tech",
+      howitworks: "Como Funciona",
+      benefits: "Benefícios",
+      safety: "Segurança",
+      achievementUnlocked: "Conquista Desbloqueada!",
+      buyNow: "Comprar Agora",
+    }
   };
 
   const translate = (key: string, params = {}) => {
     let translation = translations[language]?.[key] || key;
 
+    // If translation not found, fall back to English
+    if (translation === key && language !== 'en') {
+      translation = translations['en'][key] || key;
+    }
+
+    // Replace any parameters in the translation string
     for (const paramKey in params) {
       translation = translation.replace(new RegExp(`{{${paramKey}}}`, 'g'), String(params[paramKey]));
     }
