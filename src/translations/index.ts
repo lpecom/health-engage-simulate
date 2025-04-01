@@ -36,7 +36,8 @@ export const translations: Record<LanguageCode, TranslationMap> = {
     ...deliveryTranslations.it,
     ...learnTranslations.it,
     ...shopifyTranslations.it,
-  }
+  },
+  de: {} // Adding empty German translations to fix build error
 };
 
 export * from './types';

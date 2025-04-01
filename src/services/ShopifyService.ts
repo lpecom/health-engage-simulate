@@ -40,14 +40,20 @@ export interface ShopifyOrderPayload {
 interface ShopifyConfig {
   shopName: string;
   accessToken: string;
+  apiKey: string;
+  apiSecret: string;
 }
 
 export class ShopifyService {
   private apiUrl: string;
   private headers: HeadersInit;
+  private apiKey: string;
+  private apiSecret: string;
 
   constructor(config: ShopifyConfig) {
     this.apiUrl = `https://${config.shopName}.myshopify.com/admin/api/${SHOPIFY_API_VERSION}`;
+    this.apiKey = config.apiKey;
+    this.apiSecret = config.apiSecret;
     this.headers = {
       'Content-Type': 'application/json',
       'X-Shopify-Access-Token': config.accessToken
@@ -90,9 +96,16 @@ export class ShopifyService {
    */
   async validateCredentials(): Promise<boolean> {
     try {
+      // We can try to authenticate using the API key and API secret
+      // For API validation, we can use the shop endpoint which is lightweight
+      const basicAuth = btoa(`${this.apiKey}:${this.apiSecret}`);
+      
       const response = await fetch(`${this.apiUrl}/shop.json`, {
         method: 'GET',
-        headers: this.headers
+        headers: {
+          ...this.headers,
+          'Authorization': `Basic ${basicAuth}`
+        }
       });
       
       return response.ok;

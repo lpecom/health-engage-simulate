@@ -10,6 +10,10 @@ interface ShopifyContextType {
   setShopName: (name: string) => void;
   accessToken: string;
   setAccessToken: (token: string) => void;
+  apiKey: string;
+  setApiKey: (key: string) => void;
+  apiSecret: string;
+  setApiSecret: (secret: string) => void;
   connectToShopify: () => Promise<boolean>;
   exportOrder: (orderData: CheckoutOrderData) => Promise<boolean>;
 }
@@ -39,6 +43,8 @@ export interface CheckoutOrderData {
 // Default Shopify test store credentials
 const DEFAULT_SHOPIFY_STORE = 'h00ktt-1h';
 const DEFAULT_SHOPIFY_TOKEN = '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';
+const DEFAULT_SHOPIFY_API_KEY = '503954b7fa4651188b15be6895625719';
+const DEFAULT_SHOPIFY_API_SECRET = '09283c1b816d60e082382805f8521908';
 
 const ShopifyContext = createContext<ShopifyContextType | undefined>(undefined);
 
@@ -50,6 +56,14 @@ export const ShopifyProvider: React.FC<ShopifyProviderProps> = ({ children }) =>
   
   const [accessToken, setAccessToken] = useState<string>(() => {
     return localStorage.getItem('shopify_access_token') || DEFAULT_SHOPIFY_TOKEN;
+  });
+
+  const [apiKey, setApiKey] = useState<string>(() => {
+    return localStorage.getItem('shopify_api_key') || DEFAULT_SHOPIFY_API_KEY;
+  });
+
+  const [apiSecret, setApiSecret] = useState<string>(() => {
+    return localStorage.getItem('shopify_api_secret') || DEFAULT_SHOPIFY_API_SECRET;
   });
   
   const [isConnecting, setIsConnecting] = useState(false);
@@ -67,13 +81,30 @@ export const ShopifyProvider: React.FC<ShopifyProviderProps> = ({ children }) =>
       localStorage.setItem('shopify_access_token', accessToken);
     }
   }, [accessToken]);
+
+  useEffect(() => {
+    if (apiKey) {
+      localStorage.setItem('shopify_api_key', apiKey);
+    }
+  }, [apiKey]);
+
+  useEffect(() => {
+    if (apiSecret) {
+      localStorage.setItem('shopify_api_secret', apiSecret);
+    }
+  }, [apiSecret]);
   
   // Check if credentials are valid on mount
   useEffect(() => {
     const validateCredentials = async () => {
-      if (shopName && accessToken) {
+      if (shopName && accessToken && apiKey && apiSecret) {
         try {
-          const shopifyService = new ShopifyService({ shopName, accessToken });
+          const shopifyService = new ShopifyService({ 
+            shopName, 
+            accessToken,
+            apiKey,
+            apiSecret
+          });
           const isValid = await shopifyService.validateCredentials();
           setIsConfigured(isValid);
           
@@ -87,13 +118,13 @@ export const ShopifyProvider: React.FC<ShopifyProviderProps> = ({ children }) =>
     };
     
     validateCredentials();
-  }, [shopName, accessToken]);
+  }, [shopName, accessToken, apiKey, apiSecret]);
   
   const connectToShopify = async (): Promise<boolean> => {
-    if (!shopName || !accessToken) {
+    if (!shopName || !accessToken || !apiKey || !apiSecret) {
       toast({
         title: "Connection Error",
-        description: "Please provide both shop name and access token",
+        description: "Please provide all Shopify credentials",
         variant: "destructive",
       });
       return false;
@@ -104,7 +135,9 @@ export const ShopifyProvider: React.FC<ShopifyProviderProps> = ({ children }) =>
     try {
       const shopifyService = new ShopifyService({ 
         shopName, 
-        accessToken 
+        accessToken,
+        apiKey,
+        apiSecret
       });
       
       const isValid = await shopifyService.validateCredentials();
@@ -148,7 +181,12 @@ export const ShopifyProvider: React.FC<ShopifyProviderProps> = ({ children }) =>
     }
     
     try {
-      const shopifyService = new ShopifyService({ shopName, accessToken });
+      const shopifyService = new ShopifyService({ 
+        shopName, 
+        accessToken,
+        apiKey,
+        apiSecret
+      });
       
       // Map local order data to Shopify format
       const payload: ShopifyOrderPayload = {
@@ -183,6 +221,7 @@ export const ShopifyProvider: React.FC<ShopifyProviderProps> = ({ children }) =>
       };
       
       const response = await shopifyService.createOrder(payload);
+      console.log('Order successfully exported to Shopify');
       
       toast({
         title: "Order Exported Successfully",
@@ -210,6 +249,10 @@ export const ShopifyProvider: React.FC<ShopifyProviderProps> = ({ children }) =>
         setShopName,
         accessToken,
         setAccessToken,
+        apiKey,
+        setApiKey,
+        apiSecret,
+        setApiSecret,
         connectToShopify,
         exportOrder
       }}

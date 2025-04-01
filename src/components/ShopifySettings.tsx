@@ -15,6 +15,10 @@ const ShopifySettings = () => {
     setShopName,
     accessToken,
     setAccessToken,
+    apiKey,
+    setApiKey,
+    apiSecret,
+    setApiSecret,
     connectToShopify,
     isConnecting,
     isConfigured
@@ -22,10 +26,14 @@ const ShopifySettings = () => {
   
   const [localShopName, setLocalShopName] = useState(shopName);
   const [localAccessToken, setLocalAccessToken] = useState(accessToken);
+  const [localApiKey, setLocalApiKey] = useState(apiKey);
+  const [localApiSecret, setLocalApiSecret] = useState(apiSecret);
   
   const handleConnect = async () => {
     setShopName(localShopName);
     setAccessToken(localAccessToken);
+    setApiKey(localApiKey);
+    setApiSecret(localApiSecret);
     await connectToShopify();
   };
   
@@ -65,6 +73,34 @@ const ShopifySettings = () => {
               {translate('shopifyAccessTokenHelp')}
             </p>
           </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="apiKey">{translate('shopifyApiKey')}</Label>
+            <Input
+              id="apiKey"
+              type="password"
+              placeholder="xxxxxxxxxxxxxxxxxxxxxxxx"
+              value={localApiKey}
+              onChange={(e) => setLocalApiKey(e.target.value)}
+            />
+            <p className="text-sm text-muted-foreground">
+              {translate('shopifyApiKeyHelp')}
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="apiSecret">{translate('shopifyApiSecret')}</Label>
+            <Input
+              id="apiSecret"
+              type="password"
+              placeholder="xxxxxxxxxxxxxxxxxxxxxxxx"
+              value={localApiSecret}
+              onChange={(e) => setLocalApiSecret(e.target.value)}
+            />
+            <p className="text-sm text-muted-foreground">
+              {translate('shopifyApiSecretHelp')}
+            </p>
+          </div>
         </div>
       </CardContent>
       <CardFooter>
@@ -72,7 +108,7 @@ const ShopifySettings = () => {
           <Button
             onClick={handleConnect}
             className="w-full"
-            disabled={isConnecting || !localShopName || !localAccessToken}
+            disabled={isConnecting || !localShopName || !localAccessToken || !localApiKey || !localApiSecret}
           >
             {isConnecting ? translate('connecting') : translate('connect')}
           </Button>
