@@ -71,25 +71,27 @@ const ShopifySettings = () => {
   
   useEffect(() => {
     setConnectionStatus(isConnecting ? 'connecting' : connectionStatus);
-  }, [isConnecting]);
+  }, [isConnecting, connectionStatus]);
   
   const handleConnect = async () => {
     setErrorMessage('');
     
-    setShopName(localShopName);
-    setAccessToken(localAccessToken);
-    setApiKey(localApiKey);
-    setApiSecret(localApiSecret);
+    // Trim input values to remove any accidental whitespace
+    const trimmedShopName = localShopName.trim();
+    const trimmedAccessToken = localAccessToken.trim();
+    const trimmedApiKey = localApiKey.trim();
+    const trimmedApiSecret = localApiSecret.trim();
+    
+    setShopName(trimmedShopName);
+    setAccessToken(trimmedAccessToken);
+    setApiKey(trimmedApiKey);
+    setApiSecret(trimmedApiSecret);
     
     try {
       const success = await connectToShopify();
       
       if (success) {
         setConnectionStatus('success');
-        toast({
-          title: "Shopify Connected",
-          description: "Your Shopify store has been successfully connected."
-        });
       } else {
         setConnectionStatus('error');
         setErrorMessage('Failed to connect to Shopify. Please check your credentials and try again.');

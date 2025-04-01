@@ -50,7 +50,11 @@ serve(async (req) => {
     }
 
     // Extract shopify credentials from settings
-    const { shopName, accessToken, apiKey, apiSecret } = shopifySettings.value
+    const value = shopifySettings.value as any;
+    const shopName = value.shopName;
+    const accessToken = value.accessToken;
+    const apiKey = value.apiKey;
+    const apiSecret = value.apiSecret;
     
     if (!shopName || !accessToken || !apiKey || !apiSecret) {
       return new Response(JSON.stringify({
@@ -64,7 +68,13 @@ serve(async (req) => {
       })
     }
 
-    const apiUrl = `https://${shopName}.myshopify.com/admin/api/${SHOPIFY_API_VERSION}`
+    // Format shop name to ensure it's a valid Shopify URL
+    // Remove any spaces, special characters, or .myshopify.com if it's already there
+    const formattedShopName = shopName.trim().replace(/\.myshopify\.com$/, '').replace(/[^\w-]/g, '');
+    const apiUrl = `https://${formattedShopName}.myshopify.com/admin/api/${SHOPIFY_API_VERSION}`;
+    
+    console.log(`Using Shopify API URL: ${apiUrl}`);
+
     const headers = {
       'Content-Type': 'application/json',
       'X-Shopify-Access-Token': accessToken
@@ -73,26 +83,19 @@ serve(async (req) => {
     const reqData: ShopifyRequestPayload = await req.json()
     const { action, payload } = reqData
 
-    // Basic auth for additional authentication options
-    const basicAuth = btoa(`${apiKey}:${apiSecret}`)
-    const authHeaders = {
-      ...headers,
-      'Authorization': `Basic ${basicAuth}`
-    }
-
     if (action === 'validateCredentials') {
-      console.log(`Validating Shopify credentials for shop: ${shopName}`)
+      console.log(`Validating Shopify credentials for shop: ${formattedShopName}`);
       
-      // Try to fetch shop info to validate credentials
+      // Try to fetch shop info to validate credentials using access token
       try {
         const response = await fetch(`${apiUrl}/shop.json`, {
           method: 'GET',
-          headers: authHeaders
-        })
+          headers: headers
+        });
 
         if (response.ok) {
-          const shopData = await response.json()
-          console.log('Credentials validated successfully with Basic Auth')
+          const shopData = await response.json();
+          console.log('Credentials validated successfully with Access Token');
           return new Response(JSON.stringify({
             success: true,
             shop: shopData.shop
@@ -101,42 +104,25 @@ serve(async (req) => {
               'Content-Type': 'application/json',
               'Access-Control-Allow-Origin': '*',
             },
-          })
+          });
         }
-
-        // Try with just the access token
-        const tokenResponse = await fetch(`${apiUrl}/shop.json`, {
-          method: 'GET',
-          headers: headers
-        })
-
-        if (tokenResponse.ok) {
-          const shopData = await tokenResponse.json()
-          console.log('Credentials validated successfully with Access Token')
-          return new Response(JSON.stringify({
-            success: true,
-            shop: shopData.shop
-          }), {
-            headers: {
-              'Content-Type': 'application/json',
-              'Access-Control-Allow-Origin': '*',
-            },
-          })
-        }
-
-        console.error('Credentials validation failed')
+        
+        const responseText = await response.text();
+        console.error('Validation failed with status:', response.status, responseText);
+        
         return new Response(JSON.stringify({
           error: 'Invalid credentials',
-          status: tokenResponse.status
+          status: response.status,
+          details: responseText
         }), {
           status: 401,
           headers: {
             'Content-Type': 'application/json',
             'Access-Control-Allow-Origin': '*',
           },
-        })
+        });
       } catch (error) {
-        console.error('Error during credentials validation:', error)
+        console.error('Error during credentials validation:', error);
         return new Response(JSON.stringify({
           error: 'Error validating credentials: ' + error.message
         }), {
@@ -145,7 +131,7 @@ serve(async (req) => {
             'Content-Type': 'application/json',
             'Access-Control-Allow-Origin': '*',
           },
-        })
+        });
       }
     }
     

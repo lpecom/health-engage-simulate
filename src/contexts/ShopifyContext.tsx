@@ -69,14 +69,15 @@ export const ShopifyProvider: React.FC<ShopifyProviderProps> = ({ children }) =>
         }
         
         if (data?.value) {
-          const { shopName: storedShopName, accessToken: storedToken, apiKey: storedKey, apiSecret: storedSecret } = data.value;
-          setShopName(storedShopName || '');
-          setAccessToken(storedToken || '');
-          setApiKey(storedKey || '');
-          setApiSecret(storedSecret || '');
+          const shopifyData = data.value as Record<string, string>;
+          
+          setShopName(shopifyData.shopName || '');
+          setAccessToken(shopifyData.accessToken || '');
+          setApiKey(shopifyData.apiKey || '');
+          setApiSecret(shopifyData.apiSecret || '');
           
           // If we have stored values, check if they're valid
-          if (storedShopName && storedToken && storedKey && storedSecret) {
+          if (shopifyData.shopName && shopifyData.accessToken && shopifyData.apiKey && shopifyData.apiSecret) {
             validateStoredCredentials();
           }
         }
@@ -209,7 +210,7 @@ export const ShopifyProvider: React.FC<ShopifyProviderProps> = ({ children }) =>
       } else {
         toast({
           title: "Connection Failed",
-          description: "Invalid Shopify credentials. Please check and try again.",
+          description: validationData.error || "Invalid Shopify credentials. Please check and try again.",
           variant: "destructive",
         });
         return false;
