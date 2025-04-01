@@ -1,15 +1,18 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useShopify } from '@/contexts/ShopifyContext';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { ShieldCheck } from 'lucide-react';
+import { useToast } from '@/components/ui/use-toast';
+import { ShieldCheck, AlertCircle, CheckCircle, ExternalLink } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 const ShopifySettings = () => {
   const { translate } = useLanguage();
+  const { toast } = useToast();
   const {
     shopName,
     setShopName,
@@ -28,13 +31,72 @@ const ShopifySettings = () => {
   const [localAccessToken, setLocalAccessToken] = useState(accessToken);
   const [localApiKey, setLocalApiKey] = useState(apiKey);
   const [localApiSecret, setLocalApiSecret] = useState(apiSecret);
+  const [connectionStatus, setConnectionStatus] = useState<'idle' | 'connecting' | 'success' | 'error'>('idle');
+  const [errorMessage, setErrorMessage] = useState('');
+  const [ordersCount, setOrdersCount] = useState<number | null>(null);
+  
+  // Check if we have any orders in Supabase
+  useEffect(() => {
+    const fetchOrdersCount = async () => {
+      try {
+        const { count, error } = await supabase
+          .from('orders')
+          .select('*', { count: 'exact', head: true });
+        
+        if (error) {
+          console.error('Error fetching orders count:', error);
+        } else {
+          setOrdersCount(count || 0);
+        }
+      } catch (error) {
+        console.error('Failed to fetch orders count:', error);
+      }
+    };
+    
+    fetchOrdersCount();
+  }, []);
+  
+  useEffect(() => {
+    // Set connection status based on isConfigured
+    setConnectionStatus(isConfigured ? 'success' : 'idle');
+  }, [isConfigured]);
   
   const handleConnect = async () => {
+    setConnectionStatus('connecting');
+    setErrorMessage('');
+    
     setShopName(localShopName);
     setAccessToken(localAccessToken);
     setApiKey(localApiKey);
     setApiSecret(localApiSecret);
-    await connectToShopify();
+    
+    try {
+      const success = await connectToShopify();
+      
+      if (success) {
+        setConnectionStatus('success');
+        toast({
+          title: "Shopify Connected",
+          description: "Your Shopify store has been successfully connected."
+        });
+      } else {
+        setConnectionStatus('error');
+        setErrorMessage('Failed to connect to Shopify. Please check your credentials and try again.');
+      }
+    } catch (error) {
+      console.error('Error connecting to Shopify:', error);
+      setConnectionStatus('error');
+      setErrorMessage('An unexpected error occurred. Please try again.');
+    }
+  };
+
+  const getStatusColor = () => {
+    switch (connectionStatus) {
+      case 'success': return 'text-green-600';
+      case 'error': return 'text-red-600';
+      case 'connecting': return 'text-amber-600';
+      default: return 'text-gray-400';
+    }
   };
   
   return (
@@ -101,6 +163,35 @@ const ShopifySettings = () => {
               {translate('shopifyApiSecretHelp')}
             </p>
           </div>
+          
+          {connectionStatus === 'error' && (
+            <div className="bg-red-50 border border-red-200 rounded-md p-3 flex items-start">
+              <AlertCircle className="w-5 h-5 text-red-600 mr-2 flex-shrink-0 mt-0.5" />
+              <p className="text-sm text-red-800">{errorMessage || 'Connection failed. Please check your credentials and try again.'}</p>
+            </div>
+          )}
+
+          <div className="bg-blue-50 border border-blue-200 rounded-md p-3">
+            <h4 className="font-medium text-blue-800 mb-1">How to find your Shopify API credentials</h4>
+            <ol className="list-decimal list-inside text-sm text-blue-700 space-y-1">
+              <li>Go to your Shopify admin panel</li>
+              <li>Go to Apps &gt; Develop apps</li>
+              <li>Create a new app or select an existing one</li>
+              <li>Go to API credentials section</li>
+              <li>Under Admin API, create an access token with appropriate permissions</li>
+            </ol>
+            <div className="mt-2">
+              <a 
+                href="https://shopify.dev/docs/api/admin-rest" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="inline-flex items-center text-sm text-blue-600 hover:underline"
+              >
+                Shopify API Documentation
+                <ExternalLink className="w-3 h-3 ml-1" />
+              </a>
+            </div>
+          </div>
         </div>
       </CardContent>
       <CardFooter>
@@ -108,15 +199,33 @@ const ShopifySettings = () => {
           <Button
             onClick={handleConnect}
             className="w-full"
-            disabled={isConnecting || !localShopName || !localAccessToken || !localApiKey || !localApiSecret}
+            disabled={connectionStatus === 'connecting' || !localShopName || !localAccessToken || !localApiKey || !localApiSecret}
           >
-            {isConnecting ? translate('connecting') : translate('connect')}
+            {connectionStatus === 'connecting' ? translate('connecting') : translate('connect')}
           </Button>
           
-          {isConfigured && (
-            <div className="flex items-center justify-center text-sm text-green-600 gap-2">
-              <ShieldCheck className="w-4 h-4" />
-              <span>{translate('shopifyConnected')}</span>
+          <div className={`flex items-center justify-center text-sm gap-2 ${getStatusColor()}`}>
+            {connectionStatus === 'success' && (
+              <>
+                <CheckCircle className="w-4 h-4" />
+                <span>{translate('shopifyConnected')}</span>
+              </>
+            )}
+            {connectionStatus === 'idle' && !isConfigured && (
+              <>
+                <ShieldCheck className="w-4 h-4" />
+                <span>Not connected to Shopify</span>
+              </>
+            )}
+          </div>
+          
+          {ordersCount !== null && (
+            <div className="text-center text-sm text-gray-500 pt-2 border-t">
+              {ordersCount > 0 ? (
+                <p>You have {ordersCount} {ordersCount === 1 ? 'order' : 'orders'} in your database.</p>
+              ) : (
+                <p>No orders in your database yet.</p>
+              )}
             </div>
           )}
         </div>

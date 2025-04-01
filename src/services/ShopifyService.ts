@@ -5,7 +5,8 @@
  */
 
 // Shopify API endpoints
-const SHOPIFY_API_VERSION = '2023-10'; // Update to the latest stable version
+const SHOPIFY_API_VERSION = '2023-10';
+const PROXY_URL = 'https://zccjmsppyzvvguxkjnuv.supabase.co/functions/v1/shopify-proxy';
 
 export interface ShopifyOrderPayload {
   order: {
@@ -49,8 +50,11 @@ export class ShopifyService {
   private headers: HeadersInit;
   private apiKey: string;
   private apiSecret: string;
+  private shopName: string;
+  private useProxy: boolean = true;
 
   constructor(config: ShopifyConfig) {
+    this.shopName = config.shopName;
     this.apiUrl = `https://${config.shopName}.myshopify.com/admin/api/${SHOPIFY_API_VERSION}`;
     this.apiKey = config.apiKey;
     this.apiSecret = config.apiSecret;
@@ -76,23 +80,51 @@ export class ShopifyService {
         }
       });
 
-      console.log(`Sending request to ${this.apiUrl}/orders.json`);
-      
-      const response = await fetch(`${this.apiUrl}/orders.json`, {
-        method: 'POST',
-        headers: this.headers,
-        body: JSON.stringify(payload)
-      });
+      if (this.useProxy) {
+        console.log(`Using proxy for order creation: ${PROXY_URL}`);
+        const response = await fetch(PROXY_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            action: 'createOrder',
+            shopName: this.shopName,
+            accessToken: this.headers['X-Shopify-Access-Token'],
+            apiKey: this.apiKey,
+            apiSecret: this.apiSecret,
+            payload: payload
+          })
+        });
 
-      console.log(`Order creation response status: ${response.status}`);
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Shopify order creation failed:', errorData);
-        throw new Error(`Failed to create Shopify order: ${response.statusText}`);
+        console.log(`Proxy order creation response status: ${response.status}`);
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.error('Shopify order creation failed via proxy:', errorData);
+          throw new Error(`Failed to create Shopify order: ${JSON.stringify(errorData)}`);
+        }
+
+        return await response.json();
+      } else {
+        console.log(`Sending direct request to ${this.apiUrl}/orders.json`);
+        
+        const response = await fetch(`${this.apiUrl}/orders.json`, {
+          method: 'POST',
+          headers: this.headers,
+          body: JSON.stringify(payload)
+        });
+
+        console.log(`Direct order creation response status: ${response.status}`);
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.error('Shopify order creation failed:', errorData);
+          throw new Error(`Failed to create Shopify order: ${response.statusText}`);
+        }
+
+        return await response.json();
       }
-
-      return await response.json();
     } catch (error) {
       console.error('Error creating Shopify order:', error);
       throw error;
@@ -104,50 +136,79 @@ export class ShopifyService {
    */
   async validateCredentials(): Promise<boolean> {
     try {
-      console.log(`Validating credentials for shop: ${this.apiUrl}`);
-      console.log('Using access token and API credentials');
+      console.log(`Validating credentials for shop: ${this.shopName}`);
       
-      // Try basic auth first (API key + API secret)
-      const basicAuth = btoa(`${this.apiKey}:${this.apiSecret}`);
-      console.log('Generated Basic Auth header');
-      
-      // First attempt with both types of authentication to maximize chances of success
-      const authHeaders = {
-        ...this.headers,
-        'Authorization': `Basic ${basicAuth}`
-      };
-      
-      console.log('Sending validation request with combined auth');
-      const response = await fetch(`${this.apiUrl}/shop.json`, {
-        method: 'GET',
-        headers: authHeaders,
-        mode: 'cors',
-      });
-      
-      console.log(`Validation response status: ${response.status}`);
-      
-      if (response.ok) {
-        console.log('Credentials validated successfully!');
-        return true;
+      if (this.useProxy) {
+        console.log(`Using proxy for validation: ${PROXY_URL}`);
+        const response = await fetch(PROXY_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            action: 'validateCredentials',
+            shopName: this.shopName,
+            accessToken: this.headers['X-Shopify-Access-Token'],
+            apiKey: this.apiKey,
+            apiSecret: this.apiSecret
+          })
+        });
+        
+        console.log(`Proxy validation response status: ${response.status}`);
+        
+        if (response.ok) {
+          const data = await response.json();
+          console.log('Proxy validation successful:', data);
+          return true;
+        }
+        
+        console.error('Proxy validation failed');
+        return false;
+      } else {
+        console.log('Using direct API access with access token and API credentials');
+        
+        // Try basic auth first (API key + API secret)
+        const basicAuth = btoa(`${this.apiKey}:${this.apiSecret}`);
+        console.log('Generated Basic Auth header');
+        
+        // First attempt with both types of authentication to maximize chances of success
+        const authHeaders = {
+          ...this.headers,
+          'Authorization': `Basic ${basicAuth}`
+        };
+        
+        console.log('Sending direct validation request with combined auth');
+        const response = await fetch(`${this.apiUrl}/shop.json`, {
+          method: 'GET',
+          headers: authHeaders,
+          mode: 'cors',
+        });
+        
+        console.log(`Direct validation response status: ${response.status}`);
+        
+        if (response.ok) {
+          console.log('Direct credentials validated successfully!');
+          return true;
+        }
+        
+        console.log('Combined auth failed. Trying access token only...');
+        
+        // Second attempt with only access token
+        const tokenResponse = await fetch(`${this.apiUrl}/shop.json`, {
+          method: 'GET',
+          headers: this.headers,
+        });
+        
+        console.log(`Token-only validation response status: ${tokenResponse.status}`);
+        
+        if (tokenResponse.ok) {
+          console.log('Access token validated successfully!');
+          return true;
+        }
+        
+        console.log('Failed to validate with either auth method');
+        return false;
       }
-      
-      console.log('Combined auth failed. Trying access token only...');
-      
-      // Second attempt with only access token
-      const tokenResponse = await fetch(`${this.apiUrl}/shop.json`, {
-        method: 'GET',
-        headers: this.headers,
-      });
-      
-      console.log(`Token-only validation response status: ${tokenResponse.status}`);
-      
-      if (tokenResponse.ok) {
-        console.log('Access token validated successfully!');
-        return true;
-      }
-      
-      console.log('Failed to validate with either auth method');
-      return false;
     } catch (error) {
       console.error('Error validating Shopify credentials:', error);
       return false;
