@@ -1,5 +1,5 @@
-
 import React, { createContext, useContext, useState } from 'react';
+import { ShippingInfo, Achievement as AchievementType } from '@/types/userData';
 
 export interface ShippingInfo {
   firstName: string;
@@ -20,6 +20,11 @@ export interface Achievement {
   icon: string;
   earned: boolean;
   earnedAt?: Date;
+  title?: string;
+  unlocked?: boolean;
+  progress?: number;
+  maxProgress?: number;
+  category?: 'reading' | 'streak' | 'learning';
 }
 
 // Define a specific glucose reading with timestamp
@@ -39,7 +44,6 @@ export interface UserData {
   streak: number;
   readings: number;
   shippingInfo?: ShippingInfo;
-  // Additional fields detected in the codebase
   targetRangeLow?: number;
   targetRangeHigh?: number;
   achievements?: Achievement[];
@@ -62,7 +66,6 @@ interface UserContextType {
   addGlucoseReading: (value: number) => void;
   getUserStats: () => UserStats;
   resetUserData: () => void;
-  // Additional functions detected in the codebase
   earnPoints?: (amount: number) => void;
   checkAchievements?: () => void;
 }
@@ -90,7 +93,6 @@ export const UserProvider: React.FC<{children: React.ReactNode}> = ({ children }
     return savedData ? JSON.parse(savedData) : defaultUserData;
   });
 
-  // Save user data to localStorage whenever it changes
   React.useEffect(() => {
     localStorage.setItem('user_data', JSON.stringify(userData));
   }, [userData]);
@@ -108,14 +110,12 @@ export const UserProvider: React.FC<{children: React.ReactNode}> = ({ children }
       const today = now.toDateString();
       const lastReadingDate = localStorage.getItem('last_reading_date');
       
-      // Check if we should increment the streak
       let newStreak = prevData.streak;
       if (lastReadingDate !== today) {
         newStreak += 1;
         localStorage.setItem('last_reading_date', today);
       }
 
-      // Add to both arrays for backward compatibility
       const newReading = { 
         value, 
         timestamp: now 
@@ -145,11 +145,9 @@ export const UserProvider: React.FC<{children: React.ReactNode}> = ({ children }
   };
 
   const checkAchievements = () => {
-    // Simple achievement checking implementation
     setUserData(prevData => {
       const achievements = [...(prevData.achievements || [])];
       
-      // Check for first reading achievement
       if (prevData.readings > 0 && !achievements.some(a => a.id === 'first_reading')) {
         achievements.push({
           id: 'first_reading',
@@ -161,7 +159,6 @@ export const UserProvider: React.FC<{children: React.ReactNode}> = ({ children }
         });
       }
       
-      // Check for streak achievement
       if (prevData.streak >= 3 && !achievements.some(a => a.id === 'streak_3')) {
         achievements.push({
           id: 'streak_3', 
@@ -198,12 +195,10 @@ export const UserProvider: React.FC<{children: React.ReactNode}> = ({ children }
     const min = Math.min(...levels);
     const max = Math.max(...levels);
     
-    // Calculate readings from the past week
     const oneWeekAgo = new Date();
     oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-    const readingsThisWeek = userData.levels.length; // Simplified for this example
+    const readingsThisWeek = userData.levels.length;
     
-    // Determine trend direction (this is simplified)
     let trendDirection: 'up' | 'down' | 'stable' = 'stable';
     if (levels.length >= 3) {
       const recentAvg = (levels[levels.length-1] + levels[levels.length-2] + levels[levels.length-3]) / 3;

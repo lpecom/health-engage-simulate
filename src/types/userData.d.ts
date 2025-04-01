@@ -54,6 +54,10 @@ declare module '@/types/userData' {
     progress: number;
     maxProgress: number;
     category: 'reading' | 'streak' | 'learning';
+    // Add these fields from UserContext Achievement interface
+    name?: string;
+    earned?: boolean;
+    earnedAt?: Date;
   }
 
   export interface GlucoseData {

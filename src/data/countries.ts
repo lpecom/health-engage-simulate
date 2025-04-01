@@ -1,4 +1,3 @@
-
 // Define country-specific region data and phone validation
 
 export type CountryCode = 'ES' | 'PT' | 'IT' | 'DE';
@@ -19,118 +18,6 @@ export interface CountryData {
   formatPhoneNumber: (phone: string) => string;
   regions: Region[];
 }
-
-export const COUNTRIES: Record<CountryCode, CountryData> = {
-  'ES': {
-    name: 'España',
-    currency: '€',
-    productPrice: 49.99,
-    shippingCost: 3.00,
-    phoneFormat: '612345678',
-    phoneRegex: /^[6-9]\d{8}$/,
-    formatPhoneNumber: (phone: string) => {
-      // Clean the phone number first
-      let cleaned = phone.replace(/[^\d+]/g, '');
-      
-      // Format for Spain
-      if (cleaned.startsWith('+34')) {
-        return cleaned;
-      } else if (cleaned.startsWith('34')) {
-        return `+${cleaned}`;
-      }
-      return `+34${cleaned}`;
-    },
-    regions: spanishProvinces
-  },
-  'PT': {
-    name: 'Portugal',
-    currency: '€',
-    productPrice: 49.99,
-    shippingCost: 4.50,
-    phoneFormat: '912345678',
-    phoneRegex: /^9\d{8}$/,
-    formatPhoneNumber: (phone: string) => {
-      // Clean the phone number first
-      let cleaned = phone.replace(/[^\d+]/g, '');
-      
-      // Format for Portugal
-      if (cleaned.startsWith('+351')) {
-        return cleaned;
-      } else if (cleaned.startsWith('351')) {
-        return `+${cleaned}`;
-      }
-      return `+351${cleaned}`;
-    },
-    regions: portugueseDistricts
-  },
-  'IT': {
-    name: 'Italia',
-    currency: '€',
-    productPrice: 49.99,
-    shippingCost: 5.00,
-    phoneFormat: '3123456789',
-    phoneRegex: /^3\d{9}$/,
-    formatPhoneNumber: (phone: string) => {
-      // Clean the phone number first
-      let cleaned = phone.replace(/[^\d+]/g, '');
-      
-      // Format for Italy
-      if (cleaned.startsWith('+39')) {
-        return cleaned;
-      } else if (cleaned.startsWith('39')) {
-        return `+${cleaned}`;
-      }
-      return `+39${cleaned}`;
-    },
-    regions: italianRegions
-  },
-  'DE': {
-    name: 'Deutschland',
-    currency: '€',
-    productPrice: 49.99,
-    shippingCost: 5.50,
-    phoneFormat: '1512345678',
-    phoneRegex: /^1[5-7]\d{8,9}$/,
-    formatPhoneNumber: (phone: string) => {
-      // Clean the phone number first
-      let cleaned = phone.replace(/[^\d+]/g, '');
-      
-      // Format for Germany
-      if (cleaned.startsWith('+49')) {
-        return cleaned;
-      } else if (cleaned.startsWith('49')) {
-        return `+${cleaned}`;
-      }
-      return `+49${cleaned}`;
-    },
-    regions: germanStates
-  }
-};
-
-export const getCountryName = (code: CountryCode): string => {
-  return COUNTRIES[code].name;
-};
-
-export const getDefaultCountryByLanguage = (language: string): CountryCode => {
-  switch(language) {
-    case 'pt': return 'PT';
-    case 'it': return 'IT';
-    case 'de': return 'DE';
-    case 'es': 
-    default: 
-      return 'ES';
-  }
-};
-
-export const getRegionLabel = (countryCode: CountryCode): string => {
-  switch(countryCode) {
-    case 'ES': return 'Provincia';
-    case 'PT': return 'Distrito';
-    case 'IT': return 'Regione';
-    case 'DE': return 'Bundesland';
-    default: return 'Region';
-  }
-};
 
 export const spanishProvinces: Region[] = [
   { name: 'Álava', cities: ['Vitoria-Gasteiz', 'Amurrio', 'Salvatierra'] },
@@ -249,6 +136,118 @@ export const germanStates: Region[] = [
   { name: 'Schleswig-Holstein', cities: ['Kiel', 'Lübeck', 'Flensburg'] },
   { name: 'Thüringen', cities: ['Erfurt', 'Jena', 'Gera'] }
 ];
+
+export const COUNTRIES: Record<CountryCode, CountryData> = {
+  'ES': {
+    name: 'España',
+    currency: '€',
+    productPrice: 49.99,
+    shippingCost: 3.00,
+    phoneFormat: '612345678',
+    phoneRegex: /^[6-9]\d{8}$/,
+    formatPhoneNumber: (phone: string) => {
+      // Clean the phone number first
+      let cleaned = phone.replace(/[^\d+]/g, '');
+      
+      // Format for Spain
+      if (cleaned.startsWith('+34')) {
+        return cleaned;
+      } else if (cleaned.startsWith('34')) {
+        return `+${cleaned}`;
+      }
+      return `+34${cleaned}`;
+    },
+    regions: spanishProvinces
+  },
+  'PT': {
+    name: 'Portugal',
+    currency: '€',
+    productPrice: 49.99,
+    shippingCost: 4.50,
+    phoneFormat: '912345678',
+    phoneRegex: /^9\d{8}$/,
+    formatPhoneNumber: (phone: string) => {
+      // Clean the phone number first
+      let cleaned = phone.replace(/[^\d+]/g, '');
+      
+      // Format for Portugal
+      if (cleaned.startsWith('+351')) {
+        return cleaned;
+      } else if (cleaned.startsWith('351')) {
+        return `+${cleaned}`;
+      }
+      return `+351${cleaned}`;
+    },
+    regions: portugueseDistricts
+  },
+  'IT': {
+    name: 'Italia',
+    currency: '€',
+    productPrice: 49.99,
+    shippingCost: 5.00,
+    phoneFormat: '3123456789',
+    phoneRegex: /^3\d{9}$/,
+    formatPhoneNumber: (phone: string) => {
+      // Clean the phone number first
+      let cleaned = phone.replace(/[^\d+]/g, '');
+      
+      // Format for Italy
+      if (cleaned.startsWith('+39')) {
+        return cleaned;
+      } else if (cleaned.startsWith('39')) {
+        return `+${cleaned}`;
+      }
+      return `+39${cleaned}`;
+    },
+    regions: italianRegions
+  },
+  'DE': {
+    name: 'Deutschland',
+    currency: '€',
+    productPrice: 49.99,
+    shippingCost: 5.50,
+    phoneFormat: '1512345678',
+    phoneRegex: /^1[5-7]\d{8,9}$/,
+    formatPhoneNumber: (phone: string) => {
+      // Clean the phone number first
+      let cleaned = phone.replace(/[^\d+]/g, '');
+      
+      // Format for Germany
+      if (cleaned.startsWith('+49')) {
+        return cleaned;
+      } else if (cleaned.startsWith('49')) {
+        return `+${cleaned}`;
+      }
+      return `+49${cleaned}`;
+    },
+    regions: germanStates
+  }
+};
+
+export const getCountryName = (code: CountryCode): string => {
+  return COUNTRIES[code].name;
+};
+
+export const getDefaultCountryByLanguage = (language: string): CountryCode => {
+  switch(language) {
+    case 'pt': return 'PT';
+    case 'it': return 'IT';
+    case 'de': return 'DE';
+    case 'es': 
+    default: 
+      return 'ES';
+  }
+};
+
+export const getRegionLabel = (countryCode: CountryCode): string => {
+  switch(countryCode) {
+    case 'ES': return 'Provincia';
+    case 'PT': return 'Distrito';
+    case 'IT': return 'Regione';
+    case 'DE': return 'Bundesland';
+    default: return 'Region';
+  }
+};
 
 export const getRegionsForCountry = (countryCode: CountryCode): Region[] => {
   return COUNTRIES[countryCode].regions;
