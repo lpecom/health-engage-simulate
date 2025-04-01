@@ -5,10 +5,20 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useUser } from "@/contexts/UserContext";
 import LanguageSelector from "@/components/LanguageSelector";
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, ArrowRight, Syringe, CircleCheck } from 'lucide-react';
+import { Check, ArrowRight, Syringe, CircleCheck, MapPin, CreditCard } from 'lucide-react';
 import { Progress } from "@/components/ui/progress";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
-const OnboardingSteps = ['language', 'welcome', 'technology', 'benefits', 'profile', 'tutorial'];
+const OnboardingSteps = [
+  'language', 
+  'welcome', 
+  'technology', 
+  'benefits', 
+  'profile', 
+  'purchase',
+  'tutorial'
+];
 
 const OnboardingPage = () => {
   const { translate } = useLanguage();
@@ -18,6 +28,14 @@ const OnboardingPage = () => {
   const [name, setName] = useState('');
   const [age, setAge] = useState('');
   const [diabetesType, setDiabetesType] = useState<string | null>(null);
+  
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [address, setAddress] = useState('');
+  const [city, setCity] = useState('');
+  const [province, setProvince] = useState('');
+  const [postalCode, setPostalCode] = useState('');
 
   const goToNextStep = () => {
     if (currentStep < OnboardingSteps.length - 1) {
@@ -38,7 +56,16 @@ const OnboardingPage = () => {
       onboarded: true,
       name: name || userData.name,
       age: age ? parseInt(age) : userData.age,
-      diabetesType: diabetesType as any || userData.diabetesType
+      diabetesType: diabetesType as any || userData.diabetesType,
+      shippingInfo: {
+        firstName,
+        lastName,
+        phone,
+        address,
+        city,
+        province,
+        postalCode
+      }
     });
     navigate('/home');
   };
@@ -219,6 +246,136 @@ const OnboardingPage = () => {
             </p>
           </div>;
 
+      case 'purchase':
+        return <div>
+            <h1 className="text-2xl font-bold mb-3 text-center text-accu-tech-blue">{translate('buyYourDevice')}</h1>
+            <p className="text-gray-600 mb-6 text-center">{translate('paymentOnDeliveryMessage')}</p>
+            
+            <div className="mb-6 flex justify-center">
+              <div className="relative">
+                <img 
+                  src="https://h00ktt-1h.myshopify.com/cdn/shop/files/gempages_559218299439678285-292f3a7c-297f-4208-b019-985346c4ef7b.jpg?v=10467499079061507992" 
+                  alt="GlucoVista Laser Glucometer" 
+                  className="w-36 h-auto object-contain rounded-lg shadow-md" 
+                />
+                <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full px-2 py-1">
+                  {translate('free')}
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-6 flex items-center">
+              <CreditCard className="text-yellow-600 mr-3 h-5 w-5 flex-shrink-0" />
+              <p className="text-sm text-yellow-800">{translate('paymentOnDelivery')}</p>
+            </div>
+            
+            <div className="space-y-4 mb-6">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="firstName" className="text-sm font-medium text-gray-700">{translate('firstName')}</Label>
+                  <Input
+                    id="firstName"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    placeholder={translate('firstName')}
+                    className="mt-1"
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="lastName" className="text-sm font-medium text-gray-700">{translate('lastName')}</Label>
+                  <Input
+                    id="lastName"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    placeholder={translate('lastName')}
+                    className="mt-1"
+                  />
+                </div>
+              </div>
+              
+              <div>
+                <Label htmlFor="phone" className="text-sm font-medium text-gray-700">{translate('phone')}</Label>
+                <Input
+                  id="phone"
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder={translate('phone')}
+                  className="mt-1"
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="address" className="text-sm font-medium text-gray-700">{translate('address')}</Label>
+                <Input
+                  id="address"
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  placeholder={translate('address')}
+                  className="mt-1"
+                />
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="city" className="text-sm font-medium text-gray-700">{translate('city')}</Label>
+                  <Input
+                    id="city"
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
+                    placeholder={translate('city')}
+                    className="mt-1"
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="province" className="text-sm font-medium text-gray-700">{translate('province')}</Label>
+                  <Input
+                    id="province"
+                    value={province}
+                    onChange={(e) => setProvince(e.target.value)}
+                    placeholder={translate('province')}
+                    className="mt-1"
+                  />
+                </div>
+              </div>
+              
+              <div>
+                <Label htmlFor="postalCode" className="text-sm font-medium text-gray-700">{translate('postalCode')}</Label>
+                <Input
+                  id="postalCode"
+                  value={postalCode}
+                  onChange={(e) => setPostalCode(e.target.value)}
+                  placeholder={translate('postalCode')}
+                  className="mt-1"
+                />
+              </div>
+            </div>
+            
+            <div className="space-y-2 border-t pt-4">
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-500">{translate('deviceDescription')}</span>
+                <span className="font-medium">$0</span>
+              </div>
+              
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-500">{translate('shipping')}</span>
+                <span className="text-green-600 font-medium">{translate('free')}</span>
+              </div>
+              
+              <div className="flex justify-between items-center pt-2 border-t">
+                <span className="font-medium">{translate('total')}</span>
+                <span className="font-bold text-accu-tech-blue">$0</span>
+              </div>
+            </div>
+            
+            <div className="flex items-center mt-4 text-xs text-gray-500">
+              <MapPin className="w-4 h-4 mr-1" />
+              <span>{translate('freeShipping')}</span>
+            </div>
+          </div>;
+
       case 'tutorial':
         return <div className="text-center">
             <h1 className="text-2xl font-bold mb-2 text-accu-tech-blue">{translate('readyToStart')}</h1>
@@ -299,12 +456,13 @@ const OnboardingPage = () => {
             </Button> : <div></div>}
           
           <div className="flex space-x-2">
-            {currentStep < OnboardingSteps.length - 1 && <Button variant="ghost" onClick={skipOnboarding}>
+            {currentStep < OnboardingSteps.length - 1 && currentStep !== 5 && <Button variant="ghost" onClick={skipOnboarding}>
                 {translate('skip')}
               </Button>}
             
             <Button className="buy-button" onClick={goToNextStep}>
-              {currentStep === OnboardingSteps.length - 1 ? translate('getStarted') : translate('next')}
+              {currentStep === OnboardingSteps.length - 1 ? translate('getStarted') : 
+               currentStep === 5 ? translate('finishOrder') : translate('next')}
             </Button>
           </div>
         </div>
