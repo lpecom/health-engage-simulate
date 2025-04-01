@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useCallback } from 'react';
 
 const LanguageContext = createContext({
@@ -244,6 +245,7 @@ export const LanguageProvider = ({ children }) => {
       continueOnboarding: "Continuar Configuración",
       
       // Home Page
+      hello: "Hola",
       lastReading: "Última Lectura",
       mmolL: "mmol/L",
       mgdl: "mg/dL",
@@ -268,9 +270,19 @@ export const LanguageProvider = ({ children }) => {
       high: "Alto",
       normal: "Normal",
       low: "Bajo",
+      points: "Puntos",
+      streak: "Racha",
+      readings: "Lecturas",
+      home: "Inicio",
+      profile: "Perfil",
+      learnAboutGlucoVista: "Aprender sobre Accu-Tech",
+      howitworks: "Cómo Funciona",
+      benefits: "Beneficios",
+      safety: "Seguridad",
+      achievementUnlocked: "¡Logro Desbloqueado!",
+      buyNow: "Comprar Ahora",
       
       // Profile
-      profile: "Perfil",
       personalInformation: "Información Personal",
       healthMetrics: "Métricas de Salud",
       targetRange: "Rango Objetivo",
