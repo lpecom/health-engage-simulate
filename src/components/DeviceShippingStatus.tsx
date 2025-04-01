@@ -3,14 +3,13 @@ import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Progress } from "@/components/ui/progress";
 import { useLanguage } from "@/contexts/LanguageContext";
+import TranslatedText from "@/components/TranslatedText";
 import { 
   Loader2, 
   Package,
   Calendar,
-  PackageCheck,
   Clock,
   Truck,
   MapPin,
@@ -24,7 +23,7 @@ interface DeviceShippingStatusProps {
 const DeviceShippingStatus: React.FC<DeviceShippingStatusProps> = ({
   onConnect
 }) => {
-  const { translate, language } = useLanguage();
+  const { language } = useLanguage();
   
   // Calculate estimated delivery date (24-48 hours from now)
   const getDeliveryDate = () => {
@@ -56,7 +55,7 @@ const DeviceShippingStatus: React.FC<DeviceShippingStatusProps> = ({
             </div>
             
             <h3 className="text-lg font-semibold text-medical-dark mb-2">
-              {translate('deviceOnTheWay')}
+              <TranslatedText textKey="deviceOnTheWay" />
             </h3>
             
             {/* Device image added here */}
@@ -69,7 +68,7 @@ const DeviceShippingStatus: React.FC<DeviceShippingStatusProps> = ({
             </div>
             
             <p className="text-sm text-gray-600 mb-3 max-w-xs">
-              {translate('yourDeviceIsBeingShipped')}
+              <TranslatedText textKey="yourDeviceIsBeingShipped" />
             </p>
             
             {/* Detailed shipping timeline */}
@@ -81,24 +80,36 @@ const DeviceShippingStatus: React.FC<DeviceShippingStatusProps> = ({
                   <div className="w-7 h-7 rounded-full bg-accu-tech-blue flex items-center justify-center mb-1">
                     <Calendar className="h-3.5 w-3.5 text-white" />
                   </div>
-                  <span className="text-accu-tech-blue font-medium">{translate('ordered')}</span>
-                  <span className="text-[10px] text-gray-400">{translate('completed')}</span>
+                  <span className="text-accu-tech-blue font-medium">
+                    <TranslatedText textKey="ordered" />
+                  </span>
+                  <span className="text-[10px] text-gray-400">
+                    <TranslatedText textKey="completed" />
+                  </span>
                 </div>
                 
                 <div className="flex flex-col items-center">
                   <div className="w-7 h-7 rounded-full bg-accu-tech-blue flex items-center justify-center mb-1">
                     <Truck className="h-3.5 w-3.5 text-white" />
                   </div>
-                  <span className="text-accu-tech-blue font-medium">{translate('shipping')}</span>
-                  <span className="text-[10px] text-gray-400">{translate('inProgress')}</span>
+                  <span className="text-accu-tech-blue font-medium">
+                    <TranslatedText textKey="shipping" />
+                  </span>
+                  <span className="text-[10px] text-gray-400">
+                    <TranslatedText textKey="inProgress" />
+                  </span>
                 </div>
                 
                 <div className="flex flex-col items-center">
                   <div className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center mb-1">
                     <MapPin className="h-3.5 w-3.5 text-gray-400" />
                   </div>
-                  <span className="text-gray-400">{translate('delivered')}</span>
-                  <span className="text-[10px] text-gray-400">{translate('pending')}</span>
+                  <span className="text-gray-400">
+                    <TranslatedText textKey="delivered" />
+                  </span>
+                  <span className="text-[10px] text-gray-400">
+                    <TranslatedText textKey="pending" />
+                  </span>
                 </div>
               </div>
             </div>
@@ -108,7 +119,9 @@ const DeviceShippingStatus: React.FC<DeviceShippingStatusProps> = ({
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center">
                   <Clock className="h-4 w-4 text-accu-tech-blue mr-2" />
-                  <span className="text-xs font-medium">{translate('estimatedDelivery')}:</span>
+                  <span className="text-xs font-medium">
+                    <TranslatedText textKey="estimatedDelivery" />:
+                  </span>
                 </div>
                 <span className="text-xs font-semibold">{getDeliveryDate()}</span>
               </div>
@@ -116,20 +129,26 @@ const DeviceShippingStatus: React.FC<DeviceShippingStatusProps> = ({
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
                   <CreditCard className="h-4 w-4 text-accu-tech-blue mr-2" />
-                  <span className="text-xs font-medium">{translate('paymentMethod')}:</span>
+                  <span className="text-xs font-medium">
+                    <TranslatedText textKey="paymentMethod" />:
+                  </span>
                 </div>
-                <span className="text-xs font-semibold">{translate('cashOnDelivery')}</span>
+                <span className="text-xs font-semibold">
+                  <TranslatedText textKey="cashOnDelivery" />
+                </span>
               </div>
             </div>
             
             {/* Delivery steps */}
             <div className="w-full">
-              <h4 className="text-sm font-medium text-left mb-2">{translate('whatToExpect')}:</h4>
+              <h4 className="text-sm font-medium text-left mb-2">
+                <TranslatedText textKey="whatToExpect" />:
+              </h4>
               <ol className="text-xs text-left text-gray-600 space-y-2 list-decimal pl-4">
-                <li>{translate('courierContact')}</li>
-                <li>{translate('preparePayment')}</li>
-                <li>{translate('inspectDevice')}</li>
-                <li>{translate('followSetupInstructions')}</li>
+                <li><TranslatedText textKey="courierContact" /></li>
+                <li><TranslatedText textKey="preparePayment" /></li>
+                <li><TranslatedText textKey="inspectDevice" /></li>
+                <li><TranslatedText textKey="followSetupInstructions" /></li>
               </ol>
             </div>
           </div>
@@ -139,7 +158,9 @@ const DeviceShippingStatus: React.FC<DeviceShippingStatusProps> = ({
       {/* Connect Device Card */}
       <Card>
         <CardContent className="p-4">
-          <h2 className="text-lg font-medium mb-4">{translate('connectYourDevice')}</h2>
+          <h2 className="text-lg font-medium mb-4">
+            <TranslatedText textKey="connectYourDevice" />
+          </h2>
           
           {/* Added device image above serial number */}
           <div className="flex justify-center mb-4">
@@ -153,18 +174,18 @@ const DeviceShippingStatus: React.FC<DeviceShippingStatusProps> = ({
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                {translate('deviceSerialNumber')}
+                <TranslatedText textKey="deviceSerialNumber" />
               </label>
               <Input 
-                placeholder={translate('enterSerialNumber')} 
+                placeholder={<TranslatedText textKey="enterSerialNumber" />} 
                 disabled
               />
             </div>
             
             <ol className="list-decimal pl-5 text-sm text-gray-600 space-y-2">
-              <li>{translate('turnOnYourDevice')}</li>
-              <li>{translate('enableBluetooth')}</li>
-              <li>{translate('enterSerialAndConnect')}</li>
+              <li><TranslatedText textKey="turnOnYourDevice" /></li>
+              <li><TranslatedText textKey="enableBluetooth" /></li>
+              <li><TranslatedText textKey="enterSerialAndConnect" /></li>
             </ol>
             
             <Button 
@@ -172,7 +193,7 @@ const DeviceShippingStatus: React.FC<DeviceShippingStatusProps> = ({
               disabled
               onClick={onConnect}
             >
-              {translate('connectDevice')}
+              <TranslatedText textKey="connectDevice" />
             </Button>
           </div>
         </CardContent>

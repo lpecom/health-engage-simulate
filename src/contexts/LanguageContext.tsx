@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 
 type LanguageType = 'en' | 'es' | 'pt';
@@ -257,7 +256,28 @@ export const LanguageProvider = ({ children }) => {
       clinicalStudyTitle: "Comparative Study of Non-Invasive Glucose Monitoring Technologies",
       journalReference: "Journal of Diabetes Technology, 2023",
       studyResults: "Study found 95% agreement between Accu-Tech readings and traditional blood glucose measurements across diverse patient populations.",
-      moreCertificationInfo: "More Safety Information"
+      moreCertificationInfo: "More Safety Information",
+      
+      // Missing Device Shipping Status Translations
+      deviceOnTheWay: "Your Device is on the Way",
+      yourDeviceIsBeingShipped: "Your device is being shipped and will arrive soon. Track its journey here.",
+      shipping: "Shipping",
+      inProgress: "In Progress",
+      delivered: "Delivered",
+      pending: "Pending",
+      whatToExpect: "What to Expect",
+      courierContact: "Courier will contact you before delivery",
+      preparePayment: "Prepare payment for delivery",
+      inspectDevice: "Inspect device before accepting",
+      followSetupInstructions: "Follow setup instructions in the app",
+      connectYourDevice: "Connect Your Device",
+      deviceSerialNumber: "Device Serial Number",
+      enterSerialNumber: "Enter Serial Number",
+      turnOnYourDevice: "Turn on your device",
+      enableBluetooth: "Enable Bluetooth on your phone",
+      enterSerialAndConnect: "Enter serial number and connect",
+      connectDevice: "Connect Device",
+      completed: "Completed"
     },
     es: {
       // Common
@@ -471,7 +491,28 @@ export const LanguageProvider = ({ children }) => {
       clinicalStudyTitle: "Estudio Comparativo de Tecnologías de Monitoreo de Glucosa No Invasivas",
       journalReference: "Revista de Tecnología para la Diabetes, 2023",
       studyResults: "El estudio encontró un 95% de concordancia entre las lecturas de Accu-Tech y las mediciones tradicionales de glucosa en sangre en diversas poblaciones de pacientes.",
-      moreCertificationInfo: "Más Información de Seguridad"
+      moreCertificationInfo: "Más Información de Seguridad",
+      
+      // Missing Device Shipping Status Translations
+      deviceOnTheWay: "Tu Dispositivo está en Camino",
+      yourDeviceIsBeingShipped: "Tu dispositivo está siendo enviado y llegará pronto. Sigue su viaje aquí.",
+      shipping: "Envío",
+      inProgress: "En Progreso",
+      delivered: "Entregado",
+      pending: "Pendiente",
+      whatToExpect: "Qué Esperar",
+      courierContact: "El mensajero te contactará antes de la entrega",
+      preparePayment: "Prepara el pago para la entrega",
+      inspectDevice: "Inspecciona el dispositivo antes de aceptarlo",
+      followSetupInstructions: "Sigue las instrucciones de configuración en la aplicación",
+      connectYourDevice: "Conecta Tu Dispositivo",
+      deviceSerialNumber: "Número de Serie del Dispositivo",
+      enterSerialNumber: "Ingresa el Número de Serie",
+      turnOnYourDevice: "Enciende tu dispositivo",
+      enableBluetooth: "Activa el Bluetooth en tu teléfono",
+      enterSerialAndConnect: "Ingresa el número de serie y conecta",
+      connectDevice: "Conectar Dispositivo",
+      completed: "Completado"
     },
     pt: {
       // Common
@@ -534,7 +575,7 @@ export const LanguageProvider = ({ children }) => {
       cashOnDeliveryBanner: "Você pagará quando o produto for entregue em seu endereço.",
       phoneRequired: "Necessário para coordenação da entrega",
       prepareExactAmount: "Por favor, prepare o valor exato para facilitar a entrega",
-      courierCallBefore: "O entregador ligará antes da entrega",
+      courierCallBefore: "O entregador entrará em contato antes da entrega",
       receiptProvided: "Você receberá um recibo no momento do pagamento",
       payOnDelivery: "Pague na Entrega - Apenas Dinheiro",
       noPaymentBeforeDelivery: "Nenhum pagamento necessário até a entrega",
@@ -652,92 +693,4 @@ export const LanguageProvider = ({ children }) => {
       diabeticFasting: "Diabético (Jejum)",
       
       // Benefits Page
-      benefitsContent: "O Glicosímetro a Laser Accu-Tech revoluciona o monitoramento de glicose eliminando a dor e o inconveniente dos métodos tradicionais de teste sanguíneo. Nossa tecnologia patenteada torna o teste de glicose simples, indolor e acessível para todos.",
-      noPain: "Sem Dor",
-      instantResults: "Resultados Instantâneos",
-      costEffective: "Custo-Benefício",
-      discrete: "Discreto e Portátil",
-      comparisonWithTraditional: "Comparação Com Métodos Tradicionais",
-      feature: "Característica",
-      glucoVista: "Accu-Tech",
-      traditionalMethods: "Métodos Tradicionais",
-      pain: "Dor",
-      noPainAtAll: "Sem dor alguma",
-      painfulPricks: "Picadas dolorosas nos dedos",
-      speed: "Velocidade",
-      resultsInSeconds: "Resultados em segundos",
-      severalMinutes: "Vários minutos",
-      consumables: "Consumíveis",
-      noConsumables: "Não precisa de tiras de teste",
-      expensiveStrips: "Tiras de teste caras",
-      userTestimonial: "Depoimento de Usuário",
-      testimonialContent: "Depois de 10 anos furando meus dedos várias vezes ao dia, mudar para o dispositivo Accu-Tech mudou minha vida. Sem mais dor, sem mais tiras de teste, e meus dedos finalmente sararam.",
-      testimonialName: "Miguel R., Diabético Tipo 1",
-      
-      // Safety Page
-      safetyContent: "A segurança é nossa prioridade máxima. O Glicosímetro a Laser Accu-Tech passou por testes rigorosos e ensaios clínicos para garantir que atenda aos mais altos padrões de segurança e precisão de dispositivos médicos.",
-      certifications: "Certificações e Aprovações",
-      certification1: "Aprovado pela FDA (EUA)",
-      certification2: "Marcação CE (Europa)",
-      certification3: "Certificado ISO 13485 para Dispositivos Médicos",
-      scientificStudies: "Validação Científica",
-      studiesContent: "Vários estudos clínicos independentes validaram a precisão e segurança da nossa tecnologia de monitoramento de glicose não invasiva.",
-      clinicalStudyTitle: "Estudo Comparativo de Tecnologias de Monitoramento de Glicose Não Invasivas",
-      journalReference: "Revista de Tecnologia para Diabetes, 2023",
-      studyResults: "O estudo encontrou 95% de concordância entre as leituras do Accu-Tech e as medições tradicionais de glicose no sangue em diversas populações de pacientes.",
-      moreCertificationInfo: "Mais Informações de Segurança"
-    }
-  };
-
-  const translate = (key: string, params = {}) => {
-    if (!key) return '';
-    
-    // Try to get translation from current language
-    let translation = translations[language]?.[key];
-    
-    // If translation not found, fall back to English
-    if (!translation && language !== 'en') {
-      translation = translations['en'][key];
-      
-      // Log missing translations for debugging
-      if (process.env.NODE_ENV !== 'production') {
-        console.warn(`Missing translation for key "${key}" in language "${language}"`);
-      }
-    }
-    
-    // If still no translation found, return the key itself
-    if (!translation) {
-      if (process.env.NODE_ENV !== 'production') {
-        console.warn(`Missing translation for key "${key}" in any language`);
-      }
-      return key;
-    }
-    
-    // Replace any parameters in the translation string
-    for (const paramKey in params) {
-      translation = translation.replace(
-        new RegExp(`{{${paramKey}}}`, 'g'), 
-        String(params[paramKey])
-      );
-    }
-
-    return translation;
-  };
-
-  const value = {
-    language,
-    setLanguage: changeLanguage,
-    translate,
-  };
-
-  return (
-    <LanguageContext.Provider value={value}>
-      {/* forceUpdate is added to the key to force re-renders when language changes */}
-      <div key={`lang-wrapper-${language}-${forceUpdate}`}>
-        {children}
-      </div>
-    </LanguageContext.Provider>
-  );
-};
-
-export default LanguageContext;
+      benefitsContent: "O Glicosímetro a Laser Accu-Tech revoluc

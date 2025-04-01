@@ -21,11 +21,6 @@ const TranslatedText: React.FC<TranslatedTextProps> = ({
 }) => {
   const { translate, language } = useLanguage();
   
-  // Ensure the component re-renders when language changes
-  useEffect(() => {
-    // This empty dependency array with language ensures component re-renders on language change
-  }, [language]);
-  
   const translatedText = translate(textKey, params);
   
   // If translation returns the same key, it means translation is missing
@@ -35,6 +30,7 @@ const TranslatedText: React.FC<TranslatedTextProps> = ({
     <span 
       className={`${className} ${isMissingTranslation ? 'text-red-500' : ''}`}
       data-testid={`translated-${textKey}`}
+      key={`${textKey}-${language}`} // Add key to force re-render when language changes
     >
       {isMissingTranslation ? 
         (fallback || `[${textKey}]`) : 
