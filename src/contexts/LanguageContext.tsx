@@ -95,7 +95,6 @@ export const LanguageProvider = ({ children }) => {
       orderThankYou: "Thank you for your purchase. Your order has been confirmed.",
       deliveryStatus: "Delivery Status",
       orderPlaced: "Order Placed",
-      shipping: "Shipping",
       estimatedProcess: "1-2 business days",
       estimatedDelivery: "Expected in 2-4 business days",
       orderConfirmationEmail: "We've sent you an email with your order details.",
@@ -238,7 +237,7 @@ export const LanguageProvider = ({ children }) => {
       orderThankYou: "Gracias por tu compra. Tu pedido ha sido confirmado.",
       deliveryStatus: "Estado de la Entrega",
       orderPlaced: "Pedido Realizado",
-      shipping: "Envío",
+      // Note: 'shipping' was duplicated and is already defined above
       estimatedProcess: "1-2 días hábiles",
       estimatedDelivery: "Esperado en 2-4 días hábiles",
       orderConfirmationEmail: "Te hemos enviado un correo con los detalles de tu pedido.",
