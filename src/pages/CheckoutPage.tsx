@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -166,26 +165,28 @@ const CheckoutPage = () => {
     setStep('products');
   };
   
+  // Simplified phone validation that focuses on having enough digits
   const validatePhoneNumber = (phone: string, country: string): boolean => {
     setPhoneError(null);
-    let pattern: RegExp;
     
-    // Simplified validation patterns for demonstration
-    switch(country) {
-      case 'PT':
-        pattern = /^(\+351|00351)?\s*9[1236]\d{7}$/;
-        break;
-      case 'IT':
-        pattern = /^(\+39|0039)?\s*3\d{9}$/;
-        break;
-      case 'ES':
-        pattern = /^(\+34|0034)?\s*[67]\d{8}$/;
-        break;
-      default:
-        pattern = /^\+?[0-9]{10,15}$/;
+    if (!phone || phone.trim() === '') {
+      setPhoneError(translate('invalidPhone'));
+      return false;
     }
     
-    if (!pattern.test(phone)) {
+    // Remove all non-digit characters for validation
+    const digitsOnly = phone.replace(/\D/g, '');
+    
+    // Simplified validation based on country
+    let minLength: number;
+    switch(country) {
+      case 'PT': minLength = 9; break; // Portugal mobile numbers are 9 digits
+      case 'ES': minLength = 9; break; // Spain mobile numbers are 9 digits
+      case 'IT': minLength = 10; break; // Italy mobile numbers are typically 10 digits
+      default: minLength = 9;
+    }
+    
+    if (digitsOnly.length < minLength) {
       setPhoneError(translate('invalidPhone'));
       return false;
     }
@@ -194,31 +195,8 @@ const CheckoutPage = () => {
   };
   
   const formatPhoneNumber = (phone: string, country: string): string => {
-    // Remove spaces and leading zeros
-    let formattedPhone = phone.replace(/\s+/g, '').replace(/^0+/, '');
-    
-    // Add country code if not present
-    if (country === 'PT' && !formattedPhone.startsWith('+')) {
-      if (formattedPhone.startsWith('351')) {
-        formattedPhone = '+' + formattedPhone;
-      } else {
-        formattedPhone = '+351' + formattedPhone;
-      }
-    } else if (country === 'IT' && !formattedPhone.startsWith('+')) {
-      if (formattedPhone.startsWith('39')) {
-        formattedPhone = '+' + formattedPhone;
-      } else {
-        formattedPhone = '+39' + formattedPhone;
-      }
-    } else if (country === 'ES' && !formattedPhone.startsWith('+')) {
-      if (formattedPhone.startsWith('34')) {
-        formattedPhone = '+' + formattedPhone;
-      } else {
-        formattedPhone = '+34' + formattedPhone;
-      }
-    }
-    
-    return formattedPhone;
+    // Let the Shopify context handle the proper E.164 formatting
+    return phone;
   };
   
   const onSubmit = async (data: ShippingInfo) => {
@@ -229,20 +207,17 @@ const CheckoutPage = () => {
       return;
     }
     
-    // Format phone number
-    const formattedPhone = formatPhoneNumber(data.phone, data.country);
-    
     setIsProcessing(true);
     
     try {
       console.log("Order submitted:", { 
         product: selectedProduct, 
-        shipping: {...data, phone: formattedPhone} 
+        shipping: {...data, phone: data.phone} // No formatting here, let ShopifyContext handle it
       });
       
       await exportOrder({
         product: selectedProduct,
-        shipping: {...data, phone: formattedPhone}
+        shipping: {...data, phone: data.phone} // Pass phone as-is
       });
       console.log("Order successfully exported to Shopify");
       

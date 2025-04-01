@@ -1,8 +1,8 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { toast } from "@/hooks/use-toast"; // Import directly from hooks/use-toast
 import { supabase } from '@/integrations/supabase/client';
 import { ShopifyOrderPayload } from '@/services/ShopifyService';
+import { COUNTRIES } from '@/data/countries';
 
 interface ShopifyContextType {
   isConfigured: boolean;
@@ -37,16 +37,13 @@ export interface CheckoutOrderData {
 const ShopifyContext = createContext<ShopifyContextType | undefined>(undefined);
 
 export const ShopifyProvider: React.FC<ShopifyProviderProps> = ({ children }) => {
-  // Remove useToast hook usage and use the direct toast function
   const [isConnecting, setIsConnecting] = useState(false);
   const [isConfigured, setIsConfigured] = useState(false);
   
-  // Check if Shopify integration is configured on mount
   useEffect(() => {
     validateCredentials();
   }, []);
   
-  // Validate Shopify credentials directly using edge function
   const validateCredentials = async (): Promise<boolean> => {
     try {
       const { data: validationData, error: validationError } = await supabase.functions.invoke('shopify', {
@@ -81,7 +78,6 @@ export const ShopifyProvider: React.FC<ShopifyProviderProps> = ({ children }) =>
     setIsConnecting(true);
     
     try {
-      // Validate the credentials using edge function
       const { data, error } = await supabase.functions.invoke('shopify', {
         body: {
           action: 'validateCredentials'
@@ -145,6 +141,26 @@ export const ShopifyProvider: React.FC<ShopifyProviderProps> = ({ children }) =>
     }
   };
   
+  const cleanPhoneNumber = (phone: string, countryCode: string): string => {
+    if (!phone) return '';
+    
+    let cleaned = phone.replace(/\D/g, '');
+    
+    if (countryCode && COUNTRIES[countryCode]) {
+      const countryDialCode = countryCode === 'ES' ? '34' : 
+                             countryCode === 'PT' ? '351' : 
+                             countryCode === 'IT' ? '39' : '';
+      
+      if (countryDialCode && !cleaned.startsWith(countryDialCode)) {
+        cleaned = countryDialCode + cleaned;
+      }
+      
+      return '+' + cleaned;
+    }
+    
+    return cleaned.startsWith('+') ? cleaned : '+' + cleaned;
+  };
+  
   const exportOrder = async (orderData: CheckoutOrderData): Promise<boolean> => {
     if (!isConfigured) {
       toast({
@@ -156,31 +172,11 @@ export const ShopifyProvider: React.FC<ShopifyProviderProps> = ({ children }) =>
     }
     
     try {
-      // Format phone number correctly based on country
-      let phone = orderData.shipping.phone;
+      const e164Phone = cleanPhoneNumber(orderData.shipping.phone, orderData.shipping.country);
       
-      // Ensure phone number starts with + and country code
-      if (orderData.shipping.country === "PT" && !phone.startsWith("+")) {
-        if (phone.startsWith("351")) {
-          phone = "+" + phone;
-        } else {
-          phone = "+351" + phone.replace(/^0+/, '');
-        }
-      } else if (orderData.shipping.country === "IT" && !phone.startsWith("+")) {
-        if (phone.startsWith("39")) {
-          phone = "+" + phone;
-        } else {
-          phone = "+39" + phone.replace(/^0+/, '');
-        }
-      } else if (orderData.shipping.country === "ES" && !phone.startsWith("+")) {
-        if (phone.startsWith("34")) {
-          phone = "+" + phone;
-        } else {
-          phone = "+34" + phone.replace(/^0+/, '');
-        }
-      }
+      console.log('Original phone:', orderData.shipping.phone);
+      console.log('Formatted E.164 phone:', e164Phone);
       
-      // Map local order data to Shopify format
       const payload: ShopifyOrderPayload = {
         order: {
           line_items: [
@@ -193,7 +189,7 @@ export const ShopifyProvider: React.FC<ShopifyProviderProps> = ({ children }) =>
           customer: {
             first_name: orderData.shipping.firstName,
             last_name: orderData.shipping.lastName,
-            phone: phone
+            phone: e164Phone
           },
           shipping_address: {
             first_name: orderData.shipping.firstName,
@@ -203,7 +199,7 @@ export const ShopifyProvider: React.FC<ShopifyProviderProps> = ({ children }) =>
             province: orderData.shipping.province,
             zip: orderData.shipping.postalCode,
             country: orderData.shipping.country,
-            phone: phone
+            phone: e164Phone
           },
           financial_status: 'pending',
           send_receipt: true,
@@ -247,7 +243,6 @@ export const ShopifyProvider: React.FC<ShopifyProviderProps> = ({ children }) =>
       
       console.log('Order successfully exported to Shopify:', orderResponse);
       
-      // Save the order to Supabase
       try {
         const { data, error } = await supabase
           .from('orders')
@@ -255,11 +250,11 @@ export const ShopifyProvider: React.FC<ShopifyProviderProps> = ({ children }) =>
             product_name: orderData.product.title,
             product_quantity: orderData.product.units,
             product_price: orderData.product.price,
-            shipping_price: 0, // Free shipping
+            shipping_price: 0,
             total_price: orderData.product.price * orderData.product.units,
             customer_name: orderData.shipping.firstName,
             customer_surname: orderData.shipping.lastName,
-            customer_phone: phone,
+            customer_phone: e164Phone,
             customer_address: orderData.shipping.address,
             province: orderData.shipping.province,
             city: orderData.shipping.city,
@@ -278,7 +273,6 @@ export const ShopifyProvider: React.FC<ShopifyProviderProps> = ({ children }) =>
         }
       } catch (dbError) {
         console.error('Failed to save order to Supabase:', dbError);
-        // Continue even if database save fails
       }
       
       toast({

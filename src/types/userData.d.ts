@@ -33,7 +33,6 @@ interface UserData {
     country: string;
   };
   points?: number;
-  // Added properties to fix build errors
   targetRangeLow?: number;
   targetRangeHigh?: number;
   glucoseReadings?: GlucoseReading[];
@@ -49,7 +48,6 @@ interface UserContextType {
   isLoggedIn: boolean;
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
-  // Added properties to fix build errors
   earnPoints?: (points: number) => void;
   checkAchievements?: () => void;
 }

@@ -19,6 +19,22 @@ const corsHeaders = {
   'Content-Type': 'application/json',
 };
 
+// Clean phone number to E.164 format (required by Shopify API)
+function formatPhoneToE164(phone: string): string {
+  if (!phone) return '';
+  
+  // Remove all non-digit characters
+  let digitsOnly = phone.replace(/\D/g, '');
+  
+  // If it already has a plus sign, keep it
+  if (phone.startsWith('+')) {
+    return '+' + digitsOnly;
+  }
+  
+  // Otherwise add it (assuming it already has country code)
+  return '+' + digitsOnly;
+}
+
 serve(async (req) => {
   // This is needed if you're planning to invoke your function from a browser.
   if (req.method === 'OPTIONS') {
@@ -143,9 +159,20 @@ serve(async (req) => {
         })
       }
 
-      console.log('Creating order with payload:', JSON.stringify(payload))
+      console.log('Creating order with payload:', JSON.stringify(payload));
       
       try {
+        // Ensure phone numbers are properly formatted before sending to Shopify
+        if (payload.order.customer && payload.order.customer.phone) {
+          payload.order.customer.phone = formatPhoneToE164(payload.order.customer.phone);
+        }
+        
+        if (payload.order.shipping_address && payload.order.shipping_address.phone) {
+          payload.order.shipping_address.phone = formatPhoneToE164(payload.order.shipping_address.phone);
+        }
+        
+        console.log('Formatted order payload:', JSON.stringify(payload));
+        
         const response = await fetch(`${apiUrl}/orders.json`, {
           method: 'POST',
           headers: headers,
