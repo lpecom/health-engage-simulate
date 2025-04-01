@@ -113,7 +113,11 @@ export interface CountryData {
   name: string;
   phoneRegex: RegExp;
   phoneFormat: string;
+  formatPhoneNumber: (phone: string) => string;
   regions: Region[];
+  productPrice: number;
+  shippingCost: number;
+  currency: string;
 }
 
 // Create region objects from arrays
@@ -135,6 +139,63 @@ const spanishRegions: Region[] = spanishProvinces.map((province, index) => ({
   cities: [`${province} City`, `${province} Town`, `${province} Village`] // Example cities, replace with real data if available
 }));
 
+// Phone formatting functions
+const formatSpanishPhone = (phone: string): string => {
+  // Remove all non-numeric characters
+  const digitsOnly = phone.replace(/\D/g, '');
+  
+  // If it doesn't start with country code, add it
+  let formattedPhone = digitsOnly;
+  if (!digitsOnly.startsWith('34')) {
+    formattedPhone = '34' + digitsOnly;
+  }
+  
+  // If it doesn't have enough digits, return as is (will be invalid)
+  if (formattedPhone.length < 11) {
+    return '+' + formattedPhone;
+  }
+  
+  // Format as +34 XXX XXX XXX
+  return '+' + formattedPhone.substring(0, 2) + ' ' + 
+    formattedPhone.substring(2, 5) + ' ' +
+    formattedPhone.substring(5, 8) + ' ' +
+    formattedPhone.substring(8);
+};
+
+const formatPortuguesePhone = (phone: string): string => {
+  const digitsOnly = phone.replace(/\D/g, '');
+  let formattedPhone = digitsOnly;
+  if (!digitsOnly.startsWith('351')) {
+    formattedPhone = '351' + digitsOnly;
+  }
+  
+  if (formattedPhone.length < 12) {
+    return '+' + formattedPhone;
+  }
+  
+  return '+' + formattedPhone.substring(0, 3) + ' ' +
+    formattedPhone.substring(3, 6) + ' ' +
+    formattedPhone.substring(6, 9) + ' ' +
+    formattedPhone.substring(9);
+};
+
+const formatItalianPhone = (phone: string): string => {
+  const digitsOnly = phone.replace(/\D/g, '');
+  let formattedPhone = digitsOnly;
+  if (!digitsOnly.startsWith('39')) {
+    formattedPhone = '39' + digitsOnly;
+  }
+  
+  if (formattedPhone.length < 11) {
+    return '+' + formattedPhone;
+  }
+  
+  return '+' + formattedPhone.substring(0, 2) + ' ' +
+    formattedPhone.substring(2, 5) + ' ' +
+    formattedPhone.substring(5, 8) + ' ' +
+    formattedPhone.substring(8);
+};
+
 // Main countries object
 export const COUNTRIES: Record<string, CountryData> = {
   'PT': {
@@ -142,6 +203,10 @@ export const COUNTRIES: Record<string, CountryData> = {
     name: 'Portugal',
     phoneRegex: /^\+351\s\d{3}\s\d{3}\s\d{3}$/,
     phoneFormat: '+351 XXX XXX XXX',
+    formatPhoneNumber: formatPortuguesePhone,
+    productPrice: 49,
+    shippingCost: 3,
+    currency: '€',
     regions: portugueseRegions
   },
   'ES': {
@@ -149,6 +214,10 @@ export const COUNTRIES: Record<string, CountryData> = {
     name: 'España',
     phoneRegex: /^\+34\s\d{3}\s\d{3}\s\d{3}$/,
     phoneFormat: '+34 XXX XXX XXX',
+    formatPhoneNumber: formatSpanishPhone,
+    productPrice: 49,
+    shippingCost: 3,
+    currency: '€',
     regions: spanishRegions
   },
   'IT': {
@@ -156,6 +225,10 @@ export const COUNTRIES: Record<string, CountryData> = {
     name: 'Italia',
     phoneRegex: /^\+39\s\d{3}\s\d{3}\s\d{3,4}$/,
     phoneFormat: '+39 XXX XXX XXXX',
+    formatPhoneNumber: formatItalianPhone,
+    productPrice: 49,
+    shippingCost: 3,
+    currency: '€',
     regions: italianRegionsData
   }
 };
