@@ -2,47 +2,34 @@
 import React, { useState, useEffect } from 'react';
 import { useShopify } from '@/contexts/ShopifyContext';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useToast } from '@/components/ui/use-toast';
-import { ShieldCheck, AlertCircle, CheckCircle, ExternalLink, Info } from 'lucide-react';
+import { ShieldCheck, AlertCircle, CheckCircle, Info } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const ShopifySettings = () => {
   const { translate } = useLanguage();
   const { toast } = useToast();
-  const {
-    shopName,
-    setShopName,
-    accessToken,
-    setAccessToken,
-    apiKey,
-    setApiKey,
-    apiSecret,
-    setApiSecret,
+  const { 
     connectToShopify,
     isConnecting,
     isConfigured
   } = useShopify();
   
-  const [localShopName, setLocalShopName] = useState(shopName);
-  const [localAccessToken, setLocalAccessToken] = useState(accessToken);
-  const [localApiKey, setLocalApiKey] = useState(apiKey);
-  const [localApiSecret, setLocalApiSecret] = useState(apiSecret);
   const [connectionStatus, setConnectionStatus] = useState<'idle' | 'connecting' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
   const [ordersCount, setOrdersCount] = useState<number | null>(null);
   
-  // Update local state when context values change
+  // Set connection status based on isConfigured
   useEffect(() => {
-    setLocalShopName(shopName);
-    setLocalAccessToken(accessToken);
-    setLocalApiKey(apiKey);
-    setLocalApiSecret(apiSecret);
-  }, [shopName, accessToken, apiKey, apiSecret]);
+    setConnectionStatus(isConfigured ? 'success' : 'idle');
+  }, [isConfigured]);
+  
+  useEffect(() => {
+    setConnectionStatus(isConnecting ? 'connecting' : connectionStatus);
+  }, [isConnecting, connectionStatus]);
   
   // Check if we have any orders in Supabase
   useEffect(() => {
@@ -65,28 +52,8 @@ const ShopifySettings = () => {
     fetchOrdersCount();
   }, []);
   
-  // Set connection status based on isConfigured
-  useEffect(() => {
-    setConnectionStatus(isConfigured ? 'success' : 'idle');
-  }, [isConfigured]);
-  
-  useEffect(() => {
-    setConnectionStatus(isConnecting ? 'connecting' : connectionStatus);
-  }, [isConnecting, connectionStatus]);
-  
   const handleConnect = async () => {
     setErrorMessage('');
-    
-    // Trim input values to remove any accidental whitespace
-    const trimmedShopName = localShopName.trim();
-    const trimmedAccessToken = localAccessToken.trim();
-    const trimmedApiKey = localApiKey.trim();
-    const trimmedApiSecret = localApiSecret.trim();
-    
-    setShopName(trimmedShopName);
-    setAccessToken(trimmedAccessToken);
-    setApiKey(trimmedApiKey);
-    setApiSecret(trimmedApiSecret);
     
     try {
       const success = await connectToShopify();
@@ -95,16 +62,16 @@ const ShopifySettings = () => {
         setConnectionStatus('success');
         toast({
           title: "Shopify Connected",
-          description: "Your Shopify store has been successfully connected.",
+          description: "Successfully connected to your Shopify store using credentials from Supabase secrets.",
         });
       } else {
         setConnectionStatus('error');
-        setErrorMessage('Failed to connect to Shopify. Please check your credentials and try again.');
+        setErrorMessage('Failed to connect to Shopify. Please check the credentials in Supabase secrets and try again.');
       }
     } catch (error) {
       console.error('Error connecting to Shopify:', error);
       setConnectionStatus('error');
-      setErrorMessage('An unexpected error occurred. Please try again.');
+      setErrorMessage('An unexpected error occurred. Please check the Edge Function logs for more details.');
     }
   };
 
@@ -129,94 +96,35 @@ const ShopifySettings = () => {
         <Alert className="mb-4 bg-blue-50 border-blue-200">
           <Info className="h-4 w-4 text-blue-600" />
           <AlertDescription className="text-sm text-blue-800">
-            Your Shopify credentials need to be entered here. The system will also store these in Supabase secrets for secure access.
+            This page checks the connection to Shopify using credentials stored securely in Supabase secrets.
           </AlertDescription>
         </Alert>
         
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="shopName">{translate('shopifyStoreName')}</Label>
-            <Input
-              id="shopName"
-              placeholder="your-store-name"
-              value={localShopName}
-              onChange={(e) => setLocalShopName(e.target.value)}
-            />
-            <p className="text-sm text-muted-foreground">
-              {translate('shopifyStoreNameHelp')}
-            </p>
+        {connectionStatus === 'error' && (
+          <div className="bg-red-50 border border-red-200 rounded-md p-3 flex items-start my-4">
+            <AlertCircle className="w-5 h-5 text-red-600 mr-2 flex-shrink-0 mt-0.5" />
+            <p className="text-sm text-red-800">{errorMessage || 'Connection failed. Please check your Supabase secrets and try again.'}</p>
           </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="accessToken">{translate('shopifyAccessToken')}</Label>
-            <Input
-              id="accessToken"
-              type="password"
-              placeholder="shpat_xxxxxxxxxxxxxxxxxxxxxxxx"
-              value={localAccessToken}
-              onChange={(e) => setLocalAccessToken(e.target.value)}
-            />
-            <p className="text-sm text-muted-foreground">
-              {translate('shopifyAccessTokenHelp')}
-            </p>
-          </div>
+        )}
 
-          <div className="space-y-2">
-            <Label htmlFor="apiKey">{translate('shopifyApiKey')}</Label>
-            <Input
-              id="apiKey"
-              type="password"
-              placeholder="xxxxxxxxxxxxxxxxxxxxxxxx"
-              value={localApiKey}
-              onChange={(e) => setLocalApiKey(e.target.value)}
-            />
-            <p className="text-sm text-muted-foreground">
-              {translate('shopifyApiKeyHelp')}
-            </p>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="apiSecret">{translate('shopifyApiSecret')}</Label>
-            <Input
-              id="apiSecret"
-              type="password"
-              placeholder="xxxxxxxxxxxxxxxxxxxxxxxx"
-              value={localApiSecret}
-              onChange={(e) => setLocalApiSecret(e.target.value)}
-            />
-            <p className="text-sm text-muted-foreground">
-              {translate('shopifyApiSecretHelp')}
-            </p>
-          </div>
-          
-          {connectionStatus === 'error' && (
-            <div className="bg-red-50 border border-red-200 rounded-md p-3 flex items-start">
-              <AlertCircle className="w-5 h-5 text-red-600 mr-2 flex-shrink-0 mt-0.5" />
-              <p className="text-sm text-red-800">{errorMessage || 'Connection failed. Please check your credentials and try again.'}</p>
-            </div>
-          )}
-
-          <div className="bg-blue-50 border border-blue-200 rounded-md p-3">
-            <h4 className="font-medium text-blue-800 mb-1">How to find your Shopify API credentials</h4>
-            <ol className="list-decimal list-inside text-sm text-blue-700 space-y-1">
-              <li>Go to your Shopify admin panel</li>
-              <li>Go to Apps &gt; Develop apps</li>
-              <li>Create a new app or select an existing one</li>
-              <li>Go to API credentials section</li>
-              <li>Under Admin API, create an access token with appropriate permissions</li>
-            </ol>
-            <div className="mt-2">
-              <a 
-                href="https://shopify.dev/docs/api/admin-rest" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="inline-flex items-center text-sm text-blue-600 hover:underline"
-              >
-                Shopify API Documentation
-                <ExternalLink className="w-3 h-3 ml-1" />
-              </a>
-            </div>
-          </div>
+        <div className="bg-blue-50 border border-blue-200 rounded-md p-4 mb-4">
+          <h4 className="font-medium text-blue-800 mb-2">Shopify Connection Instructions</h4>
+          <p className="text-sm text-blue-700 mb-2">
+            Your Shopify credentials are securely stored as Supabase secrets. To verify the connection:
+          </p>
+          <ol className="list-decimal list-inside text-sm text-blue-700 space-y-1 mb-3">
+            <li>Ensure you have set the following Supabase secrets:</li>
+            <ul className="list-disc list-inside ml-5 text-xs text-blue-600">
+              <li>SHOPIFY_STORE_NAME</li>
+              <li>SHOPIFY_ACCESS_TOKEN</li>
+              <li>SHOPIFY_API_KEY</li>
+              <li>SHOPIFY_API_SECRET</li>
+            </ul>
+            <li>Click the "Test Connection" button below</li>
+          </ol>
+          <p className="text-sm text-blue-700">
+            If the connection test fails, please verify your Supabase secrets and Shopify API credentials.
+          </p>
         </div>
       </CardContent>
       <CardFooter>
@@ -224,9 +132,9 @@ const ShopifySettings = () => {
           <Button
             onClick={handleConnect}
             className="w-full"
-            disabled={connectionStatus === 'connecting' || !localShopName || !localAccessToken || !localApiKey || !localApiSecret}
+            disabled={connectionStatus === 'connecting'}
           >
-            {connectionStatus === 'connecting' ? translate('connecting') : translate('connect')}
+            {connectionStatus === 'connecting' ? translate('connecting') : 'Test Connection'}
           </Button>
           
           <div className={`flex items-center justify-center text-sm gap-2 ${getStatusColor()}`}>

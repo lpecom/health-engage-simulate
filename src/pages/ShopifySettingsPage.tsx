@@ -27,8 +27,12 @@ const ShopifySettingsPage = () => {
         <ShopifySettings />
         
         <div className="mt-8 text-sm text-gray-500">
-          <p className="mb-2">{translate('shopifyHelp1')}</p>
-          <p>{translate('shopifyHelp2')}</p>
+          <p className="mb-2">
+            Shopify credentials are securely stored as Supabase secrets and will be used to export orders to your Shopify store.
+          </p>
+          <p>
+            If you need to update your Shopify credentials, please do so in the Supabase dashboard under Edge Function secrets.
+          </p>
         </div>
       </div>
     </div>
