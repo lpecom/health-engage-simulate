@@ -31,7 +31,14 @@ export const shopifyTranslations: Record<string, TranslationMap> = {
     'selectCity': 'Selecciona una ciudad',
     'phoneFormat': 'Formato: +34 XXX XXX XXX',
     'invalidPhone': 'Número de teléfono inválido',
-    'selectCountry': 'Selecciona un país'
+    'selectCountry': 'Selecciona un país',
+    'formError': 'Error en el formulario',
+    'fillAllFields': 'Por favor, completa todos los campos',
+    'shipping': 'Envío',
+    'total': 'Total',
+    'deviceDescription': 'Accu-Tech Glucómetro',
+    'paymentOnDelivery': 'Pago contra reembolso',
+    'finishOrder': 'Finalizar pedido'
   },
   pt: {
     'shopifyIntegration': 'Integração com Shopify',
@@ -62,7 +69,14 @@ export const shopifyTranslations: Record<string, TranslationMap> = {
     'selectCity': 'Selecione uma cidade',
     'phoneFormat': 'Formato: +351 XXX XXX XXX',
     'invalidPhone': 'Número de telefone inválido',
-    'selectCountry': 'Selecione um país'
+    'selectCountry': 'Selecione um país',
+    'formError': 'Erro no formulário',
+    'fillAllFields': 'Por favor, preencha todos os campos',
+    'shipping': 'Envio',
+    'total': 'Total',
+    'deviceDescription': 'Accu-Tech Glucómetro',
+    'paymentOnDelivery': 'Pagamento contra entrega',
+    'finishOrder': 'Finalizar pedido'
   },
   it: {
     'shopifyIntegration': 'Integrazione con Shopify',
@@ -93,6 +107,13 @@ export const shopifyTranslations: Record<string, TranslationMap> = {
     'selectCity': 'Seleziona una città',
     'phoneFormat': 'Formato: +39 XXX XXX XXXX',
     'invalidPhone': 'Numero di telefono non valido',
-    'selectCountry': 'Seleziona un paese'
+    'selectCountry': 'Seleziona un paese',
+    'formError': 'Errore nel modulo',
+    'fillAllFields': 'Si prega di compilare tutti i campi',
+    'shipping': 'Spedizione',
+    'total': 'Totale',
+    'deviceDescription': 'Accu-Tech Glucometro',
+    'paymentOnDelivery': 'Pagamento alla consegna',
+    'finishOrder': 'Finalizza ordine'
   }
 };

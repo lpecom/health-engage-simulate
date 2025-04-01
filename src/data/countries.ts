@@ -26,15 +26,28 @@ export const spanishProvinces = [
   'ES-51: Ceuta', 'ES-52: Melilla'
 ];
 
+// Region interface for structured region data
+export interface Region {
+  code: string;
+  name: string;
+  cities?: string[];
+}
+
 // Country-specific data including dial codes and pricing
 export interface CountryData {
+  code: string;
+  name: string;
   dialCode: string;
   format: string;
-  regions: string[];
-  phoneRegex?: RegExp;
-  shipping?: number;
-  currency?: string;
-  vatRate?: number;
+  phoneFormat: string;
+  regions: Region[];
+  phoneRegex: RegExp;
+  shipping: number;
+  shippingCost: number; // Alias for shipping to maintain compatibility
+  currency: string;
+  vatRate: number;
+  productPrice: number;
+  formatPhoneNumber: (phone: string) => string;
 }
 
 // Country codes map
@@ -42,34 +55,127 @@ export interface CountryMap {
   [key: string]: CountryData;
 }
 
-// Export country codes map
+// Helper function to format Spanish phone numbers
+const formatSpanishPhone = (phone: string): string => {
+  if (!phone) return '';
+  
+  // Remove all non-digit characters
+  const digitsOnly = phone.replace(/\D/g, '');
+  
+  // Check if it already has country code
+  if (digitsOnly.startsWith('34')) {
+    return `+${digitsOnly}`;
+  }
+  
+  // Add country code if not present
+  return `+34${digitsOnly}`;
+};
+
+// Helper function to format Portuguese phone numbers
+const formatPortuguesePhone = (phone: string): string => {
+  if (!phone) return '';
+  
+  // Remove all non-digit characters
+  const digitsOnly = phone.replace(/\D/g, '');
+  
+  // Check if it already has country code
+  if (digitsOnly.startsWith('351')) {
+    return `+${digitsOnly}`;
+  }
+  
+  // Add country code if not present
+  return `+351${digitsOnly}`;
+};
+
+// Helper function to format Italian phone numbers
+const formatItalianPhone = (phone: string): string => {
+  if (!phone) return '';
+  
+  // Remove all non-digit characters
+  const digitsOnly = phone.replace(/\D/g, '');
+  
+  // Check if it already has country code
+  if (digitsOnly.startsWith('39')) {
+    return `+${digitsOnly}`;
+  }
+  
+  // Add country code if not present
+  return `+39${digitsOnly}`;
+};
+
+// Convert simple region arrays to structured regions
+const structuredSpanishRegions = spanishProvinces.map(province => {
+  const code = province.split(':')[0].trim();
+  const name = province.split(':')[1].trim();
+  return {
+    code,
+    name,
+    cities: [`${name} Town`, `${name} City`, `${name} Village`] // Sample cities for demo
+  };
+});
+
+const structuredPortugueseRegions = portugueseDistricts.map((district, index) => {
+  return {
+    code: `PT-${index + 1}`,
+    name: district,
+    cities: [`${district} Town`, `${district} City`, `${district} Village`] // Sample cities for demo
+  };
+});
+
+const structuredItalianRegions = italianRegions.map((region, index) => {
+  return {
+    code: `IT-${index + 1}`,
+    name: region,
+    cities: [`${region} Town`, `${region} City`, `${region} Village`] // Sample cities for demo
+  };
+});
+
+// Export country codes map with structured regions
 export const COUNTRIES: CountryMap = {
   'ES': {
+    code: 'ES',
+    name: 'España',
     dialCode: '+34',
     format: '+34 XXX XXX XXX',
-    regions: spanishProvinces,
-    phoneRegex: /^(\+34)?\s?[6-9]\d{8}$/,
+    phoneFormat: '+34 XXX XXX XXX',
+    regions: structuredSpanishRegions,
+    phoneRegex: /^\+34[6-9]\d{8}$/,
     shipping: 3,
+    shippingCost: 3,
     currency: 'EUR',
-    vatRate: 21
+    vatRate: 21,
+    productPrice: 49,
+    formatPhoneNumber: formatSpanishPhone
   },
   'PT': {
+    code: 'PT',
+    name: 'Portugal',
     dialCode: '+351',
     format: '+351 XXX XXX XXX',
-    regions: portugueseDistricts,
-    phoneRegex: /^(\+351)?\s?9[1236]\d{7}$/,
+    phoneFormat: '+351 XXX XXX XXX',
+    regions: structuredPortugueseRegions,
+    phoneRegex: /^\+351[9]\d{8}$/,
     shipping: 3,
+    shippingCost: 3,
     currency: 'EUR',
-    vatRate: 23
+    vatRate: 23,
+    productPrice: 49,
+    formatPhoneNumber: formatPortuguesePhone
   },
   'IT': {
+    code: 'IT',
+    name: 'Italia',
     dialCode: '+39',
     format: '+39 XXX XXX XXXX',
-    regions: italianRegions,
-    phoneRegex: /^(\+39)?\s?3\d{9}$/,
+    phoneFormat: '+39 XXX XXX XXXX',
+    regions: structuredItalianRegions,
+    phoneRegex: /^\+39[3]\d{9}$/,
     shipping: 5,
+    shippingCost: 5,
     currency: 'EUR',
-    vatRate: 22
+    vatRate: 22,
+    productPrice: 59,
+    formatPhoneNumber: formatItalianPhone
   }
 };
 
@@ -79,22 +185,7 @@ export function formatPhoneForCountry(phone: string, countryCode: string): strin
     return phone;
   }
   
-  // Remove all non-digit characters
-  const digitsOnly = phone.replace(/\D/g, '');
-  
-  // Add dial code if not present
-  const dialCode = COUNTRIES[countryCode].dialCode.replace('+', '');
-  if (!digitsOnly.startsWith(dialCode)) {
-    return `+${dialCode}${digitsOnly}`;
-  }
-  
-  // Add plus if not present
-  if (phone.startsWith(dialCode) && !phone.startsWith('+')) {
-    return `+${phone}`;
-  }
-  
-  // Already formatted correctly
-  return phone.startsWith('+') ? phone : `+${digitsOnly}`;
+  return COUNTRIES[countryCode].formatPhoneNumber(phone);
 }
 
 // Helper function to validate phone number by country
@@ -103,12 +194,31 @@ export function isValidPhoneForCountry(phone: string, countryCode: string): bool
     return false;
   }
   
-  // If country has a regex pattern, use it
-  if (COUNTRIES[countryCode].phoneRegex) {
-    return COUNTRIES[countryCode].phoneRegex.test(phone);
-  }
-  
-  // Fallback validation - at least country code + 7 digits
-  const minLength = COUNTRIES[countryCode].dialCode.length + 7;
-  return phone.replace(/\D/g, '').length >= minLength;
+  return COUNTRIES[countryCode].phoneRegex.test(phone);
 }
+
+// Helper function to get default country based on language
+export function getDefaultCountryByLanguage(language: string): string {
+  switch(language) {
+    case 'es': return 'ES';
+    case 'pt': return 'PT';
+    case 'it': return 'IT';
+    default: return 'ES';
+  }
+}
+
+// Helper function to get region label based on language
+export function getRegionLabel(countryCode: string): string {
+  switch(countryCode) {
+    case 'ES': return 'Provincia';
+    case 'PT': return 'Distrito';
+    case 'IT': return 'Regione';
+    default: return 'Region';
+  }
+}
+
+// Export country list for dropdowns
+export const COUNTRY_LIST = Object.values(COUNTRIES).map(country => ({
+  code: country.code,
+  name: country.name
+}));

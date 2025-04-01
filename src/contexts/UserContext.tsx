@@ -9,6 +9,24 @@ export interface ShippingInfo {
   province: string;
   city: string;
   postalCode: string;
+  country: string;
+}
+
+// Define any achievements the user can earn
+export interface Achievement {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  earned: boolean;
+  earnedAt?: Date;
+}
+
+// Define a specific glucose reading with timestamp
+export interface GlucoseReading {
+  value: number;
+  timestamp: Date;
+  notes?: string;
 }
 
 export interface UserData {
@@ -21,6 +39,13 @@ export interface UserData {
   streak: number;
   readings: number;
   shippingInfo?: ShippingInfo;
+  // Additional fields detected in the codebase
+  targetRangeLow?: number;
+  targetRangeHigh?: number;
+  achievements?: Achievement[];
+  glucoseReadings?: GlucoseReading[];
+  exerciseFrequency?: string;
+  dietType?: string;
 }
 
 export interface UserStats {
@@ -37,6 +62,9 @@ interface UserContextType {
   addGlucoseReading: (value: number) => void;
   getUserStats: () => UserStats;
   resetUserData: () => void;
+  // Additional functions detected in the codebase
+  earnPoints?: (amount: number) => void;
+  checkAchievements?: () => void;
 }
 
 const defaultUserData: UserData = {
@@ -47,7 +75,11 @@ const defaultUserData: UserData = {
   diabetesType: null,
   levels: [],
   streak: 0,
-  readings: 0
+  readings: 0,
+  targetRangeLow: 70,
+  targetRangeHigh: 140,
+  achievements: [],
+  glucoseReadings: []
 };
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -82,13 +114,68 @@ export const UserProvider: React.FC<{children: React.ReactNode}> = ({ children }
         newStreak += 1;
         localStorage.setItem('last_reading_date', today);
       }
+
+      // Add to both arrays for backward compatibility
+      const newReading = { 
+        value, 
+        timestamp: now 
+      };
+
+      const newGlucoseReadings = [
+        ...(prevData.glucoseReadings || []), 
+        newReading
+      ];
       
       return {
         ...prevData,
         levels: [...prevData.levels, value],
+        glucoseReadings: newGlucoseReadings,
         readings: prevData.readings + 1,
         streak: newStreak,
         points: prevData.points + 10
+      };
+    });
+  };
+
+  const earnPoints = (amount: number) => {
+    setUserData(prevData => ({
+      ...prevData,
+      points: prevData.points + amount
+    }));
+  };
+
+  const checkAchievements = () => {
+    // Simple achievement checking implementation
+    setUserData(prevData => {
+      const achievements = [...(prevData.achievements || [])];
+      
+      // Check for first reading achievement
+      if (prevData.readings > 0 && !achievements.some(a => a.id === 'first_reading')) {
+        achievements.push({
+          id: 'first_reading',
+          name: 'First Reading',
+          description: 'Took your first glucose reading',
+          icon: 'bar-chart',
+          earned: true,
+          earnedAt: new Date()
+        });
+      }
+      
+      // Check for streak achievement
+      if (prevData.streak >= 3 && !achievements.some(a => a.id === 'streak_3')) {
+        achievements.push({
+          id: 'streak_3', 
+          name: '3-Day Streak',
+          description: 'Took readings for 3 days in a row',
+          icon: 'calendar',
+          earned: true,
+          earnedAt: new Date()
+        });
+      }
+      
+      return {
+        ...prevData,
+        achievements
       };
     });
   };
@@ -150,7 +237,9 @@ export const UserProvider: React.FC<{children: React.ReactNode}> = ({ children }
         updateUserData,
         addGlucoseReading,
         getUserStats,
-        resetUserData
+        resetUserData,
+        earnPoints,
+        checkAchievements
       }}
     >
       {children}

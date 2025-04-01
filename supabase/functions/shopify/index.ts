@@ -27,30 +27,40 @@ function formatPhoneToE164(phone: string): string {
   // Remove all non-digit characters
   let digitsOnly = phone.replace(/\D/g, '');
   
-  // Ensure we have a proper length of digits for international numbers
-  if (digitsOnly.length < 10) {
-    console.error('Phone number too short:', phone);
-    // Return a placeholder valid number format for testing
-    return '+12345678901';
-  }
-  
-  // If it already has a plus sign in original, assume it's already formatted
+  // Ensure the phone number starts with a plus sign
   if (phone.startsWith('+')) {
-    return '+' + digitsOnly;
+    return `+${digitsOnly}`;
   }
   
-  // For typical country codes (1, 33, 44, 34, 39, 351, etc)
-  // Detect if the first digits are a country code
-  if (digitsOnly.length >= 11) {
-    // Likely already has country code
-    return '+' + digitsOnly;
+  // Detect country code from the first digits
+  if (digitsOnly.startsWith('34')) {
+    return `+${digitsOnly}`; // Spain
+  } else if (digitsOnly.startsWith('351')) {
+    return `+${digitsOnly}`; // Portugal
+  } else if (digitsOnly.startsWith('39')) {
+    return `+${digitsOnly}`; // Italy
+  } else if (digitsOnly.length === 9) {
+    // For Spain, standard mobile numbers are 9 digits
+    if (digitsOnly.startsWith('6') || digitsOnly.startsWith('7')) {
+      return `+34${digitsOnly}`; 
+    }
+    // For Portugal, standard mobile numbers are 9 digits and start with 9
+    else if (digitsOnly.startsWith('9')) {
+      return `+351${digitsOnly}`;
+    }
+    // Default to Spain for 9-digit numbers
+    return `+34${digitsOnly}`;
   } else if (digitsOnly.length === 10) {
-    // Assume US/Canada number without country code
-    return '+1' + digitsOnly;
-  } else {
-    // Fallback - although this might not be valid for Shopify
-    return '+' + digitsOnly;
+    // Italy mobile numbers are typically 10 digits and start with 3
+    if (digitsOnly.startsWith('3')) {
+      return `+39${digitsOnly}`;
+    }
+    // Default to international format
+    return `+${digitsOnly}`;
   }
+  
+  // If we can't determine the format, just ensure it has a plus sign
+  return `+${digitsOnly}`;
 }
 
 serve(async (req) => {
@@ -183,13 +193,19 @@ serve(async (req) => {
         // Deep clone the payload to avoid modifying the original
         const orderPayload = JSON.parse(JSON.stringify(payload));
         
-        // Format phone numbers in the proper E.164 format
+        // Format phone numbers in the proper E.164 format (strict format required by Shopify API)
         if (orderPayload.order.customer && orderPayload.order.customer.phone) {
           orderPayload.order.customer.phone = formatPhoneToE164(orderPayload.order.customer.phone);
+          
+          // Strip out any spaces, parentheses, or dashes that might be in the formatted number
+          orderPayload.order.customer.phone = orderPayload.order.customer.phone.replace(/\s|-|\(|\)/g, '');
         }
         
         if (orderPayload.order.shipping_address && orderPayload.order.shipping_address.phone) {
           orderPayload.order.shipping_address.phone = formatPhoneToE164(orderPayload.order.shipping_address.phone);
+          
+          // Strip out any spaces, parentheses, or dashes that might be in the formatted number
+          orderPayload.order.shipping_address.phone = orderPayload.order.shipping_address.phone.replace(/\s|-|\(|\)/g, '');
         }
         
         console.log('Formatted order payload:', JSON.stringify(orderPayload));
@@ -251,10 +267,7 @@ serve(async (req) => {
         }
 
         return new Response(JSON.stringify(responseData), {
-          headers: {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*',
-          },
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       } catch (error) {
         console.error('Error creating order:', error);
@@ -262,10 +275,7 @@ serve(async (req) => {
           error: 'Error creating order: ' + error.message
         }), {
           status: 500,
-          headers: {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*',
-          },
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
     }

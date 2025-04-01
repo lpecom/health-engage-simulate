@@ -1,9 +1,9 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { toast } from "@/hooks/use-toast"; // Import directly from hooks/use-toast
+import { toast } from "@/hooks/use-toast";
 import { supabase } from '@/integrations/supabase/client';
 import { ShopifyOrderPayload } from '@/services/ShopifyService';
-import { COUNTRIES } from '@/data/countries';
+import { COUNTRIES, formatPhoneForCountry, isValidPhoneForCountry } from '@/data/countries';
 
 interface ShopifyContextType {
   isConfigured: boolean;
@@ -32,6 +32,7 @@ export interface CheckoutOrderData {
     city: string;
     postalCode: string;
     country: string;
+    cost?: number;
   };
 }
 
@@ -142,58 +143,24 @@ export const ShopifyProvider: React.FC<ShopifyProviderProps> = ({ children }) =>
     }
   };
   
-  // Improved phone number formatter that handles country-specific formats
-  const formatPhoneNumber = (phone: string, countryCode: string): string => {
+  const formatPhoneForShopifyAPI = (phone: string, countryCode: string): string => {
     if (!phone) return '';
     
-    // First, clean the input by removing all non-digit characters
-    let digits = phone.replace(/\D/g, '');
+    // First use our country-specific formatter
+    let formatted = formatPhoneForCountry(phone, countryCode);
     
-    // Handle country-specific formatting
-    const formatByCountry = {
-      'ES': (digits: string) => {
-        // Spain uses +34 followed by 9 digits
-        if (digits.startsWith('34')) {
-          return `+${digits}`;
-        } else {
-          return `+34${digits}`;
-        }
-      },
-      'PT': (digits: string) => {
-        // Portugal uses +351 followed by 9 digits
-        if (digits.startsWith('351')) {
-          return `+${digits}`;
-        } else {
-          return `+351${digits}`;
-        }
-      },
-      'IT': (digits: string) => {
-        // Italy uses +39 followed by mobile numbers typically 10 digits
-        if (digits.startsWith('39')) {
-          return `+${digits}`;
-        } else {
-          return `+39${digits}`;
-        }
-      },
-      // Add more countries as needed
-    };
+    // Then ensure it's in E.164 format (no spaces, parentheses, or other characters)
+    formatted = formatted.replace(/\s|-|\(|\)/g, '');
     
-    // If we have a formatter for this country, use it
-    if (countryCode && formatByCountry[countryCode]) {
-      return formatByCountry[countryCode](digits);
+    // Ensure it starts with a plus sign
+    if (!formatted.startsWith('+')) {
+      if (countryCode === 'ES') formatted = '+34' + formatted;
+      else if (countryCode === 'PT') formatted = '+351' + formatted;
+      else if (countryCode === 'IT') formatted = '+39' + formatted;
     }
     
-    // Default international handling for other countries
-    if (digits.startsWith('00')) {
-      // Convert 00 international prefix to +
-      return '+' + digits.substring(2);
-    } else if (!phone.startsWith('+')) {
-      // If no + and no country code detected, add +
-      return '+' + digits;
-    }
-    
-    // Already has a + prefix
-    return '+' + digits;
+    console.log(`Formatted phone from ${phone} to ${formatted}`);
+    return formatted;
   };
   
   const exportOrder = async (orderData: CheckoutOrderData): Promise<boolean> => {
@@ -208,7 +175,7 @@ export const ShopifyProvider: React.FC<ShopifyProviderProps> = ({ children }) =>
     
     try {
       // Format phone number according to E.164 standard required by Shopify
-      const formattedPhone = formatPhoneNumber(orderData.shipping.phone, orderData.shipping.country);
+      const formattedPhone = formatPhoneForShopifyAPI(orderData.shipping.phone, orderData.shipping.country);
       
       console.log('Original phone:', orderData.shipping.phone);
       console.log('Formatted E.164 phone:', formattedPhone);
@@ -286,8 +253,8 @@ export const ShopifyProvider: React.FC<ShopifyProviderProps> = ({ children }) =>
             product_name: orderData.product.title,
             product_quantity: orderData.product.units,
             product_price: orderData.product.price,
-            shipping_price: 0,
-            total_price: orderData.product.price * orderData.product.units,
+            shipping_price: orderData.shipping.cost || 0,
+            total_price: orderData.product.price * orderData.product.units + (orderData.shipping.cost || 0),
             customer_name: orderData.shipping.firstName,
             customer_surname: orderData.shipping.lastName,
             customer_phone: formattedPhone,
