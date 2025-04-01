@@ -17,7 +17,20 @@ export const shopifyTranslations: Record<string, TranslationMap> = {
     'orderErrorDesc': 'Ha ocurrido un error procesando tu pedido. Inténtalo de nuevo.',
     'storeNotFound': 'Tienda no encontrada: El nombre de la tienda Shopify puede ser incorrecto',
     'checkCredentials': 'Comprueba tus credenciales en los secretos de Supabase',
-    'testConnection': 'Probar conexión'
+    'testConnection': 'Probar conexión',
+    'country': 'País',
+    'region': 'Provincia',
+    'city': 'Ciudad',
+    'address': 'Dirección',
+    'postalCode': 'Código Postal',
+    'phone': 'Teléfono',
+    'firstName': 'Nombre',
+    'lastName': 'Apellido',
+    'selectRegion': 'Selecciona una provincia',
+    'selectCity': 'Selecciona una ciudad',
+    'phoneFormat': 'Formato: +34 XXX XXX XXX',
+    'invalidPhone': 'Número de teléfono inválido',
+    'selectCountry': 'Selecciona un país'
   },
   pt: {
     'shopifyIntegration': 'Integração com Shopify',
@@ -34,7 +47,20 @@ export const shopifyTranslations: Record<string, TranslationMap> = {
     'orderErrorDesc': 'Ocorreu um erro ao processar seu pedido. Tente novamente.',
     'storeNotFound': 'Loja não encontrada: O nome da loja Shopify pode estar incorreto',
     'checkCredentials': 'Verifique suas credenciais nos segredos do Supabase',
-    'testConnection': 'Testar conexão'
+    'testConnection': 'Testar conexão',
+    'country': 'País',
+    'region': 'Distrito',
+    'city': 'Cidade',
+    'address': 'Morada',
+    'postalCode': 'Código Postal',
+    'phone': 'Telefone',
+    'firstName': 'Nome',
+    'lastName': 'Sobrenome',
+    'selectRegion': 'Selecione um distrito',
+    'selectCity': 'Selecione uma cidade',
+    'phoneFormat': 'Formato: +351 XXX XXX XXX',
+    'invalidPhone': 'Número de telefone inválido',
+    'selectCountry': 'Selecione um país'
   },
   it: {
     'shopifyIntegration': 'Integrazione con Shopify',
@@ -51,6 +77,19 @@ export const shopifyTranslations: Record<string, TranslationMap> = {
     'orderErrorDesc': 'Si è verificato un errore durante l\'elaborazione dell\'ordine. Riprova.',
     'storeNotFound': 'Negozio non trovato: Il nome del negozio Shopify potrebbe essere errato',
     'checkCredentials': 'Controlla le tue credenziali nei segreti Supabase',
-    'testConnection': 'Testa connessione'
+    'testConnection': 'Testa connessione',
+    'country': 'Paese',
+    'region': 'Regione',
+    'city': 'Città',
+    'address': 'Indirizzo',
+    'postalCode': 'Codice Postale',
+    'phone': 'Telefono',
+    'firstName': 'Nome',
+    'lastName': 'Cognome',
+    'selectRegion': 'Seleziona una regione',
+    'selectCity': 'Seleziona una città',
+    'phoneFormat': 'Formato: +39 XXX XXX XXXX',
+    'invalidPhone': 'Numero di telefono non valido',
+    'selectCountry': 'Seleziona un paese'
   }
 };

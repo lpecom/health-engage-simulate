@@ -30,6 +30,7 @@ export interface CheckoutOrderData {
     province: string;
     city: string;
     postalCode: string;
+    country: string;
   };
 }
 
@@ -155,6 +156,30 @@ export const ShopifyProvider: React.FC<ShopifyProviderProps> = ({ children }) =>
     }
     
     try {
+      // Format phone number correctly based on country
+      let phone = orderData.shipping.phone;
+      
+      // Ensure phone number starts with + and country code
+      if (orderData.shipping.country === "PT" && !phone.startsWith("+")) {
+        if (phone.startsWith("351")) {
+          phone = "+" + phone;
+        } else {
+          phone = "+351" + phone.replace(/^0+/, '');
+        }
+      } else if (orderData.shipping.country === "IT" && !phone.startsWith("+")) {
+        if (phone.startsWith("39")) {
+          phone = "+" + phone;
+        } else {
+          phone = "+39" + phone.replace(/^0+/, '');
+        }
+      } else if (orderData.shipping.country === "ES" && !phone.startsWith("+")) {
+        if (phone.startsWith("34")) {
+          phone = "+" + phone;
+        } else {
+          phone = "+34" + phone.replace(/^0+/, '');
+        }
+      }
+      
       // Map local order data to Shopify format
       const payload: ShopifyOrderPayload = {
         order: {
@@ -168,7 +193,7 @@ export const ShopifyProvider: React.FC<ShopifyProviderProps> = ({ children }) =>
           customer: {
             first_name: orderData.shipping.firstName,
             last_name: orderData.shipping.lastName,
-            phone: orderData.shipping.phone
+            phone: phone
           },
           shipping_address: {
             first_name: orderData.shipping.firstName,
@@ -177,8 +202,8 @@ export const ShopifyProvider: React.FC<ShopifyProviderProps> = ({ children }) =>
             city: orderData.shipping.city,
             province: orderData.shipping.province,
             zip: orderData.shipping.postalCode,
-            country: 'IT', // Default to Italy since we're offering Italian language
-            phone: orderData.shipping.phone
+            country: orderData.shipping.country,
+            phone: phone
           },
           financial_status: 'pending',
           send_receipt: true,
@@ -210,7 +235,11 @@ export const ShopifyProvider: React.FC<ShopifyProviderProps> = ({ children }) =>
         console.error('Shopify order creation failed:', orderResponse.error);
         toast({
           title: "Export Failed",
-          description: orderResponse.error,
+          description: orderResponse.error.shopifyError?.errors ? 
+            Object.entries(orderResponse.error.shopifyError.errors)
+              .map(([key, value]) => `${key}: ${value}`)
+              .join(', ') 
+            : orderResponse.error,
           variant: "destructive",
         });
         return false;
@@ -230,7 +259,7 @@ export const ShopifyProvider: React.FC<ShopifyProviderProps> = ({ children }) =>
             total_price: orderData.product.price * orderData.product.units,
             customer_name: orderData.shipping.firstName,
             customer_surname: orderData.shipping.lastName,
-            customer_phone: orderData.shipping.phone,
+            customer_phone: phone,
             customer_address: orderData.shipping.address,
             province: orderData.shipping.province,
             city: orderData.shipping.city,

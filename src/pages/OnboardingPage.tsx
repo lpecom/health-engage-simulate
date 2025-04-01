@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -6,11 +7,18 @@ import { useUser } from "@/contexts/UserContext";
 import { useShopify } from "@/contexts/ShopifyContext"; 
 import LanguageSelector from "@/components/LanguageSelector";
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, ArrowRight, Syringe, CircleCheck, MapPin, CreditCard } from 'lucide-react';
+import { Check, ArrowRight, Syringe, CircleCheck, MapPin, CreditCard, AlertTriangle } from 'lucide-react';
 import { Progress } from "@/components/ui/progress";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { COUNTRIES, getDefaultCountryByLanguage, getRegionLabel, CountryData } from '@/data/countries';
+import { Badge } from "@/components/ui/badge";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
 
 const OnboardingSteps = [
   'language', 
@@ -23,7 +31,7 @@ const OnboardingSteps = [
 ];
 
 const OnboardingPage = () => {
-  const { translate } = useLanguage();
+  const { translate, language } = useLanguage();
   const { userData, updateUserData } = useUser();
   const { isConfigured, exportOrder } = useShopify();
   const { toast } = useToast();
@@ -41,6 +49,59 @@ const OnboardingPage = () => {
   const [province, setProvince] = useState('');
   const [postalCode, setPostalCode] = useState('');
   const [isProcessingOrder, setIsProcessingOrder] = useState(false);
+  const [selectedCountry, setSelectedCountry] = useState<string>('');
+  const [availableCities, setAvailableCities] = useState<string[]>([]);
+  const [phoneError, setPhoneError] = useState<string | null>(null);
+  
+  // Set the default country based on the selected language
+  useEffect(() => {
+    const defaultCountry = getDefaultCountryByLanguage(language);
+    setSelectedCountry(defaultCountry);
+    
+    // Clear the selected province and city when country changes
+    setProvince('');
+    setCity('');
+  }, [language]);
+  
+  // Update available cities when province changes
+  useEffect(() => {
+    if (selectedCountry && province) {
+      const countryData = COUNTRIES[selectedCountry];
+      if (countryData) {
+        const selectedRegion = countryData.regions.find(r => r.code === province);
+        if (selectedRegion && selectedRegion.cities) {
+          setAvailableCities(selectedRegion.cities);
+        } else {
+          setAvailableCities([]);
+        }
+      }
+    } else {
+      setAvailableCities([]);
+    }
+  }, [selectedCountry, province]);
+
+  // Validate phone number format
+  const validatePhone = (phoneNumber: string, country: string): boolean => {
+    if (!country || !COUNTRIES[country]) return false;
+    
+    return COUNTRIES[country].phoneRegex.test(phoneNumber);
+  };
+
+  // Handle phone input change with validation
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setPhone(value);
+    
+    if (value && selectedCountry) {
+      if (!validatePhone(value, selectedCountry)) {
+        setPhoneError(translate('invalidPhone'));
+      } else {
+        setPhoneError(null);
+      }
+    } else {
+      setPhoneError(null);
+    }
+  };
 
   const goToNextStep = async () => {
     if (currentStep === 5) { // Purchase step
@@ -56,10 +117,20 @@ const OnboardingPage = () => {
   };
 
   const handlePurchase = async () => {
-    if (!firstName || !lastName || !address || !city || !province || !postalCode) {
+    if (!firstName || !lastName || !address || !city || !province || !postalCode || !phone || !selectedCountry) {
       toast({
         title: translate('formError'),
         description: translate('fillAllFields'),
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate phone number before submitting
+    if (!validatePhone(phone, selectedCountry)) {
+      toast({
+        title: translate('formError'),
+        description: translate('invalidPhone'),
         variant: "destructive",
       });
       return;
@@ -73,9 +144,10 @@ const OnboardingPage = () => {
         lastName,
         phone,
         address,
-        city,
         province,
-        postalCode
+        city,
+        postalCode,
+        country: selectedCountry
       };
 
       // Save shipping info to user data
@@ -92,11 +164,18 @@ const OnboardingPage = () => {
         shipping: shippingInfo
       };
 
-      await exportOrder(orderData);
-      console.log("Order successfully exported to Shopify");
-
-      // Move to next step
-      setCurrentStep(currentStep + 1);
+      const success = await exportOrder(orderData);
+      if (success) {
+        console.log("Order successfully exported to Shopify");
+        // Move to next step
+        setCurrentStep(currentStep + 1);
+      } else {
+        toast({
+          title: translate('orderError'),
+          description: translate('orderErrorDesc'),
+          variant: "destructive",
+        });
+      }
     } catch (error) {
       console.error('Error processing order:', error);
       toast({
@@ -133,6 +212,12 @@ const OnboardingPage = () => {
   };
 
   const progressPercentage = (currentStep + 1) / OnboardingSteps.length * 100;
+  
+  // Get regions for the selected country
+  const getRegions = () => {
+    if (!selectedCountry || !COUNTRIES[selectedCountry]) return [];
+    return COUNTRIES[selectedCountry].regions || [];
+  };
 
   const renderStep = () => {
     const currentStepName = OnboardingSteps[currentStep];
@@ -304,9 +389,9 @@ const OnboardingPage = () => {
       case 'purchase':
         return <div>
             <h1 className="text-2xl font-bold mb-3 text-center text-accu-tech-blue">{translate('buyYourDevice')}</h1>
-            <p className="text-gray-600 mb-6 text-center">{translate('paymentOnDeliveryMessage')}</p>
+            <p className="text-gray-600 mb-4 text-center">{translate('paymentOnDeliveryMessage')}</p>
             
-            <div className="mb-6 flex justify-center">
+            <div className="mb-4 flex justify-center">
               <div className="relative">
                 <img 
                   src="https://h00ktt-1h.myshopify.com/cdn/shop/files/gempages_559218299439678285-292f3a7c-297f-4208-b019-985346c4ef7b.jpg?v=10467499079061507992" 
@@ -319,7 +404,7 @@ const OnboardingPage = () => {
               </div>
             </div>
             
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-6 flex items-center">
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4 flex items-center">
               <CreditCard className="text-yellow-600 mr-3 h-5 w-5 flex-shrink-0" />
               <p className="text-sm text-yellow-800">{translate('paymentOnDelivery')}</p>
             </div>
@@ -350,15 +435,53 @@ const OnboardingPage = () => {
               </div>
               
               <div>
-                <Label htmlFor="phone" className="text-sm font-medium text-gray-700">{translate('phone')}</Label>
-                <Input
-                  id="phone"
-                  type="tel"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  placeholder={translate('phone')}
-                  className="mt-1"
-                />
+                <Label htmlFor="country" className="text-sm font-medium text-gray-700">{translate('country')}</Label>
+                <Select 
+                  value={selectedCountry} 
+                  onValueChange={(value) => {
+                    setSelectedCountry(value);
+                    setProvince(''); // Reset province when country changes
+                    setCity(''); // Reset city when country changes
+                  }}
+                >
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder={translate('selectCountry')} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.values(COUNTRIES).map((country) => (
+                      <SelectItem key={country.code} value={country.code}>
+                        {country.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label htmlFor="phone" className="text-sm font-medium text-gray-700">
+                  {translate('phone')}
+                </Label>
+                <div className="mt-1">
+                  <Input
+                    id="phone"
+                    type="tel"
+                    value={phone}
+                    onChange={handlePhoneChange}
+                    placeholder={selectedCountry && COUNTRIES[selectedCountry] ? COUNTRIES[selectedCountry].phoneFormat : translate('phone')}
+                    className={phoneError ? "border-red-500" : ""}
+                  />
+                  {phoneError && (
+                    <p className="text-xs text-red-500 mt-1 flex items-center">
+                      <AlertTriangle className="h-3 w-3 mr-1" />
+                      {phoneError}
+                    </p>
+                  )}
+                  {selectedCountry && COUNTRIES[selectedCountry] && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      {translate('phoneFormat')}
+                    </p>
+                  )}
+                </div>
               </div>
               
               <div>
@@ -372,29 +495,46 @@ const OnboardingPage = () => {
                 />
               </div>
               
-              <div className="grid grid-cols-2 gap-4">
+              {selectedCountry && (
+                <div>
+                  <Label htmlFor="region" className="text-sm font-medium text-gray-700">
+                    {translate('region')}
+                  </Label>
+                  <Select value={province} onValueChange={(value) => {
+                    setProvince(value);
+                    setCity(''); // Reset city when province changes
+                  }}>
+                    <SelectTrigger className="mt-1">
+                      <SelectValue placeholder={translate('selectRegion')} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {getRegions().map((region) => (
+                        <SelectItem key={region.code} value={region.code}>
+                          {region.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+
+              {province && availableCities.length > 0 && (
                 <div>
                   <Label htmlFor="city" className="text-sm font-medium text-gray-700">{translate('city')}</Label>
-                  <Input
-                    id="city"
-                    value={city}
-                    onChange={(e) => setCity(e.target.value)}
-                    placeholder={translate('city')}
-                    className="mt-1"
-                  />
+                  <Select value={city} onValueChange={setCity}>
+                    <SelectTrigger className="mt-1">
+                      <SelectValue placeholder={translate('selectCity')} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {availableCities.map((cityName) => (
+                        <SelectItem key={cityName} value={cityName}>
+                          {cityName}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
-                
-                <div>
-                  <Label htmlFor="province" className="text-sm font-medium text-gray-700">{translate('province')}</Label>
-                  <Input
-                    id="province"
-                    value={province}
-                    onChange={(e) => setProvince(e.target.value)}
-                    placeholder={translate('province')}
-                    className="mt-1"
-                  />
-                </div>
-              </div>
+              )}
               
               <div>
                 <Label htmlFor="postalCode" className="text-sm font-medium text-gray-700">{translate('postalCode')}</Label>
