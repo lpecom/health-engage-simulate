@@ -1,5 +1,6 @@
+
 import React, { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Form, FormField, FormItem, FormLabel, FormControl } from "@/components/ui/form";
@@ -31,13 +32,10 @@ type ProductOption = {
 };
 
 const CheckoutPage = () => {
-  const { translate } = useLanguage();
+  const { translate, language } = useLanguage();
   const navigate = useNavigate();
-  const location = useLocation();
   const [step, setStep] = useState<'products' | 'shipping'>('products');
-  const [selectedProduct, setSelectedProduct] = useState<ProductOption | null>(
-    location.state?.selectedProduct || null
-  );
+  const [selectedProduct, setSelectedProduct] = useState<ProductOption | null>(null);
   
   const productOptions: ProductOption[] = [
     {
@@ -47,7 +45,7 @@ const CheckoutPage = () => {
       originalPrice: 75.80,
       units: 1,
       discount: "30% OFF",
-      installments: translate('installments', { count: 12, value: '€3.75' })
+      installments: `${translate('installments', { count: 12, value: '€3.75' })}`
     },
     {
       id: 2,
@@ -56,7 +54,7 @@ const CheckoutPage = () => {
       originalPrice: 118.00,
       units: 2,
       discount: "50% OFF",
-      installments: translate('installments', { count: 12, value: '€4.92' })
+      installments: `${translate('installments', { count: 12, value: '€4.92' })}`
     },
     {
       id: 3,
@@ -64,19 +62,19 @@ const CheckoutPage = () => {
       price: 69.00,
       originalPrice: 118.00,
       units: 3,
-      discount: translate('buy3get1')
+      discount: `${translate('buy3get1')}`
     }
   ];
   
   const form = useForm<ShippingInfo>({
     defaultValues: {
-      firstName: location.state?.shippingInfo?.firstName || '',
-      lastName: location.state?.shippingInfo?.lastName || '',
-      phone: location.state?.shippingInfo?.phone || '',
-      address: location.state?.shippingInfo?.address || '',
-      province: location.state?.shippingInfo?.province || '',
-      city: location.state?.shippingInfo?.city || '',
-      postalCode: location.state?.shippingInfo?.postalCode || ''
+      firstName: '',
+      lastName: '',
+      phone: '',
+      address: '',
+      province: '',
+      city: '',
+      postalCode: ''
     }
   });
 
@@ -95,14 +93,14 @@ const CheckoutPage = () => {
   };
   
   const onSubmit = (data: ShippingInfo) => {
-    navigate('/confirmation', {
-      state: {
-        shippingInfo: data,
-        selectedProduct
-      }
-    });
+    // Here you would typically send the order to your backend
+    console.log("Order submitted:", { product: selectedProduct, shipping: data });
+    
+    // Navigate to a success page or show a success message
+    navigate('/order-success');
   };
 
+  // Product selection step
   if (step === 'products') {
     return (
       <div className="min-h-screen bg-gray-50 pb-16 px-4 pt-6">
@@ -175,6 +173,7 @@ const CheckoutPage = () => {
     );
   }
   
+  // Shipping information step
   return (
     <div className="min-h-screen bg-gray-50 pb-16">
       <div className="gradient-medical text-white px-4 pt-6 pb-4">

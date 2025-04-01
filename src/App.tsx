@@ -14,7 +14,6 @@ import LearnPage from "./pages/LearnPage";
 import LanguagePage from "./pages/LanguagePage";
 import PersonalizedPlanPage from "./pages/PersonalizedPlanPage";
 import CheckoutPage from "./pages/CheckoutPage";
-import ConfirmationPage from "./pages/ConfirmationPage";
 import OrderSuccessPage from "./pages/OrderSuccessPage";
 import NotFound from "./pages/NotFound";
 
@@ -40,7 +39,6 @@ const App = () => {
                   <Route path="/language" element={<LanguagePage />} />
                   <Route path="/plan" element={<PersonalizedPlanPage />} />
                   <Route path="/checkout" element={<CheckoutPage />} />
-                  <Route path="/confirmation" element={<ConfirmationPage />} />
                   <Route path="/order-success" element={<OrderSuccessPage />} />
                   {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                   <Route path="*" element={<NotFound />} />
