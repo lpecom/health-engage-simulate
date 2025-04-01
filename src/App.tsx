@@ -19,7 +19,14 @@ import NotFound from "./pages/NotFound";
 import Index from "./pages/Index";
 
 // Create a new QueryClient instance
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: 1,
+    },
+  },
+});
 
 const App = () => {
   return (
@@ -31,34 +38,41 @@ const App = () => {
               <Toaster />
               <Sonner />
               <BrowserRouter>
-                <Routes>
-                  <Route 
-                    path="/" 
-                    element={
-                      <Navigate 
-                        to={localStorage.getItem('onboardingComplete') === 'true' ? '/home' : '/onboarding'} 
-                        replace 
-                      />
-                    } 
-                  />
-                  <Route path="/index" element={<Index />} />
-                  <Route path="/onboarding" element={<OnboardingPage />} />
-                  <Route path="/checkout" element={<CheckoutPage />} />
-                  <Route path="/order-success" element={<OrderSuccessPage />} />
-                  <Route path="/home" element={<HomePage />} />
-                  <Route path="/profile" element={<ProfilePage />} />
-                  <Route path="/learn/:topic" element={<LearnPage />} />
-                  <Route path="/language" element={<LanguagePage />} />
-                  <Route path="/plan" element={<PersonalizedPlanPage />} />
-                  {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
+                <AppRoutes />
               </BrowserRouter>
             </UserProvider>
           </LanguageProvider>
         </TooltipProvider>
       </QueryClientProvider>
     </React.StrictMode>
+  );
+};
+
+// Separate routes component to ensure proper rerenders when language changes
+const AppRoutes = () => {
+  return (
+    <Routes>
+      <Route 
+        path="/" 
+        element={
+          <Navigate 
+            to={localStorage.getItem('onboardingComplete') === 'true' ? '/home' : '/onboarding'} 
+            replace 
+          />
+        } 
+      />
+      <Route path="/index" element={<Index />} />
+      <Route path="/onboarding" element={<OnboardingPage />} />
+      <Route path="/checkout" element={<CheckoutPage />} />
+      <Route path="/order-success" element={<OrderSuccessPage />} />
+      <Route path="/home" element={<HomePage />} />
+      <Route path="/profile" element={<ProfilePage />} />
+      <Route path="/learn/:topic" element={<LearnPage />} />
+      <Route path="/language" element={<LanguagePage />} />
+      <Route path="/plan" element={<PersonalizedPlanPage />} />
+      {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+      <Route path="*" element={<NotFound />} />
+    </Routes>
   );
 };
 

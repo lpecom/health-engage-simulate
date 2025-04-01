@@ -1,33 +1,49 @@
 
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 
-const LanguageContext = createContext({
+type LanguageType = 'en' | 'es' | 'pt';
+
+interface LanguageContextType {
+  language: LanguageType;
+  setLanguage: (lang: LanguageType) => void;
+  translate: (key: string, params?: { [key: string]: string | number }) => string;
+}
+
+const LanguageContext = createContext<LanguageContextType>({
   language: 'en',
-  setLanguage: (lang: string) => {},
-  translate: (key: string, params?: { [key: string]: string | number }) => ''
+  setLanguage: () => {},
+  translate: () => ''
 });
 
 export const useLanguage = () => useContext(LanguageContext);
 
 export const LanguageProvider = ({ children }) => {
-  const [language, setLanguage] = useState('en');
+  const [language, setLanguage] = useState<LanguageType>('en');
+  const [forceUpdate, setForceUpdate] = useState(0);
 
-  const changeLanguage = useCallback((lang: string) => {
+  const changeLanguage = useCallback((lang: LanguageType) => {
     setLanguage(lang);
     localStorage.setItem('language', lang);
+    
     // Force re-render of components when language changes
     document.documentElement.setAttribute('lang', lang);
+    setForceUpdate(prev => prev + 1);
+    
+    // Log language change for debugging
+    console.log(`Language changed to: ${lang}`);
   }, []);
 
   // Load language from local storage on initial load
-  React.useEffect(() => {
-    const storedLanguage = localStorage.getItem('language');
-    if (storedLanguage) {
+  useEffect(() => {
+    const storedLanguage = localStorage.getItem('language') as LanguageType | null;
+    if (storedLanguage && (storedLanguage === 'en' || storedLanguage === 'es' || storedLanguage === 'pt')) {
       setLanguage(storedLanguage);
       document.documentElement.setAttribute('lang', storedLanguage);
+      console.log(`Initial language loaded from storage: ${storedLanguage}`);
     }
   }, []);
 
+  // This section with translations is kept the same
   const translations = {
     en: {
       // Common
@@ -674,16 +690,35 @@ export const LanguageProvider = ({ children }) => {
   };
 
   const translate = (key: string, params = {}) => {
-    let translation = translations[language]?.[key] || key;
-
+    if (!key) return '';
+    
+    // Try to get translation from current language
+    let translation = translations[language]?.[key];
+    
     // If translation not found, fall back to English
-    if (translation === key && language !== 'en') {
-      translation = translations['en'][key] || key;
+    if (!translation && language !== 'en') {
+      translation = translations['en'][key];
+      
+      // Log missing translations for debugging
+      if (process.env.NODE_ENV !== 'production') {
+        console.warn(`Missing translation for key "${key}" in language "${language}"`);
+      }
     }
-
+    
+    // If still no translation found, return the key itself
+    if (!translation) {
+      if (process.env.NODE_ENV !== 'production') {
+        console.warn(`Missing translation for key "${key}" in any language`);
+      }
+      return key;
+    }
+    
     // Replace any parameters in the translation string
     for (const paramKey in params) {
-      translation = translation.replace(new RegExp(`{{${paramKey}}}`, 'g'), String(params[paramKey]));
+      translation = translation.replace(
+        new RegExp(`{{${paramKey}}}`, 'g'), 
+        String(params[paramKey])
+      );
     }
 
     return translation;
@@ -697,7 +732,10 @@ export const LanguageProvider = ({ children }) => {
 
   return (
     <LanguageContext.Provider value={value}>
-      {children}
+      {/* forceUpdate is added to the key to force re-renders when language changes */}
+      <div key={`lang-wrapper-${language}-${forceUpdate}`}>
+        {children}
+      </div>
     </LanguageContext.Provider>
   );
 };
