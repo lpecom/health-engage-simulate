@@ -15,6 +15,8 @@ export const LanguageProvider = ({ children }) => {
   const changeLanguage = useCallback((lang: string) => {
     setLanguage(lang);
     localStorage.setItem('language', lang);
+    // Force re-render of components when language changes
+    document.documentElement.setAttribute('lang', lang);
   }, []);
 
   // Load language from local storage on initial load
@@ -22,6 +24,7 @@ export const LanguageProvider = ({ children }) => {
     const storedLanguage = localStorage.getItem('language');
     if (storedLanguage) {
       setLanguage(storedLanguage);
+      document.documentElement.setAttribute('lang', storedLanguage);
     }
   }, []);
 

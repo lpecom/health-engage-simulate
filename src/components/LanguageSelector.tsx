@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { useEffect } from "react";
+import TranslatedText from '@/components/TranslatedText';
 
 const LanguageSelector = () => {
   const { language, setLanguage, translate } = useLanguage();
@@ -13,11 +14,13 @@ const LanguageSelector = () => {
   const handleLanguageChange = (newLang: string) => {
     if (newLang !== language) {
       setLanguage(newLang);
+      const message = newLang === 'en' ? 'Language changed to English' : 
+                     newLang === 'es' ? 'Idioma cambiado a Español' : 
+                     'Idioma alterado para Português';
+      
       toast({
         title: translate('languageChanged'),
-        description: newLang === 'en' ? 'Language changed to English' : 
-                     newLang === 'es' ? 'Idioma cambiado a Español' : 
-                     'Idioma alterado para Português',
+        description: message,
         duration: 3000,
       });
     }
@@ -25,7 +28,9 @@ const LanguageSelector = () => {
 
   return (
     <div className="flex flex-col items-center w-full max-w-xs mx-auto">
-      <h2 className="text-lg font-medium mb-4 text-accu-tech-blue">{translate('selectLanguage')}</h2>
+      <h2 className="text-lg font-medium mb-4 text-accu-tech-blue">
+        <TranslatedText textKey="selectLanguage" />
+      </h2>
       
       <div className="grid grid-cols-1 gap-3 w-full">
         <Button
@@ -35,7 +40,9 @@ const LanguageSelector = () => {
           }`}
           onClick={() => handleLanguageChange('en')}
         >
-          <span className="text-lg">{translate('english')}</span>
+          <span className="text-lg">
+            <TranslatedText textKey="english" />
+          </span>
           {language === 'en' && <Check className="h-5 w-5 ml-2" />}
         </Button>
         
@@ -46,7 +53,9 @@ const LanguageSelector = () => {
           }`}
           onClick={() => handleLanguageChange('es')}
         >
-          <span className="text-lg">{translate('spanish')}</span>
+          <span className="text-lg">
+            <TranslatedText textKey="spanish" />
+          </span>
           {language === 'es' && <Check className="h-5 w-5 ml-2" />}
         </Button>
         
@@ -57,7 +66,9 @@ const LanguageSelector = () => {
           }`}
           onClick={() => handleLanguageChange('pt')}
         >
-          <span className="text-lg">{translate('portuguese')}</span>
+          <span className="text-lg">
+            <TranslatedText textKey="portuguese" />
+          </span>
           {language === 'pt' && <Check className="h-5 w-5 ml-2" />}
         </Button>
       </div>
