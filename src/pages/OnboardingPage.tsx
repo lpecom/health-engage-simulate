@@ -1,99 +1,33 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useUser } from "@/contexts/UserContext";
 import LanguageSelector from "@/components/LanguageSelector";
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, ArrowRight, Syringe, CircleCheck, ShieldCheck } from 'lucide-react';
+import { Check, ArrowRight, Syringe, CircleCheck } from 'lucide-react';
 import { Progress } from "@/components/ui/progress";
 
-const OnboardingSteps = ['language', 'purchase', 'welcome', 'technology', 'benefits', 'profile', 'tutorial'];
-
-const productOfferings = [
-  { 
-    id: 1, 
-    quantity: 1, 
-    price: 199.99, 
-    discount: 0,
-    image: "https://h00ktt-1h.myshopify.com/cdn/shop/files/gempages_559218299439678285-292f3a7c-297f-4208-b019-985346c4ef7b.jpg?v=10467499079061507992" 
-  },
-  { 
-    id: 2, 
-    quantity: 2, 
-    price: 399.98, 
-    discount: 10,
-    image: "https://h00ktt-1h.myshopify.com/cdn/shop/files/gempages_559218299439678285-48536be6-1e97-4f93-beec-f90b62a0a0b5.jpg?v=4986797994953195968" 
-  },
-  { 
-    id: 3, 
-    quantity: 3, 
-    price: 599.97, 
-    discount: 20,
-    image: "https://h00ktt-1h.myshopify.com/cdn/shop/files/gempages_559218299439678285-9bda3efb-a7a6-4d37-9d5c-e9d0fd0bfb62.jpg?v=8693849955267883844" 
-  },
-  { 
-    id: 4, 
-    quantity: 4, 
-    price: 799.96, 
-    discount: 25,
-    image: "https://h00ktt-1h.myshopify.com/cdn/shop/files/gempages_559218299439678285-9bda3efb-a7a6-4d37-9d5c-e9d0fd0bfb62.jpg?v=8693849955267883844" 
-  }
-];
+const OnboardingSteps = ['language', 'welcome', 'technology', 'benefits', 'profile', 'tutorial'];
 
 const OnboardingPage = () => {
   const { translate } = useLanguage();
   const { userData, updateUserData } = useUser();
   const navigate = useNavigate();
+  const [currentStep, setCurrentStep] = useState(0);
   const [name, setName] = useState('');
   const [age, setAge] = useState('');
   const [diabetesType, setDiabetesType] = useState<string | null>(null);
-  const [selectedOffering, setSelectedOffering] = useState(productOfferings[0]);
-
-  const [currentStep, setCurrentStep] = useState(() => {
-    const onboardingComplete = localStorage.getItem('onboardingComplete');
-    
-    if (onboardingComplete === 'true') {
-      const savedStep = sessionStorage.getItem('onboardingStep');
-      if (savedStep) {
-        return parseInt(savedStep);
-      }
-      return 2;
-    }
-    
-    const savedStep = sessionStorage.getItem('onboardingStep');
-    if (savedStep) {
-      return parseInt(savedStep);
-    }
-    return 0;
-  });
-
-  useEffect(() => {
-    const savedStep = sessionStorage.getItem('onboardingStep');
-    if (savedStep) {
-      sessionStorage.removeItem('onboardingStep');
-    }
-  }, []);
 
   const goToNextStep = () => {
     if (currentStep < OnboardingSteps.length - 1) {
-      if (currentStep === 1) {
-        sessionStorage.setItem('selectedOffering', JSON.stringify(selectedOffering));
-        navigate('/checkout');
-      } else {
-        setCurrentStep(currentStep + 1);
-      }
+      setCurrentStep(currentStep + 1);
     } else {
       completeOnboarding();
     }
   };
 
   const goToPreviousStep = () => {
-    const onboardingComplete = localStorage.getItem('onboardingComplete');
-    if (onboardingComplete === 'true' && currentStep <= 2) {
-      return;
-    }
-    
     if (currentStep > 0) {
       setCurrentStep(currentStep - 1);
     }
@@ -106,7 +40,6 @@ const OnboardingPage = () => {
       age: age ? parseInt(age) : userData.age,
       diabetesType: diabetesType as any || userData.diabetesType
     });
-    localStorage.setItem('onboardingComplete', 'true');
     navigate('/home');
   };
 
@@ -114,19 +47,7 @@ const OnboardingPage = () => {
     updateUserData({
       onboarded: true
     });
-    localStorage.setItem('onboardingComplete', 'true');
     navigate('/home');
-  };
-
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD'
-    }).format(amount);
-  };
-
-  const handleProductSelect = (offering) => {
-    setSelectedOffering(offering);
   };
 
   const progressPercentage = (currentStep + 1) / OnboardingSteps.length * 100;
@@ -142,89 +63,6 @@ const OnboardingPage = () => {
             <LanguageSelector />
           </div>;
 
-      case 'purchase':
-        return <div className="text-center">
-            <h1 className="text-2xl font-bold mb-3 text-accu-tech-blue">{translate('purchaseDevice')}</h1>
-            <p className="text-gray-600 mb-4">{translate('selectOfferDescription')}</p>
-            
-            <div className="space-y-3 mb-5">
-              {productOfferings.map((offering) => {
-                const offeringPrice = offering.price;
-                const offeringDiscount = offeringPrice * (offering.discount / 100);
-                const finalPrice = offeringPrice - offeringDiscount;
-                
-                return (
-                  <div 
-                    key={offering.id}
-                    onClick={() => handleProductSelect(offering)}
-                    className={`border rounded-lg overflow-hidden transition-all cursor-pointer hover:shadow-md ${
-                      selectedOffering.id === offering.id 
-                        ? 'border-accu-tech-blue bg-accu-tech-lightest' 
-                        : 'border-gray-200'
-                    }`}
-                  >
-                    <div className="flex items-center p-3">
-                      <div className={`w-6 h-6 rounded-full flex items-center justify-center mr-3 ${
-                        selectedOffering.id === offering.id 
-                          ? 'bg-accu-tech-blue text-white' 
-                          : 'border border-gray-300'
-                      }`}>
-                        {selectedOffering.id === offering.id && <Check className="h-3 w-3" />}
-                      </div>
-                      
-                      <div className="flex-1 flex items-center">
-                        <img 
-                          src={offering.image} 
-                          alt={`${offering.quantity} ${translate('deviceName')}`}
-                          className="w-16 h-16 object-contain mr-3"
-                        />
-                        
-                        <div className="flex-1 text-left mr-3">
-                          <div className="font-medium">
-                            {offering.quantity} {offering.quantity === 1 ? translate('unit') : translate('units')}
-                          </div>
-                          {offering.discount > 0 && (
-                            <div className="text-sm text-green-700">
-                              {offering.discount}% {translate('discount')}
-                            </div>
-                          )}
-                          {offering.id === 4 && (
-                            <span className="inline-block text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full mt-1">
-                              {translate('buy3get1')}
-                            </span>
-                          )}
-                        </div>
-                        
-                        <div className="text-right">
-                          <div className="font-bold">{formatCurrency(finalPrice)}</div>
-                          {offering.discount > 0 && (
-                            <div className="text-xs text-gray-500 line-through">{formatCurrency(offeringPrice)}</div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-            
-            <div className="bg-accu-tech-lightest p-4 rounded-lg mb-4 flex items-center">
-              <ShieldCheck className="h-5 w-5 text-green-600 mr-2 flex-shrink-0" />
-              <p className="text-sm text-gray-600">
-                {translate('moneyBackGuarantee')}
-              </p>
-            </div>
-            
-            <div className="text-center mb-3">
-              <p className="text-sm text-gray-500">
-                {translate('installments', {
-                  count: 12, 
-                  value: formatCurrency(selectedOffering.price / 12)
-                })}
-              </p>
-            </div>
-          </div>;
-
       case 'welcome':
         return <div className="text-center">
             <div className="mb-6 flex justify-center">
@@ -238,7 +76,7 @@ const OnboardingPage = () => {
             <div className="w-20 h-20 rounded-full bg-accu-tech-light-blue flex items-center justify-center mx-auto mb-6">
               <Check size={40} className="text-accu-tech-blue" />
             </div>
-            <h1 className="text-3xl font-bold mb-2 text-accu-tech-blue">{translate('welcomeHeading')}</h1>
+            <h1 className="text-3xl font-bold mb-2 text-accu-tech-blue">{translate('welcome')}</h1>
             <p className="text-gray-600 mb-6">{translate('thankYouMessage')}</p>
             
             <div className="bg-accu-tech-lightest rounded-lg p-4 mb-4">
@@ -440,47 +278,33 @@ const OnboardingPage = () => {
         
         <AnimatePresence mode="wait">
           <motion.div key={currentStep} initial={{
-            opacity: 0,
-            x: 20
-          }} animate={{
-            opacity: 1,
-            x: 0
-          }} exit={{
-            opacity: 0,
-            x: -20
-          }} transition={{
-            duration: 0.3
-          }} className="bg-white rounded-xl shadow-lg p-6 mb-8">
+          opacity: 0,
+          x: 20
+        }} animate={{
+          opacity: 1,
+          x: 0
+        }} exit={{
+          opacity: 0,
+          x: -20
+        }} transition={{
+          duration: 0.3
+        }} className="bg-white rounded-xl shadow-lg p-6 mb-8">
             {renderStep()}
           </motion.div>
         </AnimatePresence>
         
         <div className="flex justify-between">
-          {currentStep > 0 && (
-            <Button 
-              variant="outline" 
-              onClick={goToPreviousStep}
-              disabled={localStorage.getItem('onboardingComplete') === 'true' && currentStep <= 2}
-            >
+          {currentStep > 0 ? <Button variant="outline" onClick={goToPreviousStep}>
               {translate('back')}
-            </Button>
-          )}
+            </Button> : <div></div>}
           
           <div className="flex space-x-2">
-            {currentStep < OnboardingSteps.length - 1 && (
-              <Button 
-                variant="ghost" 
-                onClick={skipOnboarding}
-                disabled={localStorage.getItem('onboardingComplete') === 'true' && currentStep <= 2}
-              >
+            {currentStep < OnboardingSteps.length - 1 && <Button variant="ghost" onClick={skipOnboarding}>
                 {translate('skip')}
-              </Button>
-            )}
+              </Button>}
             
             <Button className="buy-button" onClick={goToNextStep}>
-              {currentStep === 1 ? translate('proceedToPayment') : 
-               currentStep === OnboardingSteps.length - 1 ? translate('getStarted') : 
-               translate('next')}
+              {currentStep === OnboardingSteps.length - 1 ? translate('getStarted') : translate('next')}
             </Button>
           </div>
         </div>

@@ -1,30 +1,21 @@
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { CheckCircle, Package, TruckIcon } from "lucide-react";
+import { CheckCircle, Package, TruckIcon, Home } from "lucide-react";
 
 const OrderSuccessPage = () => {
   const { translate } = useLanguage();
   const navigate = useNavigate();
-
-  // Set flag in sessionStorage to indicate that onboarding should continue at step 2
-  useEffect(() => {
-    sessionStorage.setItem('onboardingStep', '2');
-  }, []);
-
-  const continueOnboarding = () => {
-    navigate('/onboarding');
-  };
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <div className="gradient-medical text-white px-4 pt-6 pb-6">
         <div className="flex items-center mb-4">
           <img src="https://accu-tech.pro/wp-content/uploads/2024/08/Accu-Tech-1.png" alt="Accu-Tech Logo" className="h-8 mr-3" />
-          <h1 className="text-xl font-bold">{translate('appName') || "Healthineers"}</h1>
+          <h1 className="text-xl font-bold">Healthineers</h1>
         </div>
       </div>
       
@@ -81,10 +72,11 @@ const OrderSuccessPage = () => {
         </p>
         
         <Button 
-          onClick={continueOnboarding}
-          className="w-full rounded-full py-3 bg-accu-tech-blue hover:bg-accu-tech-dark-blue"
+          onClick={() => navigate('/home')}
+          className="w-full rounded-full py-3"
         >
-          {translate('continueOnboarding')}
+          <Home className="mr-2 h-4 w-4" />
+          {translate('backToHome')}
         </Button>
       </div>
     </div>

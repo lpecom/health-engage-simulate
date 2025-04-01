@@ -1,30 +1,14 @@
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { ChevronLeft } from "lucide-react";
 import LanguageSelector from '@/components/LanguageSelector';
-import { useToast } from "@/components/ui/use-toast";
-import TranslatedText from '@/components/TranslatedText';
 
 const LanguagePage = () => {
   const { translate } = useLanguage();
   const navigate = useNavigate();
-  const { toast } = useToast();
-  
-  useEffect(() => {
-    // This ensures the page updates when language changes
-    document.title = translate('language');
-  }, [translate]);
-  
-  const handleSaveAndReturn = () => {
-    toast({
-      title: translate('language') + " " + translate('complete'),
-      description: translate('profileUpdated'),
-    });
-    navigate(-1);
-  };
   
   return (
     <div className="min-h-screen bg-gray-50">
@@ -39,9 +23,7 @@ const LanguagePage = () => {
           >
             <ChevronLeft className="h-5 w-5" />
           </Button>
-          <h1 className="text-xl font-bold">
-            <TranslatedText textKey="language" />
-          </h1>
+          <h1 className="text-xl font-bold">{translate('language')}</h1>
         </div>
       </div>
       
@@ -52,9 +34,9 @@ const LanguagePage = () => {
           <div className="mt-8">
             <Button 
               className="w-full"
-              onClick={handleSaveAndReturn}
+              onClick={() => navigate(-1)}
             >
-              <TranslatedText textKey="saveAndReturn" />
+              {translate('saveAndReturn')}
             </Button>
           </div>
         </div>
