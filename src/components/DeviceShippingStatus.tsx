@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -123,9 +124,9 @@ const DeviceShippingStatus: React.FC<DeviceShippingStatusProps> = ({
         <CardContent className="p-4">
           <h2 className="text-lg font-medium mb-4">{translate('connectYourDevice')}</h2>
           
-          {/* Added device image above serial number */}
+          {/* Device image showing the serial number location */}
           <div className="flex justify-center mb-4">
-            <img src="https://accu-tech.pro/wp-content/uploads/2024/08/device.png" alt="GlucoVista Device" className="w-32 h-auto rounded-lg shadow-md" />
+            <img src="/lovable-uploads/1cac334f-02fc-428e-882f-8bf9125e8be3.png" alt="Device Serial Number Location" className="w-full h-auto rounded-lg shadow-md" />
           </div>
           
           <div className="space-y-4">
@@ -134,6 +135,12 @@ const DeviceShippingStatus: React.FC<DeviceShippingStatusProps> = ({
                 {translate('deviceSerialNumber')}
               </label>
               <Input placeholder={translate('enterSerialNumber')} disabled />
+            </div>
+            
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-3">
+              <p className="text-sm text-yellow-800">
+                {translate('serialNumberLocationInfo') || "The serial number (SN) can be found on the back of your device as shown in the image above."}
+              </p>
             </div>
             
             <ol className="list-decimal pl-5 text-sm text-gray-600 space-y-2">
