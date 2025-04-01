@@ -13,13 +13,13 @@ import { useForm } from "react-hook-form";
 import { toast } from "@/hooks/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-// Import country data for dropdowns
-import { portugueseDistricts, italianRegions, spanishProvinces } from '@/data/countries';
+import { portugueseDistricts, italianRegions, spanishProvinces, germanStates, COUNTRIES, isValidPhoneForCountry } from '@/data/countries';
 
 type ShippingInfo = {
   firstName: string;
   lastName: string;
   phone: string;
+  email?: string;
   address: string;
   province: string;
   city: string;
@@ -47,20 +47,19 @@ const CheckoutPage = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [phoneError, setPhoneError] = useState<string | null>(null);
   
-  // Get country based on language
   const getCountryFromLanguage = () => {
     switch(language) {
       case 'pt': return 'PT';
       case 'it': return 'IT';
       case 'es': return 'ES';
-      default: return 'PT';
+      case 'de': return 'DE';
+      default: return 'ES';
     }
   };
   
   const [selectedCountry, setSelectedCountry] = useState(getCountryFromLanguage());
   const [cities, setCities] = useState<string[]>([]);
   
-  // Updated product options with fixed price and shipping
   const productOptions: ProductOption[] = [
     {
       id: 43154955755679,
@@ -98,6 +97,7 @@ const CheckoutPage = () => {
       firstName: '',
       lastName: '',
       phone: '',
+      email: '',
       address: '',
       province: '',
       city: '',
@@ -106,7 +106,6 @@ const CheckoutPage = () => {
     }
   });
 
-  // Update cities when province changes
   useEffect(() => {
     const province = form.watch('province');
     if (!province) return;
@@ -114,8 +113,6 @@ const CheckoutPage = () => {
     let citiesList: string[] = [];
     
     if (selectedCountry === 'PT') {
-      // In a real app, you'd fetch cities based on the district
-      // This is a simplified example with some sample cities
       const districtCities = {
         'Lisboa': ['Lisboa', 'Amadora', 'Sintra', 'Cascais'],
         'Porto': ['Porto', 'Vila Nova de Gaia', 'Matosinhos'],
@@ -123,7 +120,6 @@ const CheckoutPage = () => {
       };
       citiesList = districtCities[province as keyof typeof districtCities] || [];
     } else if (selectedCountry === 'IT') {
-      // Italian regions and some cities
       const regionCities = {
         'Lombardia': ['Milano', 'Bergamo', 'Brescia'],
         'Lazio': ['Roma', 'Viterbo', 'Frosinone'],
@@ -131,20 +127,26 @@ const CheckoutPage = () => {
       };
       citiesList = regionCities[province as keyof typeof regionCities] || [];
     } else if (selectedCountry === 'ES') {
-      // Spanish provinces and some cities
       const provinceCities = {
         'Madrid': ['Madrid', 'Alcalá de Henares', 'Móstoles'],
         'Barcelona': ['Barcelona', 'Sabadell', 'Terrassa'],
         'Valencia': ['Valencia', 'Alicante', 'Elche']
       };
       citiesList = provinceCities[province as keyof typeof provinceCities] || [];
+    } else if (selectedCountry === 'DE') {
+      const stateCities = {
+        'Bayern': ['München', 'Nürnberg', 'Augsburg'],
+        'Berlin': ['Berlin'],
+        'Hamburg': ['Hamburg'],
+        'Nordrhein-Westfalen': ['Köln', 'Düsseldorf', 'Dortmund']
+      };
+      citiesList = stateCities[province as keyof typeof stateCities] || [];
     }
     
     setCities(citiesList);
     form.setValue('city', '');
   }, [form.watch('province'), selectedCountry]);
 
-  // Set country based on language when component loads
   useEffect(() => {
     const country = getCountryFromLanguage();
     setSelectedCountry(country);
@@ -165,7 +167,6 @@ const CheckoutPage = () => {
     setStep('products');
   };
   
-  // Simplified phone validation that focuses on having enough digits
   const validatePhoneNumber = (phone: string, country: string): boolean => {
     setPhoneError(null);
     
@@ -174,19 +175,7 @@ const CheckoutPage = () => {
       return false;
     }
     
-    // Remove all non-digit characters for validation
-    const digitsOnly = phone.replace(/\D/g, '');
-    
-    // Simplified validation based on country
-    let minLength: number;
-    switch(country) {
-      case 'PT': minLength = 9; break; // Portugal mobile numbers are 9 digits
-      case 'ES': minLength = 9; break; // Spain mobile numbers are 9 digits
-      case 'IT': minLength = 10; break; // Italy mobile numbers are typically 10 digits
-      default: minLength = 9;
-    }
-    
-    if (digitsOnly.length < minLength) {
+    if (!isValidPhoneForCountry(phone, country)) {
       setPhoneError(translate('invalidPhone'));
       return false;
     }
@@ -194,15 +183,9 @@ const CheckoutPage = () => {
     return true;
   };
   
-  const formatPhoneNumber = (phone: string, country: string): string => {
-    // Let the Shopify context handle the proper E.164 formatting
-    return phone;
-  };
-  
   const onSubmit = async (data: ShippingInfo) => {
     if (!selectedProduct) return;
     
-    // Validate phone number
     if (!validatePhoneNumber(data.phone, data.country)) {
       return;
     }
@@ -212,16 +195,20 @@ const CheckoutPage = () => {
     try {
       console.log("Order submitted:", { 
         product: selectedProduct, 
-        shipping: {...data, phone: data.phone} // No formatting here, let ShopifyContext handle it
+        shipping: data
       });
       
-      await exportOrder({
+      const result = await exportOrder({
         product: selectedProduct,
-        shipping: {...data, phone: data.phone} // Pass phone as-is
+        shipping: data
       });
-      console.log("Order successfully exported to Shopify");
       
-      navigate('/order-success');
+      if (result) {
+        console.log("Order successfully exported to Shopify");
+        navigate('/order-success');
+      } else {
+        setIsProcessing(false);
+      }
     } catch (error) {
       console.error("Error processing order:", error);
       toast({
@@ -238,6 +225,7 @@ const CheckoutPage = () => {
       case 'PT': return portugueseDistricts;
       case 'IT': return italianRegions;
       case 'ES': return spanishProvinces;
+      case 'DE': return germanStates;
       default: return [];
     }
   };
@@ -462,6 +450,7 @@ const CheckoutPage = () => {
                           <SelectItem value="PT">Portugal</SelectItem>
                           <SelectItem value="ES">España</SelectItem>
                           <SelectItem value="IT">Italia</SelectItem>
+                          <SelectItem value="DE">Deutschland</SelectItem>
                         </SelectContent>
                       </Select>
                     </FormItem>
@@ -476,13 +465,36 @@ const CheckoutPage = () => {
                       <FormLabel>{translate('phone')}</FormLabel>
                       <FormControl>
                         <Input 
-                          placeholder={selectedCountry === 'PT' ? '912345678' : selectedCountry === 'IT' ? '3123456789' : '612345678'} 
+                          placeholder={
+                            selectedCountry === 'PT' ? '912345678' : 
+                            selectedCountry === 'IT' ? '3123456789' : 
+                            selectedCountry === 'DE' ? '1512345678' :
+                            '612345678'
+                          } 
                           {...field} 
                           required 
                         />
                       </FormControl>
                       {phoneError && <FormMessage>{phoneError}</FormMessage>}
                       <p className="text-xs text-gray-500 mt-1">{translate('phoneFormat')}</p>
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem className="mb-4">
+                      <FormLabel>Email</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="email" 
+                          placeholder="email@example.com" 
+                          {...field} 
+                        />
+                      </FormControl>
+                      <p className="text-xs text-gray-500 mt-1">{translate('emailOptional')}</p>
                     </FormItem>
                   )}
                 />
@@ -557,7 +569,12 @@ const CheckoutPage = () => {
                       <FormLabel>{translate('postalCode')}</FormLabel>
                       <FormControl>
                         <Input 
-                          placeholder={selectedCountry === 'PT' ? '1000-001' : selectedCountry === 'IT' ? '00100' : '28001'} 
+                          placeholder={
+                            selectedCountry === 'PT' ? '1000-001' : 
+                            selectedCountry === 'IT' ? '00100' : 
+                            selectedCountry === 'DE' ? '10115' :
+                            '28001'
+                          } 
                           {...field} 
                           required 
                         />

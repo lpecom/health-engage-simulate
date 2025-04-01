@@ -33,6 +33,7 @@ export interface CheckoutOrderData {
     postalCode: string;
     country: string;
     cost?: number;
+    email?: string;
   };
 }
 
@@ -146,21 +147,35 @@ export const ShopifyProvider: React.FC<ShopifyProviderProps> = ({ children }) =>
   const formatPhoneForShopifyAPI = (phone: string, countryCode: string): string => {
     if (!phone) return '';
     
+    console.log('Original phone:', phone, 'Country:', countryCode);
+    
     // First use our country-specific formatter
     let formatted = formatPhoneForCountry(phone, countryCode);
     
     // Then ensure it's in E.164 format (no spaces, parentheses, or other characters)
-    formatted = formatted.replace(/\s|-|\(|\)/g, '');
+    let digitsOnly = formatted.replace(/\s|-|\(|\)/g, '');
+    let hasPlus = digitsOnly.startsWith('+');
     
-    // Ensure it starts with a plus sign
-    if (!formatted.startsWith('+')) {
-      if (countryCode === 'ES') formatted = '+34' + formatted;
-      else if (countryCode === 'PT') formatted = '+351' + formatted;
-      else if (countryCode === 'IT') formatted = '+39' + formatted;
+    if (!hasPlus) {
+      digitsOnly = digitsOnly.replace(/\D/g, '');
+      
+      // Add country code based on country
+      if (countryCode === 'ES' && !digitsOnly.startsWith('34')) {
+        digitsOnly = '34' + digitsOnly;
+      } else if (countryCode === 'PT' && !digitsOnly.startsWith('351')) {
+        digitsOnly = '351' + digitsOnly;
+      } else if (countryCode === 'IT' && !digitsOnly.startsWith('39')) {
+        digitsOnly = '39' + digitsOnly;
+      } else if (countryCode === 'DE' && !digitsOnly.startsWith('49')) {
+        digitsOnly = '49' + digitsOnly;
+      }
+      
+      // Add plus sign
+      digitsOnly = '+' + digitsOnly;
     }
     
-    console.log(`Formatted phone from ${phone} to ${formatted}`);
-    return formatted;
+    console.log(`Formatted phone from ${phone} to ${digitsOnly}`);
+    return digitsOnly;
   };
   
   const exportOrder = async (orderData: CheckoutOrderData): Promise<boolean> => {
@@ -192,7 +207,8 @@ export const ShopifyProvider: React.FC<ShopifyProviderProps> = ({ children }) =>
           customer: {
             first_name: orderData.shipping.firstName,
             last_name: orderData.shipping.lastName,
-            phone: formattedPhone
+            phone: formattedPhone,
+            email: orderData.shipping.email
           },
           shipping_address: {
             first_name: orderData.shipping.firstName,

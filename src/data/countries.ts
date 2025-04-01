@@ -1,224 +1,131 @@
 
-// Portuguese districts
-export const portugueseDistricts = [
-  'Lisboa', 'Porto', 'Braga', 'Aveiro', 'Leiria', 'Faro', 'Coimbra', 
-  'Setúbal', 'Viseu', 'Viana do Castelo', 'Vila Real', 'Guarda'
-];
+// Define country-specific region data and phone validation
 
-// Italian regions
-export const italianRegions = [
-  'Lombardia', 'Lazio', 'Toscana', 'Sicilia', 'Veneto', 'Campania',
-  'Emilia-Romagna', 'Piemonte', 'Puglia', 'Calabria', 'Sardegna'
-];
+export const COUNTRIES = ['ES', 'PT', 'IT', 'DE'];
 
-// Spanish provinces
 export const spanishProvinces = [
-  'ES-01: Álava', 'ES-02: Albacete', 'ES-03: Alicante', 'ES-04: Almería', 'ES-05: Ávila',
-  'ES-06: Badajoz', 'ES-07: Baleares', 'ES-08: Barcelona', 'ES-09: Burgos', 'ES-10: Cáceres',
-  'ES-11: Cádiz', 'ES-12: Castellón', 'ES-13: Ciudad Real', 'ES-14: Córdoba', 'ES-15: Coruña',
-  'ES-16: Cuenca', 'ES-17: Gerona', 'ES-18: Granada', 'ES-19: Guadalajara', 'ES-20: Guipúzcoa',
-  'ES-21: Huelva', 'ES-22: Huesca', 'ES-23: Jaén', 'ES-24: León', 'ES-25: Lérida',
-  'ES-26: La Rioja', 'ES-27: Lugo', 'ES-28: Madrid', 'ES-29: Málaga', 'ES-30: Murcia',
-  'ES-31: Navarra', 'ES-32: Orense', 'ES-33: Asturias', 'ES-34: Palencia', 'ES-35: Las Palmas',
-  'ES-36: Pontevedra', 'ES-37: Salamanca', 'ES-38: Santa Cruz de Tenerife', 'ES-39: Cantabria', 'ES-40: Segovia',
-  'ES-41: Sevilla', 'ES-42: Soria', 'ES-43: Tarragona', 'ES-44: Teruel', 'ES-45: Toledo',
-  'ES-46: Valencia', 'ES-47: Valladolid', 'ES-48: Vizcaya', 'ES-49: Zamora', 'ES-50: Zaragoza',
-  'ES-51: Ceuta', 'ES-52: Melilla'
+  'Álava', 'Albacete', 'Alicante', 'Almería', 'Asturias', 'Ávila', 'Badajoz', 
+  'Barcelona', 'Burgos', 'Cáceres', 'Cádiz', 'Cantabria', 'Castellón', 'Ciudad Real', 
+  'Córdoba', 'Cuenca', 'Girona', 'Granada', 'Guadalajara', 'Guipúzcoa', 'Huelva', 
+  'Huesca', 'Islas Baleares', 'Jaén', 'La Coruña', 'La Rioja', 'Las Palmas', 
+  'León', 'Lérida', 'Lugo', 'Madrid', 'Málaga', 'Murcia', 'Navarra', 'Orense', 
+  'Palencia', 'Pontevedra', 'Salamanca', 'Santa Cruz de Tenerife', 'Segovia', 
+  'Sevilla', 'Soria', 'Tarragona', 'Teruel', 'Toledo', 'Valencia', 'Valladolid', 
+  'Vizcaya', 'Zamora', 'Zaragoza'
 ];
 
-// Region interface for structured region data
-export interface Region {
-  code: string;
-  name: string;
-  cities?: string[];
-}
+export const portugueseDistricts = [
+  'Aveiro', 'Beja', 'Braga', 'Bragança', 'Castelo Branco', 'Coimbra', 'Évora', 
+  'Faro', 'Guarda', 'Leiria', 'Lisboa', 'Portalegre', 'Porto', 'Santarém', 
+  'Setúbal', 'Viana do Castelo', 'Vila Real', 'Viseu', 'Açores', 'Madeira'
+];
 
-// Country-specific data including dial codes and pricing
-export interface CountryData {
-  code: string;
-  name: string;
-  dialCode: string;
-  format: string;
-  phoneFormat: string;
-  regions: Region[];
-  phoneRegex: RegExp;
-  shipping: number;
-  shippingCost: number; // Alias for shipping to maintain compatibility
-  currency: string;
-  vatRate: number;
-  productPrice: number;
-  formatPhoneNumber: (phone: string) => string;
-}
+export const italianRegions = [
+  'Abruzzo', 'Basilicata', 'Calabria', 'Campania', 'Emilia-Romagna', 
+  'Friuli-Venezia Giulia', 'Lazio', 'Liguria', 'Lombardia', 'Marche', 
+  'Molise', 'Piemonte', 'Puglia', 'Sardegna', 'Sicilia', 'Toscana', 
+  'Trentino-Alto Adige', 'Umbria', 'Valle d\'Aosta', 'Veneto'
+];
 
-// Country codes map
-export interface CountryMap {
-  [key: string]: CountryData;
-}
+export const germanStates = [
+  'Baden-Württemberg', 'Bayern', 'Berlin', 'Brandenburg', 'Bremen', 'Hamburg', 
+  'Hessen', 'Mecklenburg-Vorpommern', 'Niedersachsen', 'Nordrhein-Westfalen', 
+  'Rheinland-Pfalz', 'Saarland', 'Sachsen', 'Sachsen-Anhalt', 'Schleswig-Holstein', 'Thüringen'
+];
 
-// Helper function to format Spanish phone numbers
-const formatSpanishPhone = (phone: string): string => {
-  if (!phone) return '';
-  
-  // Remove all non-digit characters
-  const digitsOnly = phone.replace(/\D/g, '');
-  
-  // Check if it already has country code
-  if (digitsOnly.startsWith('34')) {
-    return `+${digitsOnly}`;
-  }
-  
-  // Add country code if not present
-  return `+34${digitsOnly}`;
-};
-
-// Helper function to format Portuguese phone numbers
-const formatPortuguesePhone = (phone: string): string => {
-  if (!phone) return '';
-  
-  // Remove all non-digit characters
-  const digitsOnly = phone.replace(/\D/g, '');
-  
-  // Check if it already has country code
-  if (digitsOnly.startsWith('351')) {
-    return `+${digitsOnly}`;
-  }
-  
-  // Add country code if not present
-  return `+351${digitsOnly}`;
-};
-
-// Helper function to format Italian phone numbers
-const formatItalianPhone = (phone: string): string => {
-  if (!phone) return '';
-  
-  // Remove all non-digit characters
-  const digitsOnly = phone.replace(/\D/g, '');
-  
-  // Check if it already has country code
-  if (digitsOnly.startsWith('39')) {
-    return `+${digitsOnly}`;
-  }
-  
-  // Add country code if not present
-  return `+39${digitsOnly}`;
-};
-
-// Convert simple region arrays to structured regions
-const structuredSpanishRegions = spanishProvinces.map(province => {
-  const code = province.split(':')[0].trim();
-  const name = province.split(':')[1].trim();
-  return {
-    code,
-    name,
-    cities: [`${name} Town`, `${name} City`, `${name} Village`] // Sample cities for demo
-  };
-});
-
-const structuredPortugueseRegions = portugueseDistricts.map((district, index) => {
-  return {
-    code: `PT-${index + 1}`,
-    name: district,
-    cities: [`${district} Town`, `${district} City`, `${district} Village`] // Sample cities for demo
-  };
-});
-
-const structuredItalianRegions = italianRegions.map((region, index) => {
-  return {
-    code: `IT-${index + 1}`,
-    name: region,
-    cities: [`${region} Town`, `${region} City`, `${region} Village`] // Sample cities for demo
-  };
-});
-
-// Export country codes map with structured regions
-export const COUNTRIES: CountryMap = {
-  'ES': {
-    code: 'ES',
-    name: 'España',
-    dialCode: '+34',
-    format: '+34 XXX XXX XXX',
-    phoneFormat: '+34 XXX XXX XXX',
-    regions: structuredSpanishRegions,
-    phoneRegex: /^\+34[6-9]\d{8}$/,
-    shipping: 3,
-    shippingCost: 3,
-    currency: 'EUR',
-    vatRate: 21,
-    productPrice: 49,
-    formatPhoneNumber: formatSpanishPhone
-  },
-  'PT': {
-    code: 'PT',
-    name: 'Portugal',
-    dialCode: '+351',
-    format: '+351 XXX XXX XXX',
-    phoneFormat: '+351 XXX XXX XXX',
-    regions: structuredPortugueseRegions,
-    phoneRegex: /^\+351[9]\d{8}$/,
-    shipping: 3,
-    shippingCost: 3,
-    currency: 'EUR',
-    vatRate: 23,
-    productPrice: 49,
-    formatPhoneNumber: formatPortuguesePhone
-  },
-  'IT': {
-    code: 'IT',
-    name: 'Italia',
-    dialCode: '+39',
-    format: '+39 XXX XXX XXXX',
-    phoneFormat: '+39 XXX XXX XXXX',
-    regions: structuredItalianRegions,
-    phoneRegex: /^\+39[3]\d{9}$/,
-    shipping: 5,
-    shippingCost: 5,
-    currency: 'EUR',
-    vatRate: 22,
-    productPrice: 59,
-    formatPhoneNumber: formatItalianPhone
-  }
-};
-
-// Helper function to format a phone number according to country
+/**
+ * Formats a phone number based on the country
+ */
 export function formatPhoneForCountry(phone: string, countryCode: string): string {
-  if (!phone || !countryCode || !COUNTRIES[countryCode]) {
-    return phone;
+  if (!phone) return '';
+  
+  // Clean the phone number first
+  let cleaned = phone.replace(/[^\d+]/g, '');
+  
+  // If it already has a plus sign, respect it
+  if (cleaned.startsWith('+')) {
+    return cleaned;
   }
   
-  return COUNTRIES[countryCode].formatPhoneNumber(phone);
-}
-
-// Helper function to validate phone number by country
-export function isValidPhoneForCountry(phone: string, countryCode: string): boolean {
-  if (!phone || !countryCode || !COUNTRIES[countryCode]) {
-    return false;
-  }
-  
-  return COUNTRIES[countryCode].phoneRegex.test(phone);
-}
-
-// Helper function to get default country based on language
-export function getDefaultCountryByLanguage(language: string): string {
-  switch(language) {
-    case 'es': return 'ES';
-    case 'pt': return 'PT';
-    case 'it': return 'IT';
-    default: return 'ES';
-  }
-}
-
-// Helper function to get region label based on language
-export function getRegionLabel(countryCode: string): string {
+  // Format by country
   switch(countryCode) {
-    case 'ES': return 'Provincia';
-    case 'PT': return 'Distrito';
-    case 'IT': return 'Regione';
-    default: return 'Region';
+    case 'ES': // Spain (+34)
+      if (cleaned.startsWith('34')) {
+        return `+${cleaned}`;
+      }
+      return `+34${cleaned}`;
+    
+    case 'PT': // Portugal (+351)
+      if (cleaned.startsWith('351')) {
+        return `+${cleaned}`;
+      }
+      return `+351${cleaned}`;
+    
+    case 'IT': // Italy (+39)
+      if (cleaned.startsWith('39')) {
+        return `+${cleaned}`;
+      }
+      return `+39${cleaned}`;
+      
+    case 'DE': // Germany (+49)
+      if (cleaned.startsWith('49')) {
+        return `+${cleaned}`;
+      }
+      return `+49${cleaned}`;
+    
+    default:
+      // If not a recognized country code, just add a plus sign if not present
+      return `+${cleaned}`;
   }
 }
 
-// Export country list for dropdowns
-export const COUNTRY_LIST = Object.values(COUNTRIES).map(country => ({
-  code: country.code,
-  name: country.name
-}));
+/**
+ * Validates a phone number for a specific country
+ */
+export function isValidPhoneForCountry(phone: string, countryCode: string): boolean {
+  if (!phone) return false;
+  
+  // Clean the phone number first
+  let cleaned = phone.replace(/[^\d+]/g, '');
+  
+  // Remove the plus sign and country code if present
+  if (cleaned.startsWith('+')) {
+    cleaned = cleaned.substring(1);
+  }
+  
+  // Country-specific validation
+  switch (countryCode) {
+    case 'ES': // Spain
+      // Spanish mobile numbers start with 6 or 7 and have 9 digits
+      if (cleaned.startsWith('34')) {
+        cleaned = cleaned.substring(2);
+      }
+      return (cleaned.startsWith('6') || cleaned.startsWith('7')) && cleaned.length === 9;
+      
+    case 'PT': // Portugal
+      // Portuguese mobile numbers start with 9 and have 9 digits
+      if (cleaned.startsWith('351')) {
+        cleaned = cleaned.substring(3);
+      }
+      return cleaned.startsWith('9') && cleaned.length === 9;
+      
+    case 'IT': // Italy
+      // Italian mobile numbers start with 3 and typically have 10 digits
+      if (cleaned.startsWith('39')) {
+        cleaned = cleaned.substring(2);
+      }
+      return cleaned.startsWith('3') && cleaned.length === 10;
+      
+    case 'DE': // Germany
+      // German mobile numbers start with 15, 16, 17 and typically have 10-11 digits after country code
+      if (cleaned.startsWith('49')) {
+        cleaned = cleaned.substring(2);
+      }
+      return (cleaned.startsWith('15') || cleaned.startsWith('16') || cleaned.startsWith('17')) && 
+             (cleaned.length >= 10 && cleaned.length <= 11);
+      
+    default:
+      // Generic validation - at least 9 digits
+      return cleaned.length >= 9;
+  }
+}

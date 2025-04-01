@@ -20,46 +20,57 @@ const corsHeaders = {
   'Content-Type': 'application/json',
 };
 
-// Clean phone number to E.164 format (required by Shopify API)
+// Enhanced phone number formatting to E.164 format (required by Shopify API)
 function formatPhoneToE164(phone: string): string {
   if (!phone) return '';
   
+  console.log('Formatting phone number:', phone);
+  
+  // Remove all non-digit characters except the plus sign at the beginning
+  let formattedPhone = phone.trim();
+  let hasPlus = formattedPhone.startsWith('+');
+  
   // Remove all non-digit characters
-  let digitsOnly = phone.replace(/\D/g, '');
+  let digitsOnly = formattedPhone.replace(/\D/g, '');
   
-  // Ensure the phone number starts with a plus sign
-  if (phone.startsWith('+')) {
+  // Detect country code and format properly
+  if (hasPlus) {
+    // Phone already has a plus, just ensure proper format
     return `+${digitsOnly}`;
-  }
+  } 
   
-  // Detect country code from the first digits
-  if (digitsOnly.startsWith('34')) {
-    return `+${digitsOnly}`; // Spain
-  } else if (digitsOnly.startsWith('351')) {
-    return `+${digitsOnly}`; // Portugal
-  } else if (digitsOnly.startsWith('39')) {
-    return `+${digitsOnly}`; // Italy
+  // Try to detect country code from the number pattern
+  if (digitsOnly.startsWith('34') && (digitsOnly.length === 11 || digitsOnly.length === 9)) {
+    // Spain (+34) - either already has country code (11 digits) or just the local part (9 digits)
+    return digitsOnly.length === 9 ? `+34${digitsOnly}` : `+${digitsOnly}`;
+  } else if (digitsOnly.startsWith('351') && (digitsOnly.length === 12 || digitsOnly.length === 9)) {
+    // Portugal (+351) - either already has country code (12 digits) or just the local part (9 digits)
+    return digitsOnly.length === 9 ? `+351${digitsOnly}` : `+${digitsOnly}`;
+  } else if (digitsOnly.startsWith('39') && (digitsOnly.length === 11 || digitsOnly.length === 10)) {
+    // Italy (+39) - either already has country code (11-12 digits) or just the local part (10 digits)
+    return digitsOnly.length === 10 ? `+39${digitsOnly}` : `+${digitsOnly}`;
+  } else if (digitsOnly.startsWith('49') && (digitsOnly.length === 11 || digitsOnly.length === 10)) {
+    // Germany (+49) - either already has country code or just the local part
+    return digitsOnly.length === 10 ? `+49${digitsOnly}` : `+${digitsOnly}`;
   } else if (digitsOnly.length === 9) {
-    // For Spain, standard mobile numbers are 9 digits
+    // Generic 9-digit number - assume Spanish by default
     if (digitsOnly.startsWith('6') || digitsOnly.startsWith('7')) {
-      return `+34${digitsOnly}`; 
+      return `+34${digitsOnly}`; // Spanish mobile
+    } else if (digitsOnly.startsWith('9')) {
+      return `+351${digitsOnly}`; // Portuguese mobile
+    } else {
+      return `+34${digitsOnly}`; // Default to Spanish
     }
-    // For Portugal, standard mobile numbers are 9 digits and start with 9
-    else if (digitsOnly.startsWith('9')) {
-      return `+351${digitsOnly}`;
-    }
-    // Default to Spain for 9-digit numbers
-    return `+34${digitsOnly}`;
   } else if (digitsOnly.length === 10) {
-    // Italy mobile numbers are typically 10 digits and start with 3
+    // Generic 10-digit number - assume Italian by default
     if (digitsOnly.startsWith('3')) {
-      return `+39${digitsOnly}`;
+      return `+39${digitsOnly}`; // Italian mobile
+    } else {
+      return `+${digitsOnly}`; // Just add plus
     }
-    // Default to international format
-    return `+${digitsOnly}`;
   }
   
-  // If we can't determine the format, just ensure it has a plus sign
+  // If we can't determine the specific format, ensure it has a plus sign
   return `+${digitsOnly}`;
 }
 
@@ -196,19 +207,25 @@ serve(async (req) => {
         // Format phone numbers in the proper E.164 format (strict format required by Shopify API)
         if (orderPayload.order.customer && orderPayload.order.customer.phone) {
           orderPayload.order.customer.phone = formatPhoneToE164(orderPayload.order.customer.phone);
-          
-          // Strip out any spaces, parentheses, or dashes that might be in the formatted number
-          orderPayload.order.customer.phone = orderPayload.order.customer.phone.replace(/\s|-|\(|\)/g, '');
+          console.log('Formatted customer phone:', orderPayload.order.customer.phone);
         }
         
         if (orderPayload.order.shipping_address && orderPayload.order.shipping_address.phone) {
           orderPayload.order.shipping_address.phone = formatPhoneToE164(orderPayload.order.shipping_address.phone);
-          
-          // Strip out any spaces, parentheses, or dashes that might be in the formatted number
-          orderPayload.order.shipping_address.phone = orderPayload.order.shipping_address.phone.replace(/\s|-|\(|\)/g, '');
+          console.log('Formatted shipping address phone:', orderPayload.order.shipping_address.phone);
         }
         
-        console.log('Formatted order payload:', JSON.stringify(orderPayload));
+        // Add email if not present (Shopify requires either email or phone)
+        if (!orderPayload.order.customer.email) {
+          // Generate a placeholder email based on name and domain
+          const firstName = orderPayload.order.customer.first_name || 'customer';
+          const lastName = orderPayload.order.customer.last_name || 'customer';
+          const timestamp = new Date().getTime();
+          orderPayload.order.customer.email = `${firstName.toLowerCase()}.${lastName.toLowerCase()}.${timestamp}@placeholder.com`;
+          console.log('Generated placeholder email:', orderPayload.order.customer.email);
+        }
+        
+        console.log('Final order payload:', JSON.stringify(orderPayload));
         
         const response = await fetch(`${apiUrl}/orders.json`, {
           method: 'POST',
