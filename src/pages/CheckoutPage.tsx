@@ -8,8 +8,10 @@ import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useShopify } from "@/contexts/ShopifyContext";
 import { ChevronLeft, Check, Clock, ShieldCheck } from "lucide-react";
 import { useForm } from "react-hook-form";
+import { useToast } from "@/components/ui/use-toast";
 
 type ShippingInfo = {
   firstName: string;
@@ -34,8 +36,11 @@ type ProductOption = {
 const CheckoutPage = () => {
   const { translate, language } = useLanguage();
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const { isConfigured, exportOrder } = useShopify();
   const [step, setStep] = useState<'products' | 'shipping'>('products');
   const [selectedProduct, setSelectedProduct] = useState<ProductOption | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
   
   const productOptions: ProductOption[] = [
     {
@@ -45,7 +50,7 @@ const CheckoutPage = () => {
       originalPrice: 75.80,
       units: 1,
       discount: "30% OFF",
-      installments: `${translate('installments', { count: 12, value: '€3.75' })}`
+      installments: translate('installments', { count: 12, value: '€3.75' })
     },
     {
       id: 2,
@@ -54,7 +59,7 @@ const CheckoutPage = () => {
       originalPrice: 118.00,
       units: 2,
       discount: "50% OFF",
-      installments: `${translate('installments', { count: 12, value: '€4.92' })}`
+      installments: translate('installments', { count: 12, value: '€4.92' })
     },
     {
       id: 3,
@@ -62,7 +67,7 @@ const CheckoutPage = () => {
       price: 69.00,
       originalPrice: 118.00,
       units: 3,
-      discount: `${translate('buy3get1')}`
+      discount: translate('buy3get1')
     }
   ];
   
@@ -92,12 +97,33 @@ const CheckoutPage = () => {
     setStep('products');
   };
   
-  const onSubmit = (data: ShippingInfo) => {
-    // Here you would typically send the order to your backend
-    console.log("Order submitted:", { product: selectedProduct, shipping: data });
+  const onSubmit = async (data: ShippingInfo) => {
+    if (!selectedProduct) return;
     
-    // Navigate to a success page or show a success message
-    navigate('/order-success');
+    setIsProcessing(true);
+    
+    try {
+      console.log("Order submitted:", { product: selectedProduct, shipping: data });
+      
+      // Send order to Shopify if configured
+      if (isConfigured) {
+        await exportOrder({
+          product: selectedProduct,
+          shipping: data
+        });
+      }
+      
+      // Navigate to success page regardless of Shopify integration
+      navigate('/order-success');
+    } catch (error) {
+      console.error("Error processing order:", error);
+      toast({
+        title: translate('orderError'),
+        description: translate('orderErrorDesc'),
+        variant: "destructive",
+      });
+      setIsProcessing(false);
+    }
   };
 
   // Product selection step
@@ -375,9 +401,20 @@ const CheckoutPage = () => {
                 <span className="font-bold">€{selectedProduct?.price.toFixed(2)}</span>
               </div>
               
-              <Button type="submit" className="w-full bg-black text-white rounded-full py-3">
-                {translate('finishOrder')}
+              <Button 
+                type="submit" 
+                className="w-full bg-black text-white rounded-full py-3"
+                disabled={isProcessing}
+              >
+                {isProcessing ? translate('processing') : translate('finishOrder')}
               </Button>
+              
+              {isConfigured && (
+                <div className="flex items-center justify-center mt-3 text-xs text-gray-500 gap-1">
+                  <ShieldCheck className="h-3 w-3" />
+                  <span>{translate('shopifyIntegrated')}</span>
+                </div>
+              )}
             </div>
           </form>
         </Form>
