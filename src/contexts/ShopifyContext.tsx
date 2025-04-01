@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { toast } from "@/hooks/use-toast"; // Import directly from hooks/use-toast
 import { supabase } from '@/integrations/supabase/client';
@@ -141,24 +142,58 @@ export const ShopifyProvider: React.FC<ShopifyProviderProps> = ({ children }) =>
     }
   };
   
-  const cleanPhoneNumber = (phone: string, countryCode: string): string => {
+  // Improved phone number formatter that handles country-specific formats
+  const formatPhoneNumber = (phone: string, countryCode: string): string => {
     if (!phone) return '';
     
-    let cleaned = phone.replace(/\D/g, '');
+    // First, clean the input by removing all non-digit characters
+    let digits = phone.replace(/\D/g, '');
     
-    if (countryCode && COUNTRIES[countryCode]) {
-      const countryDialCode = countryCode === 'ES' ? '34' : 
-                             countryCode === 'PT' ? '351' : 
-                             countryCode === 'IT' ? '39' : '';
-      
-      if (countryDialCode && !cleaned.startsWith(countryDialCode)) {
-        cleaned = countryDialCode + cleaned;
-      }
-      
-      return '+' + cleaned;
+    // Handle country-specific formatting
+    const formatByCountry = {
+      'ES': (digits: string) => {
+        // Spain uses +34 followed by 9 digits
+        if (digits.startsWith('34')) {
+          return `+${digits}`;
+        } else {
+          return `+34${digits}`;
+        }
+      },
+      'PT': (digits: string) => {
+        // Portugal uses +351 followed by 9 digits
+        if (digits.startsWith('351')) {
+          return `+${digits}`;
+        } else {
+          return `+351${digits}`;
+        }
+      },
+      'IT': (digits: string) => {
+        // Italy uses +39 followed by mobile numbers typically 10 digits
+        if (digits.startsWith('39')) {
+          return `+${digits}`;
+        } else {
+          return `+39${digits}`;
+        }
+      },
+      // Add more countries as needed
+    };
+    
+    // If we have a formatter for this country, use it
+    if (countryCode && formatByCountry[countryCode]) {
+      return formatByCountry[countryCode](digits);
     }
     
-    return cleaned.startsWith('+') ? cleaned : '+' + cleaned;
+    // Default international handling for other countries
+    if (digits.startsWith('00')) {
+      // Convert 00 international prefix to +
+      return '+' + digits.substring(2);
+    } else if (!phone.startsWith('+')) {
+      // If no + and no country code detected, add +
+      return '+' + digits;
+    }
+    
+    // Already has a + prefix
+    return '+' + digits;
   };
   
   const exportOrder = async (orderData: CheckoutOrderData): Promise<boolean> => {
@@ -172,10 +207,11 @@ export const ShopifyProvider: React.FC<ShopifyProviderProps> = ({ children }) =>
     }
     
     try {
-      const e164Phone = cleanPhoneNumber(orderData.shipping.phone, orderData.shipping.country);
+      // Format phone number according to E.164 standard required by Shopify
+      const formattedPhone = formatPhoneNumber(orderData.shipping.phone, orderData.shipping.country);
       
       console.log('Original phone:', orderData.shipping.phone);
-      console.log('Formatted E.164 phone:', e164Phone);
+      console.log('Formatted E.164 phone:', formattedPhone);
       
       const payload: ShopifyOrderPayload = {
         order: {
@@ -189,7 +225,7 @@ export const ShopifyProvider: React.FC<ShopifyProviderProps> = ({ children }) =>
           customer: {
             first_name: orderData.shipping.firstName,
             last_name: orderData.shipping.lastName,
-            phone: e164Phone
+            phone: formattedPhone
           },
           shipping_address: {
             first_name: orderData.shipping.firstName,
@@ -199,7 +235,7 @@ export const ShopifyProvider: React.FC<ShopifyProviderProps> = ({ children }) =>
             province: orderData.shipping.province,
             zip: orderData.shipping.postalCode,
             country: orderData.shipping.country,
-            phone: e164Phone
+            phone: formattedPhone
           },
           financial_status: 'pending',
           send_receipt: true,
@@ -254,7 +290,7 @@ export const ShopifyProvider: React.FC<ShopifyProviderProps> = ({ children }) =>
             total_price: orderData.product.price * orderData.product.units,
             customer_name: orderData.shipping.firstName,
             customer_surname: orderData.shipping.lastName,
-            customer_phone: e164Phone,
+            customer_phone: formattedPhone,
             customer_address: orderData.shipping.address,
             province: orderData.shipping.province,
             city: orderData.shipping.city,

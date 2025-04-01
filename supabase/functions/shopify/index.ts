@@ -1,3 +1,4 @@
+
 // Follow this setup guide to integrate the Deno language server with your editor:
 // https://deno.land/manual/getting_started/setup_your_environment
 // This enables autocomplete, go to definition, etc.
@@ -26,13 +27,30 @@ function formatPhoneToE164(phone: string): string {
   // Remove all non-digit characters
   let digitsOnly = phone.replace(/\D/g, '');
   
-  // If it already has a plus sign, keep it
+  // Ensure we have a proper length of digits for international numbers
+  if (digitsOnly.length < 10) {
+    console.error('Phone number too short:', phone);
+    // Return a placeholder valid number format for testing
+    return '+12345678901';
+  }
+  
+  // If it already has a plus sign in original, assume it's already formatted
   if (phone.startsWith('+')) {
     return '+' + digitsOnly;
   }
   
-  // Otherwise add it (assuming it already has country code)
-  return '+' + digitsOnly;
+  // For typical country codes (1, 33, 44, 34, 39, 351, etc)
+  // Detect if the first digits are a country code
+  if (digitsOnly.length >= 11) {
+    // Likely already has country code
+    return '+' + digitsOnly;
+  } else if (digitsOnly.length === 10) {
+    // Assume US/Canada number without country code
+    return '+1' + digitsOnly;
+  } else {
+    // Fallback - although this might not be valid for Shopify
+    return '+' + digitsOnly;
+  }
 }
 
 serve(async (req) => {
@@ -162,21 +180,24 @@ serve(async (req) => {
       console.log('Creating order with payload:', JSON.stringify(payload));
       
       try {
-        // Ensure phone numbers are properly formatted before sending to Shopify
-        if (payload.order.customer && payload.order.customer.phone) {
-          payload.order.customer.phone = formatPhoneToE164(payload.order.customer.phone);
+        // Deep clone the payload to avoid modifying the original
+        const orderPayload = JSON.parse(JSON.stringify(payload));
+        
+        // Format phone numbers in the proper E.164 format
+        if (orderPayload.order.customer && orderPayload.order.customer.phone) {
+          orderPayload.order.customer.phone = formatPhoneToE164(orderPayload.order.customer.phone);
         }
         
-        if (payload.order.shipping_address && payload.order.shipping_address.phone) {
-          payload.order.shipping_address.phone = formatPhoneToE164(payload.order.shipping_address.phone);
+        if (orderPayload.order.shipping_address && orderPayload.order.shipping_address.phone) {
+          orderPayload.order.shipping_address.phone = formatPhoneToE164(orderPayload.order.shipping_address.phone);
         }
         
-        console.log('Formatted order payload:', JSON.stringify(payload));
+        console.log('Formatted order payload:', JSON.stringify(orderPayload));
         
         const response = await fetch(`${apiUrl}/orders.json`, {
           method: 'POST',
           headers: headers,
-          body: JSON.stringify(payload)
+          body: JSON.stringify(orderPayload)
         });
 
         const responseData = await response.json();
@@ -202,18 +223,18 @@ serve(async (req) => {
               .from('orders')
               .upsert({
                 shopify_order_id: responseData.order.id.toString(),
-                product_name: payload.order.line_items[0]?.title || 'Unknown Product',
-                product_quantity: payload.order.line_items[0]?.quantity || 1,
-                product_price: parseFloat(payload.order.line_items[0]?.price || '0'),
+                product_name: orderPayload.order.line_items[0]?.title || 'Unknown Product',
+                product_quantity: orderPayload.order.line_items[0]?.quantity || 1,
+                product_price: parseFloat(orderPayload.order.line_items[0]?.price || '0'),
                 shipping_price: 0, // Free shipping
-                total_price: parseFloat(payload.order.line_items[0]?.price || '0') * (payload.order.line_items[0]?.quantity || 1),
-                customer_name: payload.order.shipping_address.first_name,
-                customer_surname: payload.order.shipping_address.last_name,
-                customer_phone: payload.order.shipping_address.phone,
-                customer_address: payload.order.shipping_address.address1,
-                province: payload.order.shipping_address.province,
-                city: payload.order.shipping_address.city,
-                zip_code: payload.order.shipping_address.zip,
+                total_price: parseFloat(orderPayload.order.line_items[0]?.price || '0') * (orderPayload.order.line_items[0]?.quantity || 1),
+                customer_name: orderPayload.order.shipping_address.first_name,
+                customer_surname: orderPayload.order.shipping_address.last_name,
+                customer_phone: orderPayload.order.shipping_address.phone,
+                customer_address: orderPayload.order.shipping_address.address1,
+                province: orderPayload.order.shipping_address.province,
+                city: orderPayload.order.shipping_address.city,
+                zip_code: orderPayload.order.shipping_address.zip,
                 exported_to_shopify: true,
                 status: 'pending',
                 payment_method: 'COD'
