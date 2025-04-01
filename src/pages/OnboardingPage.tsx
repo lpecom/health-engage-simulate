@@ -56,7 +56,6 @@ const OnboardingPage = () => {
     if (onboardingComplete === 'true') {
       const savedStep = sessionStorage.getItem('onboardingStep');
       if (savedStep) {
-        sessionStorage.removeItem('onboardingStep');
         return parseInt(savedStep);
       }
       return 2;
@@ -64,11 +63,17 @@ const OnboardingPage = () => {
     
     const savedStep = sessionStorage.getItem('onboardingStep');
     if (savedStep) {
-      sessionStorage.removeItem('onboardingStep');
       return parseInt(savedStep);
     }
     return 0;
   });
+
+  useEffect(() => {
+    const savedStep = sessionStorage.getItem('onboardingStep');
+    if (savedStep) {
+      sessionStorage.removeItem('onboardingStep');
+    }
+  }, []);
 
   const goToNextStep = () => {
     if (currentStep < OnboardingSteps.length - 1) {
@@ -112,13 +117,6 @@ const OnboardingPage = () => {
     localStorage.setItem('onboardingComplete', 'true');
     navigate('/home');
   };
-
-  useEffect(() => {
-    const onboardingComplete = localStorage.getItem('onboardingComplete');
-    if (onboardingComplete === 'true' && currentStep < 2) {
-      setCurrentStep(2);
-    }
-  }, [currentStep]);
 
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-US', {

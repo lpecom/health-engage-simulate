@@ -165,7 +165,7 @@ const CheckoutPage = () => {
     // Short timeout to simulate order processing
     setTimeout(() => {
       setOrderProcessing(false);
-      navigate('/onboarding');
+      navigate('/order-success');
     }, 500);
   };
 

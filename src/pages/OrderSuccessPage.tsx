@@ -10,9 +10,9 @@ const OrderSuccessPage = () => {
   const { translate } = useLanguage();
   const navigate = useNavigate();
 
-  // Set flag in sessionStorage to indicate that onboarding should continue at step 3
+  // Set flag in sessionStorage to indicate that onboarding should continue at step 2
   useEffect(() => {
-    sessionStorage.setItem('onboardingStep', '3');
+    sessionStorage.setItem('onboardingStep', '2');
   }, []);
 
   const continueOnboarding = () => {
@@ -24,7 +24,7 @@ const OrderSuccessPage = () => {
       <div className="gradient-medical text-white px-4 pt-6 pb-6">
         <div className="flex items-center mb-4">
           <img src="https://accu-tech.pro/wp-content/uploads/2024/08/Accu-Tech-1.png" alt="Accu-Tech Logo" className="h-8 mr-3" />
-          <h1 className="text-xl font-bold">Healthineers</h1>
+          <h1 className="text-xl font-bold">{translate('appName') || "Healthineers"}</h1>
         </div>
       </div>
       

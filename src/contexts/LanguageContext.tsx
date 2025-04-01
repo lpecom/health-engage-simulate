@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useCallback } from 'react';
 
 const LanguageContext = createContext({
@@ -39,6 +38,7 @@ export const LanguageProvider = ({ children }) => {
       getStarted: "Get Started",
       proceedToPayment: "Proceed to Payment",
       selectOfferDescription: "Choose the perfect package for your needs",
+      appName: "Healthineers",
       
       // Device
       deviceName: "Accu-Tech Laser Glucometer",
@@ -88,6 +88,31 @@ export const LanguageProvider = ({ children }) => {
       delivery: "Delivery",
       today: "Today",
       days: "days",
+      
+      // Order Success Page
+      orderConfirmed: "Order Confirmed!",
+      orderThankYou: "Thank you for your purchase. Your order has been confirmed.",
+      deliveryStatus: "Delivery Status",
+      orderPlaced: "Order Placed",
+      shipping: "Shipping",
+      estimatedProcess: "1-2 business days",
+      estimatedDelivery: "Expected in 2-4 business days",
+      orderConfirmationEmail: "We've sent you an email with your order details.",
+      continueOnboarding: "Continue Setup",
+      
+      // Home Page
+      hello: "Hello",
+      points: "Points",
+      streak: "Streak",
+      readings: "Readings",
+      home: "Home",
+      profile: "Profile",
+      learnAboutGlucoVista: "Learn About Accu-Tech",
+      howitworks: "How It Works",
+      benefits: "Benefits",
+      safety: "Safety",
+      achievementUnlocked: "Achievement Unlocked!",
+      buyNow: "Buy Now",
       
       // Onboarding
       purchaseDevice: "Purchase Your Device",
@@ -148,6 +173,7 @@ export const LanguageProvider = ({ children }) => {
       getStarted: "Comenzar",
       proceedToPayment: "Proceder al Pago",
       selectOfferDescription: "Elige el paquete perfecto para tus necesidades",
+      appName: "Healthineers",
       
       // Language
       language: "Idioma",
@@ -206,53 +232,18 @@ export const LanguageProvider = ({ children }) => {
       today: "Hoy",
       days: "días",
       
-      // Onboarding
-      purchaseDevice: "Compra Tu Dispositivo",
-      welcomeHeading: "¡Bienvenido a Accu-Tech!",
-      thankYouMessage: "Gracias por elegir nuestra innovadora solución de monitoreo de glucosa sin sangre.",
-      userTestimonial: "Desde que comencé a usar el Glucómetro Láser Accu-Tech, he podido monitorear mis niveles de glucosa sin el dolor de los pinchazos en los dedos. ¡Ha cambiado mi vida!",
-      testimonialAuthor: "Sara K., Usuario de Accu-Tech",
-      laserTechnologyIntro: "Nuestra tecnología láser patentada permite un monitoreo de glucosa completamente sin sangre.",
-      laserEmissionTitle: "Emisión Láser",
-      laserEmissionDesc: "El dispositivo emite un láser no dañino que penetra la piel para analizar las moléculas de glucosa.",
-      bloodlessAnalysisTitle: "Análisis Sin Sangre",
-      bloodlessAnalysisDesc: "Algoritmos avanzados analizan la luz reflejada para determinar niveles precisos de glucosa.",
-      instantReadingTitle: "Lectura Instantánea",
-      instantReadingDesc: "Los resultados aparecen en pantalla en segundos, permitiendo acción inmediata si es necesario.",
-      scientificallyProven: "Científicamente probado para ser tan preciso como los métodos tradicionales de análisis de sangre.",
-      howItWorks: "Cómo Funciona",
-      keyBenefits: "Beneficios Clave",
-      benefitsIntro: "Descubre las ventajas de nuestra tecnología de monitoreo de glucosa sin sangre.",
-      noPainTitle: "Sin Dolor",
-      noPainDesc: "No más pinchazos ni muestras de sangre.",
-      instantResultsTitle: "Resultados Rápidos",
-      instantResultsDesc: "Obtén lecturas en segundos, en cualquier momento.",
-      expertApprovedTitle: "Aprobado por Expertos",
-      expertApprovedDesc: "Validado por profesionales médicos.",
-      accurateTitle: "Preciso",
-      accurateDesc: "Precisión comparable a las pruebas de sangre.",
-      setupProfile: "Configura Tu Perfil",
-      profileSetupIntro: "Ayúdanos a personalizar tu experiencia proporcionando información básica.",
-      name: "Nombre",
-      enterName: "Ingresa tu nombre",
-      age: "Edad",
-      diabetesType: "Tipo de Diabetes",
-      type1: "Tipo 1",
-      type2: "Tipo 2",
-      prediabetes: "Prediabetes",
-      gestational: "Gestacional",
-      other: "Otro",
-      profilePrivacyMessage: "Tu información se mantiene privada y segura, y nos ayuda a proporcionar ideas personalizadas.",
-      readyToStart: "Listo para Comenzar",
-      tutorialDescription: "Familiaricémonos con las características de la aplicación y cómo usarlas.",
-      measureGlucose: "Medir Glucosa",
-      measureGlucoseDescription: "Conecta tu dispositivo y toma lecturas sin sangre en cualquier momento.",
-      trackProgress: "Seguir Progreso",
-      trackProgressDescription: "Ver tendencias y patrones en tus niveles de glucosa a lo largo del tiempo.",
-      earnAchievements: "Ganar Logros",
-      earnAchievementsDescription: "Completa objetivos y desbloquea recompensas mientras mantienes niveles saludables.",
+      // Order Success Page
+      orderConfirmed: "¡Pedido Confirmado!",
+      orderThankYou: "Gracias por tu compra. Tu pedido ha sido confirmado.",
+      deliveryStatus: "Estado de la Entrega",
+      orderPlaced: "Pedido Realizado",
+      shipping: "Envío",
+      estimatedProcess: "1-2 días hábiles",
+      estimatedDelivery: "Esperado en 2-4 días hábiles",
+      orderConfirmationEmail: "Te hemos enviado un correo con los detalles de tu pedido.",
+      continueOnboarding: "Continuar Configuración",
       
-      // Home page
+      // Home Page
       lastReading: "Última Lectura",
       mmolL: "mmol/L",
       mgdl: "mg/dL",

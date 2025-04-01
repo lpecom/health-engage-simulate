@@ -14,6 +14,7 @@ import LearnPage from "./pages/LearnPage";
 import LanguagePage from "./pages/LanguagePage";
 import PersonalizedPlanPage from "./pages/PersonalizedPlanPage";
 import CheckoutPage from "./pages/CheckoutPage";
+import OrderSuccessPage from "./pages/OrderSuccessPage";
 import NotFound from "./pages/NotFound";
 
 // Create a new QueryClient instance
@@ -41,6 +42,7 @@ const App = () => {
                   />
                   <Route path="/onboarding" element={<OnboardingPage />} />
                   <Route path="/checkout" element={<CheckoutPage />} />
+                  <Route path="/order-success" element={<OrderSuccessPage />} />
                   <Route path="/home" element={<HomePage />} />
                   <Route path="/profile" element={<ProfilePage />} />
                   <Route path="/learn/:topic" element={<LearnPage />} />

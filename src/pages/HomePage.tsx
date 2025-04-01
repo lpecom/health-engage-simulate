@@ -10,27 +10,23 @@ import DeviceShippingStatus from "@/components/DeviceShippingStatus";
 import { ActivitySquare, Award, Book, ChevronRight, History, Home, TrendingUp, User, LineChart, BarChart, ShoppingCart } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
-const formatDateTime = (timestamp: number) => {
-  return new Date(timestamp).toLocaleString(undefined, {
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
+const formatDateTime = (timestamp: number, currentLanguage: string) => {
+  return new Date(timestamp).toLocaleString(
+    currentLanguage === 'es' ? 'es-ES' : 
+    currentLanguage === 'pt' ? 'pt-BR' : 'en-US', 
+    {
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    }
+  );
 };
 
 const HomePage = () => {
-  const {
-    translate,
-    language
-  } = useLanguage();
-  const {
-    userData,
-    checkAchievements
-  } = useUser();
-  const {
-    toast
-  } = useToast();
+  const { translate, language } = useLanguage();
+  const { userData, checkAchievements } = useUser();
+  const { toast } = useToast();
   const navigate = useNavigate();
   const [showDeviceConnector, setShowDeviceConnector] = useState(true);
 
@@ -98,7 +94,7 @@ const HomePage = () => {
       <div className="gradient-medical text-white px-4 pt-6 pb-6">
         <div className="flex items-center mb-4">
           <img src="https://accu-tech.pro/wp-content/uploads/2024/08/Accu-Tech-1.png" alt="Accu-Tech Logo" className="h-8 mr-3" />
-          <h1 className="text-xl font-bold">Healthineers</h1>
+          <h1 className="text-xl font-bold">{translate('appName') || "Healthineers"}</h1>
         </div>
         
         <div className="flex justify-between items-center mb-6">
