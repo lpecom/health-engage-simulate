@@ -85,46 +85,6 @@ const HomePage = () => {
     fetchUserOrders();
   }, [userData.name]);
 
-  const LearnAboutGlucoVista = () => (
-    <Card className="mb-4">
-      <CardContent className="p-4">
-        <h2 className="text-lg font-medium mb-4">{translate('learnAboutGlucoVista')}</h2>
-        
-        <div className="space-y-3">
-          <Button variant="outline" className="w-full justify-between py-6 px-4" onClick={() => navigate('/learn/how-it-works')}>
-            <div className="flex items-center">
-              <div className="w-8 h-8 rounded-full bg-teal-100 flex items-center justify-center mr-3">
-                <History className="h-4 w-4 text-teal-600" />
-              </div>
-              <span className="font-medium">{translate('howItWorks')}</span>
-            </div>
-            <ChevronRight className="h-5 w-5 text-gray-400" />
-          </Button>
-          
-          <Button variant="outline" className="w-full justify-between py-6 px-4" onClick={() => navigate('/learn/benefits')}>
-            <div className="flex items-center">
-              <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center mr-3">
-                <Award className="h-4 w-4 text-orange-500" />
-              </div>
-              <span className="font-medium">{translate('benefits')}</span>
-            </div>
-            <ChevronRight className="h-5 w-5 text-gray-400" />
-          </Button>
-          
-          <Button variant="outline" className="w-full justify-between py-6 px-4" onClick={() => navigate('/learn/safety')}>
-            <div className="flex items-center">
-              <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-3">
-                <div className="h-4 w-4 text-green-600">✓</div>
-              </div>
-              <span className="font-medium">{translate('safety')}</span>
-            </div>
-            <ChevronRight className="h-5 w-5 text-gray-400" />
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
-  );
-
   const UserProfile = () => {
     if (!userData.name) return null;
     
@@ -171,90 +131,45 @@ const HomePage = () => {
     );
   };
 
-  const RecentOrderDetails = () => {
-    if (!mostRecentOrder) return null;
-    
-    return (
-      <Card className="mb-4">
-        <CardContent className="p-4">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-lg font-medium">{translate('orderConfirmation')}</h2>
-            <span className="text-sm text-gray-500">
-              {new Date(mostRecentOrder.created_at).toLocaleDateString()}
-            </span>
-          </div>
+  const LearnAboutGlucoVista = () => (
+    <Card className="mb-4">
+      <CardContent className="p-4">
+        <h2 className="text-lg font-medium mb-4">{translate('learnAboutGlucoVista')}</h2>
+        
+        <div className="space-y-3">
+          <Button variant="outline" className="w-full justify-between py-6 px-4" onClick={() => navigate('/learn/how-it-works')}>
+            <div className="flex items-center">
+              <div className="w-8 h-8 rounded-full bg-teal-100 flex items-center justify-center mr-3">
+                <History className="h-4 w-4 text-teal-600" />
+              </div>
+              <span className="font-medium">{translate('howItWorks')}</span>
+            </div>
+            <ChevronRight className="h-5 w-5 text-gray-400" />
+          </Button>
           
-          <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-4">
-            <div className="flex items-center gap-2 text-green-700">
-              <CheckCircle className="h-5 w-5" />
-              <span className="font-medium">{translate('orderReceived')}</span>
+          <Button variant="outline" className="w-full justify-between py-6 px-4" onClick={() => navigate('/learn/benefits')}>
+            <div className="flex items-center">
+              <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center mr-3">
+                <Award className="h-4 w-4 text-orange-500" />
+              </div>
+              <span className="font-medium">{translate('benefits')}</span>
             </div>
-            <p className="text-sm text-green-600 mt-1">{translate('orderConfirmedMessage')}</p>
-          </div>
+            <ChevronRight className="h-5 w-5 text-gray-400" />
+          </Button>
           
-          <div className="space-y-4">
-            <div>
-              <h3 className="text-sm font-semibold text-gray-700 mb-1">{translate('orderSummary')}</h3>
-              <div className="bg-gray-50 rounded-lg p-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
-                    <Package className="h-5 w-5 text-gray-600" />
-                  </div>
-                  <div>
-                    <p className="font-medium">{mostRecentOrder.product_name}</p>
-                    <p className="text-xs text-gray-500">
-                      {mostRecentOrder.product_quantity} {mostRecentOrder.product_quantity > 1 ? translate('units') : translate('unit')}
-                    </p>
-                  </div>
-                  <div className="ml-auto">
-                    <p className="font-medium">€{mostRecentOrder.total_price}</p>
-                  </div>
-                </div>
+          <Button variant="outline" className="w-full justify-between py-6 px-4" onClick={() => navigate('/learn/safety')}>
+            <div className="flex items-center">
+              <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-3">
+                <div className="h-4 w-4 text-green-600">✓</div>
               </div>
+              <span className="font-medium">{translate('safety')}</span>
             </div>
-            
-            <div>
-              <h3 className="text-sm font-semibold text-gray-700 mb-1">{translate('shippingDetails')}</h3>
-              <div className="bg-gray-50 rounded-lg p-3">
-                <p className="font-medium">{mostRecentOrder.customer_name} {mostRecentOrder.customer_surname || ''}</p>
-                <p className="text-sm text-gray-600">{mostRecentOrder.customer_address}</p>
-                <p className="text-sm text-gray-600">{mostRecentOrder.zip_code}, {mostRecentOrder.city}</p>
-                <p className="text-sm text-gray-600">{mostRecentOrder.province}</p>
-                <p className="text-sm text-gray-600 mt-1">{mostRecentOrder.customer_phone}</p>
-              </div>
-            </div>
-            
-            <div>
-              <h3 className="text-sm font-semibold text-gray-700 mb-1">{translate('paymentMethod')}</h3>
-              <p className="bg-gray-50 rounded-lg p-3 text-gray-700">
-                {mostRecentOrder.payment_method === 'COD' ? translate('cashOnDelivery') : mostRecentOrder.payment_method}
-              </p>
-            </div>
-            
-            <div className="mt-3 pt-3 border-t">
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">{translate('orderStatus')}</span>
-                <span className={`text-xs px-2 py-1 rounded-full ${
-                  mostRecentOrder.status === 'pending' ? 'bg-amber-100 text-amber-800' : 
-                  mostRecentOrder.status === 'shipped' ? 'bg-green-100 text-green-800' :
-                  mostRecentOrder.status === 'error' ? 'bg-red-100 text-red-800' :
-                  'bg-gray-100 text-gray-800'
-                }`}>
-                  {translate(mostRecentOrder.status)}
-                </span>
-              </div>
-              <div className="flex justify-between items-center mt-2">
-                <span className="text-sm text-gray-600">{translate('orderID')}</span>
-                <span className="text-sm font-mono bg-gray-100 px-2 py-1 rounded">
-                  {mostRecentOrder.id.substring(0, 8)}
-                </span>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  };
+            <ChevronRight className="h-5 w-5 text-gray-400" />
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
 
   return (
     <div className="min-h-screen bg-gray-50 pb-16">
@@ -272,13 +187,12 @@ const HomePage = () => {
       </div>
       
       <div className="px-4 -mt-4">
-        {showDeviceConnector && <DeviceShippingStatus onConnect={() => setShowDeviceConnector(false)} />}
-        
-        {mostRecentOrder && <RecentOrderDetails />}
+        <DeviceShippingStatus 
+          onConnect={() => setShowDeviceConnector(false)} 
+          orderDetails={mostRecentOrder}
+        />
         
         <UserProfile />
-        
-        {/* RecentOrders component has been removed */}
       
         <LearnAboutGlucoVista />
       </div>

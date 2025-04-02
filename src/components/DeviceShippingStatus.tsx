@@ -6,16 +6,18 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Progress } from "@/components/ui/progress";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Loader2, Package, Calendar, PackageCheck, Clock, Truck, MapPin, CreditCard } from "lucide-react";
+import { Loader2, Package, Calendar, PackageCheck, Clock, Truck, MapPin, CreditCard, CheckCircle } from "lucide-react";
+
 interface DeviceShippingStatusProps {
   onConnect?: () => void;
+  orderDetails?: any;
 }
+
 const DeviceShippingStatus: React.FC<DeviceShippingStatusProps> = ({
-  onConnect
+  onConnect,
+  orderDetails
 }) => {
-  const {
-    translate
-  } = useLanguage();
+  const { translate } = useLanguage();
 
   // Calculate estimated delivery date (24-48 hours from now)
   const getDeliveryDate = () => {
@@ -30,7 +32,9 @@ const DeviceShippingStatus: React.FC<DeviceShippingStatusProps> = ({
     };
     return `${formatDate(minDelivery)} - ${formatDate(maxDelivery)}`;
   };
-  return <div className="space-y-4 mb-4">
+
+  return (
+    <div className="space-y-4 mb-4">
       {/* Shipping Status Card */}
       <Card className="overflow-hidden">
         <CardContent className="p-4">
@@ -119,6 +123,88 @@ const DeviceShippingStatus: React.FC<DeviceShippingStatusProps> = ({
         </CardContent>
       </Card>
 
+      {/* Order Details Section */}
+      {orderDetails && (
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-lg font-medium">{translate('orderConfirmation')}</h2>
+              <span className="text-sm text-gray-500">
+                {new Date(orderDetails.created_at).toLocaleDateString()}
+              </span>
+            </div>
+            
+            <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-4">
+              <div className="flex items-center gap-2 text-green-700">
+                <CheckCircle className="h-5 w-5" />
+                <span className="font-medium">{translate('orderReceived')}</span>
+              </div>
+              <p className="text-sm text-green-600 mt-1">{translate('orderConfirmedMessage')}</p>
+            </div>
+            
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-sm font-semibold text-gray-700 mb-1">{translate('orderSummary')}</h3>
+                <div className="bg-gray-50 rounded-lg p-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
+                      <Package className="h-5 w-5 text-gray-600" />
+                    </div>
+                    <div>
+                      <p className="font-medium">{orderDetails.product_name}</p>
+                      <p className="text-xs text-gray-500">
+                        {orderDetails.product_quantity} {orderDetails.product_quantity > 1 ? translate('units') : translate('unit')}
+                      </p>
+                    </div>
+                    <div className="ml-auto">
+                      <p className="font-medium">€{orderDetails.total_price}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div>
+                <h3 className="text-sm font-semibold text-gray-700 mb-1">{translate('shippingDetails')}</h3>
+                <div className="bg-gray-50 rounded-lg p-3">
+                  <p className="font-medium">{orderDetails.customer_name} {orderDetails.customer_surname || ''}</p>
+                  <p className="text-sm text-gray-600">{orderDetails.customer_address}</p>
+                  <p className="text-sm text-gray-600">{orderDetails.zip_code}, {orderDetails.city}</p>
+                  <p className="text-sm text-gray-600">{orderDetails.province}</p>
+                  <p className="text-sm text-gray-600 mt-1">{orderDetails.customer_phone}</p>
+                </div>
+              </div>
+              
+              <div>
+                <h3 className="text-sm font-semibold text-gray-700 mb-1">{translate('paymentMethod')}</h3>
+                <p className="bg-gray-50 rounded-lg p-3 text-gray-700">
+                  {orderDetails.payment_method === 'COD' ? translate('cashOnDelivery') : orderDetails.payment_method}
+                </p>
+              </div>
+              
+              <div className="mt-3 pt-3 border-t">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">{translate('orderStatus')}</span>
+                  <span className={`text-xs px-2 py-1 rounded-full ${
+                    orderDetails.status === 'pending' ? 'bg-amber-100 text-amber-800' : 
+                    orderDetails.status === 'shipped' ? 'bg-green-100 text-green-800' :
+                    orderDetails.status === 'error' ? 'bg-red-100 text-red-800' :
+                    'bg-gray-100 text-gray-800'
+                  }`}>
+                    {translate(orderDetails.status)}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center mt-2">
+                  <span className="text-sm text-gray-600">{translate('orderID')}</span>
+                  <span className="text-sm font-mono bg-gray-100 px-2 py-1 rounded">
+                    {orderDetails.id.substring(0, 8)}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Connect Device Card */}
       <Card>
         <CardContent className="p-4">
@@ -155,6 +241,8 @@ const DeviceShippingStatus: React.FC<DeviceShippingStatusProps> = ({
           </div>
         </CardContent>
       </Card>
-    </div>;
+    </div>
+  );
 };
+
 export default DeviceShippingStatus;

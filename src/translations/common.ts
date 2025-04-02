@@ -46,5 +46,20 @@ export const commonTranslations: Record<string, TranslationMap> = {
     'learn': 'Impara',
     'language': 'Lingua',
     'saveAndReturn': 'Salva e Torna Indietro',
+  },
+  de: {
+    'hello': 'Hallo',
+    'points': 'Punkte',
+    'streak': 'Serie',
+    'readings': 'Messwerte',
+    'home': 'Startseite',
+    'profile': 'Profil',
+    'back': 'Zurück',
+    'next': 'Weiter',
+    'skip': 'Überspringen',
+    'getStarted': 'Beginnen',
+    'learn': 'Lernen',
+    'language': 'Sprache',
+    'saveAndReturn': 'Speichern und Zurück',
   }
 };
