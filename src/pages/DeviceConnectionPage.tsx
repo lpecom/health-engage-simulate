@@ -13,7 +13,7 @@ const DeviceConnectionPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-16">
-      {/* Improved Header */}
+      {/* Header */}
       <div className="gradient-medical text-white px-4 pt-6 pb-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex-1">
@@ -43,6 +43,7 @@ const DeviceConnectionPage = () => {
         </h1>
       </div>
       
+      {/* Main Content - Just the BluetoothConnection component */}
       <div className="px-4 pt-4 pb-20">
         <BluetoothConnection />
       </div>
