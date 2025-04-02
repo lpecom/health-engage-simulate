@@ -20,17 +20,9 @@ const formatDateTime = (timestamp: number) => {
 };
 
 const HomePage = () => {
-  const {
-    translate,
-    language
-  } = useLanguage();
-  const {
-    userData,
-    checkAchievements
-  } = useUser();
-  const {
-    toast
-  } = useToast();
+  const { translate, language } = useLanguage();
+  const { userData, checkAchievements } = useUser();
+  const { toast } = useToast();
   const navigate = useNavigate();
   const [showDeviceConnector, setShowDeviceConnector] = useState(true);
 
@@ -59,25 +51,26 @@ const HomePage = () => {
   }, [userData.achievements, toast, translate]);
 
   // Learn About GlucoVista Component
-  const LearnAboutGlucoVista = () => <Card className="mb-4">
+  const LearnAboutGlucoVista = () => (
+    <Card className="mb-4">
       <CardContent className="p-4">
         <h2 className="text-lg font-medium mb-4">{translate('learnAboutGlucoVista')}</h2>
         
         <div className="space-y-3">
           <Button variant="outline" className="w-full justify-between py-6 px-4" onClick={() => navigate('/learn/how-it-works')}>
             <div className="flex items-center">
-              <div className="w-8 h-8 rounded-full bg-medical-light/50 flex items-center justify-center mr-3">
-                <History className="h-4 w-4 text-medical-dark" />
+              <div className="w-8 h-8 rounded-full bg-teal-100 flex items-center justify-center mr-3">
+                <History className="h-4 w-4 text-teal-600" />
               </div>
-              <span className="font-medium">{translate('howitworks')}</span>
+              <span className="font-medium">{translate('howItWorks')}</span>
             </div>
             <ChevronRight className="h-5 w-5 text-gray-400" />
           </Button>
           
           <Button variant="outline" className="w-full justify-between py-6 px-4" onClick={() => navigate('/learn/benefits')}>
             <div className="flex items-center">
-              <div className="w-8 h-8 rounded-full bg-warm-light/50 flex items-center justify-center mr-3">
-                <Award className="h-4 w-4 text-warm-primary" />
+              <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center mr-3">
+                <Award className="h-4 w-4 text-orange-500" />
               </div>
               <span className="font-medium">{translate('benefits')}</span>
             </div>
@@ -95,9 +88,11 @@ const HomePage = () => {
           </Button>
         </div>
       </CardContent>
-    </Card>;
+    </Card>
+  );
 
-  return <div className="min-h-screen bg-gray-50 pb-16">
+  return (
+    <div className="min-h-screen bg-gray-50 pb-16">
       <div className="gradient-medical text-white px-4 pt-6 pb-6">
         <div className="flex items-center mb-4">
           <img src="https://accu-tech.pro/wp-content/uploads/2024/08/Accu-Tech-1.png" alt="Accu-Tech Logo" className="h-8 mr-3" />
@@ -126,7 +121,8 @@ const HomePage = () => {
           </Button>
         </div>
       </div>
-    </div>;
+    </div>
+  );
 };
 
 export default HomePage;
