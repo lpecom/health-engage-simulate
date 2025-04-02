@@ -37,11 +37,19 @@ const LanguagePage = () => {
             />
           </div>
           
+          <h1 className="text-3xl font-bold text-center text-accu-tech-blue mb-3">
+            Accu-Tech Healthineers
+          </h1>
+          
+          <p className="text-center text-gray-600 mb-8">
+            {translate('welcomeToGlucoVista')}
+          </p>
+          
           <LanguageSelector />
           
           <div className="mt-8">
             <Button 
-              className="w-full"
+              className="w-full bg-accu-tech-blue hover:bg-accu-tech-dark-blue"
               onClick={() => navigate(-1)}
             >
               {translate('saveAndReturn')}
