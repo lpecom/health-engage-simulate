@@ -9,6 +9,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useShopify } from "@/contexts/ShopifyContext";
 import { ChevronLeft, ShieldCheck, Info, ExternalLink } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { trackTaboolaStartCheckout, trackTaboolaPurchase } from "@/utils/tracking";
 
 import { CountryCode, getDefaultCountryByLanguage } from '@/data/countries';
 import { ProductOption, ShippingInfo } from '@/types/userData';
@@ -23,6 +24,11 @@ const CheckoutPage = () => {
   const [step, setStep] = useState<'products' | 'shipping'>('products');
   const [selectedProduct, setSelectedProduct] = useState<ProductOption | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  
+  // Fire Taboola start_checkout event when page loads
+  useEffect(() => {
+    trackTaboolaStartCheckout();
+  }, []);
   
   const productOptions: ProductOption[] = [
     {
@@ -86,6 +92,10 @@ const CheckoutPage = () => {
       
       if (result) {
         console.log("Order successfully exported");
+        
+        // Track purchase event when order is successful
+        trackTaboolaPurchase();
+        
         navigate('/order-success');
       } else {
         setIsProcessing(false);

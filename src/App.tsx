@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -8,6 +8,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { UserProvider } from "@/contexts/UserContext";
 import { ShopifyProvider } from "@/contexts/ShopifyContext";
+import { initTaboolaPixel } from "@/utils/tracking";
 import OnboardingPage from "./pages/OnboardingPage";
 import HomePage from "./pages/HomePage";
 import LearnPage from "./pages/LearnPage";
@@ -23,6 +24,11 @@ import Index from "./pages/Index";
 const queryClient = new QueryClient();
 
 const App = () => {
+  // Initialize Taboola pixel on app load
+  useEffect(() => {
+    initTaboolaPixel();
+  }, []);
+
   return (
     <React.StrictMode>
       <QueryClientProvider client={queryClient}>
