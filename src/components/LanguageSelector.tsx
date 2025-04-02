@@ -17,17 +17,18 @@ const countryFlags: Record<string, string> = {
   de: "🇩🇪",
 };
 
+const countryNames: Record<string, string> = {
+  es: "España",
+  pt: "Portugal",
+  it: "Italia",
+  de: "Deutschland",
+};
+
 const LanguageSelector = () => {
   const { language, setLanguage, translate } = useLanguage();
 
-  const getLanguageName = (code: string) => {
-    switch (code) {
-      case 'es': return translate('spanish');
-      case 'pt': return translate('portuguese');
-      case 'it': return translate('italian');
-      case 'de': return translate('german');
-      default: return code.toUpperCase();
-    }
+  const getCountryName = (code: string) => {
+    return countryNames[code] || code.toUpperCase();
   };
 
   // For standalone language selector page
@@ -38,7 +39,7 @@ const LanguageSelector = () => {
           <img 
             src="/lovable-uploads/dda38d27-5b5f-40cb-a3e4-f87b713723e1.png" 
             alt="Accu-Tech Logo" 
-            className="h-5 mx-auto" 
+            className="h-4 mx-auto" 
           />
         </div>
         
@@ -46,23 +47,25 @@ const LanguageSelector = () => {
           {translate('selectLanguage')}
         </h2>
         
-        {Object.keys(countryFlags).map((langCode) => (
-          <button
-            key={langCode}
-            onClick={() => setLanguage(langCode as LanguageCode)}
-            className={`w-full p-4 text-left flex items-center justify-between rounded-lg transition-colors ${
-              language === langCode 
-                ? "bg-accu-tech-blue text-white" 
-                : "bg-white hover:bg-gray-100 border border-gray-200"
-            }`}
-          >
-            <div className="flex items-center">
-              <span className="text-2xl mr-3">{countryFlags[langCode]}</span>
-              <span className="text-lg">{getLanguageName(langCode)}</span>
-            </div>
-            {language === langCode && <Check className="h-6 w-6" />}
-          </button>
-        ))}
+        <div className="grid grid-cols-2 gap-3">
+          {Object.keys(countryFlags).map((langCode) => (
+            <button
+              key={langCode}
+              onClick={() => setLanguage(langCode as LanguageCode)}
+              className={`p-3 text-left flex items-center justify-between rounded-lg transition-colors ${
+                language === langCode 
+                  ? "bg-accu-tech-blue text-white" 
+                  : "bg-white hover:bg-gray-100 border border-gray-200"
+              }`}
+            >
+              <div className="flex items-center">
+                <span className="text-2xl mr-3">{countryFlags[langCode]}</span>
+                <span className="text-lg">{getCountryName(langCode)}</span>
+              </div>
+              {language === langCode && <Check className="h-6 w-6" />}
+            </button>
+          ))}
+        </div>
       </div>
     );
   };
@@ -74,7 +77,7 @@ const LanguageSelector = () => {
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="sm" className="flex items-center gap-1">
             <Globe className="h-4 w-4" />
-            <span className="ml-1">{getLanguageName(language)}</span>
+            <span className="ml-1">{getCountryName(language)}</span>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="bg-white">
@@ -86,7 +89,7 @@ const LanguageSelector = () => {
             >
               <div className="flex items-center">
                 <span className="mr-2">{countryFlags[langCode]}</span>
-                <span>{getLanguageName(langCode)}</span>
+                <span>{getCountryName(langCode)}</span>
               </div>
               {language === langCode && <Check className="h-4 w-4 ml-2" />}
             </DropdownMenuItem>
