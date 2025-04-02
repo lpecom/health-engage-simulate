@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useUser } from "@/contexts/UserContext";
 import DeviceShippingStatus from "@/components/DeviceShippingStatus";
-import { ActivitySquare, Award, Book, ChevronRight, History, Home, TrendingUp, User, LineChart, BarChart } from "lucide-react";
+import { ActivitySquare, Award, Book, ChevronRight, History, Home, TrendingUp, LineChart, BarChart } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const formatDateTime = (timestamp: number) => {
@@ -105,19 +105,11 @@ const HomePage = () => {
           <div>
             {userData.name && <p className="text-sm opacity-90">{translate('hello')}, {userData.name}</p>}
           </div>
-          
-          <div className="flex items-center space-x-3">
-            <Button variant="ghost" size="icon" className="bg-white/10 hover:bg-white/20 rounded-full h-9 w-9" onClick={() => navigate('/profile')}>
-              <User className="h-5 w-5" />
-            </Button>
-          </div>
         </div>
       </div>
       
       <div className="px-4 -mt-4">
         {showDeviceConnector && <DeviceShippingStatus onConnect={() => setShowDeviceConnector(false)} />}
-        
-        {/* BluetoothConnection component has been removed */}
       
         {/* Learn About GlucoVista section */}
         <LearnAboutGlucoVista />
@@ -128,11 +120,6 @@ const HomePage = () => {
           <Button variant="ghost" className="flex flex-col items-center" onClick={() => {}}>
             <Home className="h-5 w-5 text-medical-primary" />
             <span className="text-xs mt-1">{translate('home')}</span>
-          </Button>
-          
-          <Button variant="ghost" className="flex flex-col items-center" onClick={() => navigate('/profile')}>
-            <User className="h-5 w-5" />
-            <span className="text-xs mt-1">{translate('profile')}</span>
           </Button>
         </div>
       </div>
