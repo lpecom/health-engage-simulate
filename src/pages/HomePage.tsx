@@ -31,6 +31,7 @@ const HomePage = () => {
   const [showDeviceConnector, setShowDeviceConnector] = useState(true);
   const [userOrders, setUserOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [mostRecentOrder, setMostRecentOrder] = useState<any>(null);
 
   useEffect(() => {
     if (!userData.onboarded) {
@@ -69,6 +70,9 @@ const HomePage = () => {
         
         if (data) {
           setUserOrders(data);
+          if (data.length > 0) {
+            setMostRecentOrder(data[0]);
+          }
         }
       } catch (error) {
         console.error('Error fetching orders:', error);
@@ -251,6 +255,91 @@ const HomePage = () => {
     );
   };
 
+  const RecentOrderDetails = () => {
+    if (!mostRecentOrder) return null;
+    
+    return (
+      <Card className="mb-4">
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-lg font-medium">{translate('orderConfirmation')}</h2>
+            <span className="text-sm text-gray-500">
+              {new Date(mostRecentOrder.created_at).toLocaleDateString()}
+            </span>
+          </div>
+          
+          <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-4">
+            <div className="flex items-center gap-2 text-green-700">
+              <CheckCircle className="h-5 w-5" />
+              <span className="font-medium">{translate('orderReceived')}</span>
+            </div>
+            <p className="text-sm text-green-600 mt-1">{translate('orderConfirmedMessage')}</p>
+          </div>
+          
+          <div className="space-y-4">
+            <div>
+              <h3 className="text-sm font-semibold text-gray-700 mb-1">{translate('orderSummary')}</h3>
+              <div className="bg-gray-50 rounded-lg p-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
+                    <Package className="h-5 w-5 text-gray-600" />
+                  </div>
+                  <div>
+                    <p className="font-medium">{mostRecentOrder.product_name}</p>
+                    <p className="text-xs text-gray-500">
+                      {mostRecentOrder.product_quantity} {mostRecentOrder.product_quantity > 1 ? translate('units') : translate('unit')}
+                    </p>
+                  </div>
+                  <div className="ml-auto">
+                    <p className="font-medium">€{mostRecentOrder.total_price}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div>
+              <h3 className="text-sm font-semibold text-gray-700 mb-1">{translate('shippingDetails')}</h3>
+              <div className="bg-gray-50 rounded-lg p-3">
+                <p className="font-medium">{mostRecentOrder.customer_name} {mostRecentOrder.customer_surname || ''}</p>
+                <p className="text-sm text-gray-600">{mostRecentOrder.customer_address}</p>
+                <p className="text-sm text-gray-600">{mostRecentOrder.zip_code}, {mostRecentOrder.city}</p>
+                <p className="text-sm text-gray-600">{mostRecentOrder.province}</p>
+                <p className="text-sm text-gray-600 mt-1">{mostRecentOrder.customer_phone}</p>
+              </div>
+            </div>
+            
+            <div>
+              <h3 className="text-sm font-semibold text-gray-700 mb-1">{translate('paymentMethod')}</h3>
+              <p className="bg-gray-50 rounded-lg p-3 text-gray-700">
+                {mostRecentOrder.payment_method === 'COD' ? translate('cashOnDelivery') : mostRecentOrder.payment_method}
+              </p>
+            </div>
+            
+            <div className="mt-3 pt-3 border-t">
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-600">{translate('orderStatus')}</span>
+                <span className={`text-xs px-2 py-1 rounded-full ${
+                  mostRecentOrder.status === 'pending' ? 'bg-amber-100 text-amber-800' : 
+                  mostRecentOrder.status === 'shipped' ? 'bg-green-100 text-green-800' :
+                  mostRecentOrder.status === 'error' ? 'bg-red-100 text-red-800' :
+                  'bg-gray-100 text-gray-800'
+                }`}>
+                  {translate(mostRecentOrder.status)}
+                </span>
+              </div>
+              <div className="flex justify-between items-center mt-2">
+                <span className="text-sm text-gray-600">{translate('orderID')}</span>
+                <span className="text-sm font-mono bg-gray-100 px-2 py-1 rounded">
+                  {mostRecentOrder.id.substring(0, 8)}
+                </span>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 pb-16">
       <div className="gradient-medical text-white px-4 pt-6 pb-6">
@@ -268,6 +357,8 @@ const HomePage = () => {
       
       <div className="px-4 -mt-4">
         {showDeviceConnector && <DeviceShippingStatus onConnect={() => setShowDeviceConnector(false)} />}
+        
+        {mostRecentOrder && <RecentOrderDetails />}
         
         <UserProfile />
         
