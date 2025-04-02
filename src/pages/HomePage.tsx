@@ -9,7 +9,6 @@ import { ActivitySquare, Award, Book, ChevronRight, History, Home, MapPin, Phone
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import LanguageSelector from '@/components/LanguageSelector';
-
 const formatDateTime = (timestamp: number) => {
   return new Date(timestamp).toLocaleString(undefined, {
     month: 'short',
@@ -18,7 +17,6 @@ const formatDateTime = (timestamp: number) => {
     minute: '2-digit'
   });
 };
-
 const HomePage = () => {
   const {
     translate,
@@ -36,17 +34,14 @@ const HomePage = () => {
   const [userOrders, setUserOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [mostRecentOrder, setMostRecentOrder] = useState<any>(null);
-
   useEffect(() => {
     if (!userData.onboarded) {
       navigate('/onboarding');
     }
   }, [userData.onboarded, navigate]);
-
   useEffect(() => {
     checkAchievements();
   }, [checkAchievements]);
-
   useEffect(() => {
     if (userData.achievements && Array.isArray(userData.achievements)) {
       const unlockedAchievements = userData.achievements.filter(a => a.unlocked);
@@ -62,7 +57,6 @@ const HomePage = () => {
       }
     }
   }, [userData.achievements, toast, translate]);
-
   useEffect(() => {
     const fetchUserOrders = async () => {
       setLoading(true);
@@ -88,7 +82,6 @@ const HomePage = () => {
     };
     fetchUserOrders();
   }, [userData.name]);
-
   const UserProfile = () => {
     if (!userData.name) return null;
     return <Card className="mb-4">
@@ -125,11 +118,9 @@ const HomePage = () => {
         </CardContent>
       </Card>;
   };
-
   const handleNavigation = (path: string) => {
     navigate(path);
   };
-
   const LearnAboutGlucoVista = () => <Card className="mb-4">
       <CardContent className="p-4">
         <h2 className="text-lg font-medium mb-4">{translate('learnAboutGlucoVista')}</h2>
@@ -167,13 +158,12 @@ const HomePage = () => {
         </div>
       </CardContent>
     </Card>;
-
   return <div className="min-h-screen bg-gray-50 pb-16">
       <div className="gradient-medical text-white px-4 pt-6 pb-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex-1"></div>
           <div className="flex justify-center flex-1">
-            <img src="/lovable-uploads/dda38d27-5b5f-40cb-a3e4-f87b713723e1.png" alt="Accu-Tech Logo" className="h-5" />
+            <img src="/lovable-uploads/dda38d27-5b5f-40cb-a3e4-f87b713723e1.png" alt="Accu-Tech Logo" className="h-5 object-contain" />
           </div>
           <div className="flex justify-end flex-1">
             <LanguageSelector />
@@ -205,5 +195,4 @@ const HomePage = () => {
       </div>
     </div>;
 };
-
 export default HomePage;
