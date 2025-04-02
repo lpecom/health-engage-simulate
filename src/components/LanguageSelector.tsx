@@ -1,50 +1,54 @@
 
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
-import { Check } from "lucide-react";
+import { Check, Globe } from "lucide-react";
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger 
+} from "@/components/ui/dropdown-menu";
 
 const LanguageSelector = () => {
   const { language, setLanguage, translate } = useLanguage();
 
+  const getLanguageName = (code: string) => {
+    switch (code) {
+      case 'es': return translate('spanish');
+      case 'pt': return translate('portuguese');
+      case 'it': return translate('italian');
+      case 'de': return translate('german');
+      default: return code.toUpperCase();
+    }
+  };
+
   return (
-    <div className="flex flex-col items-center w-full max-w-xs mx-auto">
-      <h2 className="text-lg font-medium mb-4 text-accu-tech-blue">{translate('selectLanguage')}</h2>
-      
-      <div className="grid grid-cols-1 gap-3 w-full">
-        <Button
-          variant={language === 'es' ? "default" : "outline"}
-          className={`relative px-6 py-6 h-auto flex justify-between items-center ${
-            language === 'es' ? 'bg-accu-tech-blue hover:bg-accu-tech-dark-blue' : ''
-          }`}
-          onClick={() => setLanguage('es')}
-        >
-          <span className="text-lg">{translate('spanish')}</span>
-          {language === 'es' && <Check className="h-5 w-5 ml-2" />}
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" size="sm" className="flex items-center gap-1">
+          <Globe className="h-4 w-4" />
+          <span className="ml-1">{getLanguageName(language)}</span>
         </Button>
-        
-        <Button
-          variant={language === 'pt' ? "default" : "outline"}
-          className={`relative px-6 py-6 h-auto flex justify-between items-center ${
-            language === 'pt' ? 'bg-accu-tech-blue hover:bg-accu-tech-dark-blue' : ''
-          }`}
-          onClick={() => setLanguage('pt')}
-        >
-          <span className="text-lg">{translate('portuguese')}</span>
-          {language === 'pt' && <Check className="h-5 w-5 ml-2" />}
-        </Button>
-        
-        <Button
-          variant={language === 'it' ? "default" : "outline"}
-          className={`relative px-6 py-6 h-auto flex justify-between items-center ${
-            language === 'it' ? 'bg-accu-tech-blue hover:bg-accu-tech-dark-blue' : ''
-          }`}
-          onClick={() => setLanguage('it')}
-        >
-          <span className="text-lg">{translate('italian')}</span>
-          {language === 'it' && <Check className="h-5 w-5 ml-2" />}
-        </Button>
-      </div>
-    </div>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem onClick={() => setLanguage('es')} className="flex items-center justify-between">
+          {translate('spanish')}
+          {language === 'es' && <Check className="h-4 w-4 ml-2" />}
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setLanguage('pt')} className="flex items-center justify-between">
+          {translate('portuguese')}
+          {language === 'pt' && <Check className="h-4 w-4 ml-2" />}
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setLanguage('it')} className="flex items-center justify-between">
+          {translate('italian')}
+          {language === 'it' && <Check className="h-4 w-4 ml-2" />}
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setLanguage('de')} className="flex items-center justify-between">
+          {translate('german')}
+          {language === 'de' && <Check className="h-4 w-4 ml-2" />}
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };
 

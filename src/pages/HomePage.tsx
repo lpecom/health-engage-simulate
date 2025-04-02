@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -38,8 +37,11 @@ const HomePage = () => {
     if (!userData.onboarded) {
       navigate('/onboarding');
     }
+  }, [userData.onboarded, navigate]);
+
+  useEffect(() => {
     checkAchievements();
-  }, [userData.onboarded, navigate, checkAchievements]);
+  }, [checkAchievements]);
 
   useEffect(() => {
     if (userData.achievements && Array.isArray(userData.achievements)) {
@@ -131,13 +133,21 @@ const HomePage = () => {
     );
   };
 
+  const handleNavigation = (path: string) => {
+    navigate(path);
+  };
+
   const LearnAboutGlucoVista = () => (
     <Card className="mb-4">
       <CardContent className="p-4">
         <h2 className="text-lg font-medium mb-4">{translate('learnAboutGlucoVista')}</h2>
         
         <div className="space-y-3">
-          <Button variant="outline" className="w-full justify-between py-6 px-4" onClick={() => navigate('/learn/how-it-works')}>
+          <Button 
+            variant="outline" 
+            className="w-full justify-between py-6 px-4" 
+            onClick={() => handleNavigation('/learn/how-it-works')}
+          >
             <div className="flex items-center">
               <div className="w-8 h-8 rounded-full bg-teal-100 flex items-center justify-center mr-3">
                 <History className="h-4 w-4 text-teal-600" />
@@ -147,7 +157,11 @@ const HomePage = () => {
             <ChevronRight className="h-5 w-5 text-gray-400" />
           </Button>
           
-          <Button variant="outline" className="w-full justify-between py-6 px-4" onClick={() => navigate('/learn/benefits')}>
+          <Button 
+            variant="outline" 
+            className="w-full justify-between py-6 px-4" 
+            onClick={() => handleNavigation('/learn/benefits')}
+          >
             <div className="flex items-center">
               <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center mr-3">
                 <Award className="h-4 w-4 text-orange-500" />
@@ -157,7 +171,11 @@ const HomePage = () => {
             <ChevronRight className="h-5 w-5 text-gray-400" />
           </Button>
           
-          <Button variant="outline" className="w-full justify-between py-6 px-4" onClick={() => navigate('/learn/safety')}>
+          <Button 
+            variant="outline" 
+            className="w-full justify-between py-6 px-4" 
+            onClick={() => handleNavigation('/learn/safety')}
+          >
             <div className="flex items-center">
               <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-3">
                 <div className="h-4 w-4 text-green-600">✓</div>
@@ -199,7 +217,7 @@ const HomePage = () => {
       
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-6 py-2">
         <div className="flex justify-around">
-          <Button variant="ghost" className="flex flex-col items-center" onClick={() => {}}>
+          <Button variant="ghost" className="flex flex-col items-center">
             <Home className="h-5 w-5 text-medical-primary" />
             <span className="text-xs mt-1">{translate('home')}</span>
           </Button>

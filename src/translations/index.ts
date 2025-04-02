@@ -38,12 +38,12 @@ export const translations: Record<LanguageCode, TranslationMap> = {
     ...shopifyTranslations.it,
   },
   de: {
-    ...commonTranslations.it, // Using Italian as fallback for now
-    ...onboardingTranslations.it,
-    ...productTranslations.it,
+    ...commonTranslations.de,
+    ...onboardingTranslations.it, // Need to create proper German translations for onboarding
+    ...productTranslations.it, // Need to create proper German translations for product
     ...checkoutTranslations.de,
-    ...deliveryTranslations.it,
-    ...learnTranslations.it,
+    ...deliveryTranslations.it, // Need to create proper German translations for delivery
+    ...learnTranslations.it, // Need to create proper German translations for learn
     ...shopifyTranslations.de,
   }
 };

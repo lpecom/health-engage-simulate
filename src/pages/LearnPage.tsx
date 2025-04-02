@@ -275,6 +275,21 @@ const LearnPage = () => {
     return localStorage.getItem(`learn_${topic}`) === 'true';
   };
   
+  const markAsRead = () => {
+    if (topic) {
+      earnPoints(25);
+      localStorage.setItem(`learn_${topic}`, 'true');
+      
+      toast({
+        title: translate('topicCompleted'),
+        description: `+25 ${translate('points')}`,
+        duration: 3000,
+      });
+      
+      navigate('/home');
+    }
+  };
+  
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="gradient-medical text-white px-4 pt-12 pb-6">
@@ -315,17 +330,7 @@ const LearnPage = () => {
           
           {!isTopicRead() && (
             <Button 
-              onClick={() => {
-                earnPoints(25);
-                localStorage.setItem(`learn_${topic}`, 'true');
-                navigate('/home');
-                
-                toast({
-                  title: translate('topicCompleted'),
-                  description: `+25 ${translate('points')}`,
-                  duration: 3000,
-                });
-              }}
+              onClick={markAsRead}
               className="bg-accu-tech-blue hover:bg-accu-tech-dark-blue"
             >
               {translate('markAsRead')}
