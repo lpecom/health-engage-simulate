@@ -42,16 +42,19 @@ const HomePage = () => {
   }, [userData.onboarded, navigate, checkAchievements]);
 
   useEffect(() => {
-    const unlockedAchievements = userData.achievements.filter(a => a.unlocked);
-    const latestAchievement = unlockedAchievements[unlockedAchievements.length - 1];
-    if (latestAchievement && !localStorage.getItem(`shown_${latestAchievement.id}`)) {
-      localStorage.setItem(`shown_${latestAchievement.id}`, 'true');
-      toast({
-        title: translate('achievementUnlocked'),
-        description: `${latestAchievement.icon} ${translate(latestAchievement.title)}`,
-        variant: "default",
-        duration: 5000
-      });
+    // Check if userData.achievements exists before trying to filter it
+    if (userData.achievements && Array.isArray(userData.achievements)) {
+      const unlockedAchievements = userData.achievements.filter(a => a.unlocked);
+      const latestAchievement = unlockedAchievements[unlockedAchievements.length - 1];
+      if (latestAchievement && !localStorage.getItem(`shown_${latestAchievement.id}`)) {
+        localStorage.setItem(`shown_${latestAchievement.id}`, 'true');
+        toast({
+          title: translate('achievementUnlocked'),
+          description: `${latestAchievement.icon} ${translate(latestAchievement.title)}`,
+          variant: "default",
+          duration: 5000
+        });
+      }
     }
   }, [userData.achievements, toast, translate]);
 
