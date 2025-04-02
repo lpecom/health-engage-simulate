@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -191,11 +192,12 @@ const HomePage = () => {
       </div>
       
       <div className="px-4 -mt-4">
-        <DeviceShippingStatus onConnect={() => setShowDeviceConnector(false)} orderDetails={mostRecentOrder} />
-        
         <UserProfile />
-      
+        
+        {/* Moved LearnAboutGlucoVista above DeviceShippingStatus */}
         <LearnAboutGlucoVista />
+        
+        <DeviceShippingStatus onConnect={() => setShowDeviceConnector(false)} orderDetails={mostRecentOrder} />
       </div>
       
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-6 py-2">

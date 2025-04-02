@@ -43,7 +43,7 @@ const DeviceConnectionPage = () => {
         </h1>
       </div>
       
-      {/* Main Content - Now using DeviceShippingStatus component instead of BluetoothConnection */}
+      {/* Main Content */}
       <div className="px-4 pt-4 pb-20">
         <DeviceShippingStatus />
       </div>
@@ -62,8 +62,7 @@ const DeviceConnectionPage = () => {
           
           <Button 
             variant="ghost" 
-            className="flex flex-col items-center" 
-            onClick={() => navigate('/device')}
+            className="flex flex-col items-center"
           >
             <Bluetooth className="h-5 w-5 text-medical-primary" />
             <span className="text-xs mt-1 text-medical-primary">{translate('device') || 'Device'}</span>
