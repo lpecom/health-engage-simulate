@@ -10,10 +10,13 @@ import {
   normalizeToE164 
 } from '@/data/countries';
 import { CheckoutOrderData } from '@/types/userData';
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import { ExternalLink } from "lucide-react";
 
 interface ShopifyContextType {
   isConfigured: boolean;
   isConnecting: boolean;
+  configError: string | null;
   connectToShopify: () => Promise<{success: boolean, error?: string, details?: string}>;
   exportOrder: (orderData: CheckoutOrderData) => Promise<boolean>;
 }
@@ -27,6 +30,7 @@ const ShopifyContext = createContext<ShopifyContextType | undefined>(undefined);
 export const ShopifyProvider: React.FC<ShopifyProviderProps> = ({ children }) => {
   const [isConnecting, setIsConnecting] = useState(false);
   const [isConfigured, setIsConfigured] = useState(false);
+  const [configError, setConfigError] = useState<string | null>(null);
   
   useEffect(() => {
     validateCredentials();
@@ -42,21 +46,36 @@ export const ShopifyProvider: React.FC<ShopifyProviderProps> = ({ children }) =>
       
       if (validationError) {
         console.error('Error validating credentials:', validationError);
+        setConfigError(`Connection error: ${validationError.message}`);
         setIsConfigured(false);
         return false;
       }
       
+      // Check response from the function itself
       if (validationData?.success) {
         console.log('Shopify credentials validated successfully');
         setIsConfigured(true);
+        setConfigError(null);
         return true;
       } else {
-        console.log('Shopify credentials are invalid');
+        const errorMessage = validationData?.error || "Invalid Shopify configuration";
+        console.log(`Shopify credentials are invalid: ${errorMessage}`);
+        
+        // Store readable error for UI feedback
+        if (validationData?.error === "Store not found: The Shopify store name may be incorrect") {
+          setConfigError("Shopify store not found. Please check your configuration.");
+        } else if (validationData?.error === "Authentication failed: Invalid API key or access token") {
+          setConfigError("Invalid Shopify API credentials. Check your API key and access token.");
+        } else {
+          setConfigError(errorMessage);
+        }
+        
         setIsConfigured(false);
         return false;
       }
     } catch (error) {
       console.error('Failed to validate Shopify credentials:', error);
+      setConfigError(`Connection error: ${error.message}`);
       setIsConfigured(false);
       return false;
     }
@@ -80,6 +99,7 @@ export const ShopifyProvider: React.FC<ShopifyProviderProps> = ({ children }) =>
           variant: "destructive",
         });
         setIsConfigured(false);
+        setConfigError(`Connection error: ${error.message}`);
         return {
           success: false, 
           error: error.message,
@@ -93,6 +113,7 @@ export const ShopifyProvider: React.FC<ShopifyProviderProps> = ({ children }) =>
           description: "Successfully connected to your Shopify store",
         });
         setIsConfigured(true);
+        setConfigError(null);
         return {success: true};
       } else {
         const errorMessage = data?.error || "Invalid Shopify credentials";
@@ -103,6 +124,15 @@ export const ShopifyProvider: React.FC<ShopifyProviderProps> = ({ children }) =>
           description: errorMessage,
           variant: "destructive",
         });
+        
+        // Store readable error for UI feedback
+        if (data?.error === "Store not found: The Shopify store name may be incorrect") {
+          setConfigError("Shopify store not found. Please check your configuration.");
+        } else if (data?.error === "Authentication failed: Invalid API key or access token") {
+          setConfigError("Invalid Shopify API credentials. Check your API key and access token.");
+        } else {
+          setConfigError(errorMessage);
+        }
         
         setIsConfigured(false);
         return {
@@ -119,6 +149,7 @@ export const ShopifyProvider: React.FC<ShopifyProviderProps> = ({ children }) =>
         variant: "destructive",
       });
       setIsConfigured(false);
+      setConfigError(`Connection error: ${error.message}`);
       return {
         success: false, 
         error: "An unexpected error occurred", 
@@ -131,12 +162,53 @@ export const ShopifyProvider: React.FC<ShopifyProviderProps> = ({ children }) =>
   
   const exportOrder = async (orderData: CheckoutOrderData): Promise<boolean> => {
     if (!isConfigured) {
-      toast({
-        title: "Shopify Not Connected",
-        description: "Please connect to Shopify before exporting orders",
-        variant: "destructive",
-      });
-      return false;
+      // Handle submission when Shopify isn't configured by sending as a simple order
+      try {
+        // Save order data to Supabase without exporting to Shopify
+        const formattedPhone = normalizeToE164(orderData.shipping.phone, orderData.shipping.country as CountryCode);
+        
+        const { data, error } = await supabase
+          .from('orders')
+          .insert({
+            product_name: orderData.product.title,
+            product_quantity: orderData.product.units,
+            product_price: orderData.product.price,
+            shipping_price: orderData.product.shipping || 0,
+            total_price: (orderData.product.price * orderData.product.units) + (orderData.product.shipping || 0),
+            customer_name: orderData.shipping.firstName,
+            customer_surname: orderData.shipping.lastName,
+            customer_phone: formattedPhone,
+            customer_address: orderData.shipping.address,
+            province: orderData.shipping.province,
+            city: orderData.shipping.city,
+            zip_code: orderData.shipping.postalCode,
+            exported_to_shopify: false,
+            status: 'pending',
+            payment_method: 'COD'
+          })
+          .select();
+          
+        if (error) {
+          console.error('Error saving order to Supabase:', error);
+          toast({
+            title: "Order Submission Failed",
+            description: "Could not save your order information. Please try again.",
+            variant: "destructive",
+          });
+          return false;
+        }
+        
+        console.log('Order saved to Supabase (without Shopify export):', data);
+        return true;
+      } catch (error) {
+        console.error('Error processing order:', error);
+        toast({
+          title: "Order Submission Failed",
+          description: "An error occurred while processing your order.",
+          variant: "destructive",
+        });
+        return false;
+      }
     }
     
     try {
@@ -284,6 +356,7 @@ export const ShopifyProvider: React.FC<ShopifyProviderProps> = ({ children }) =>
       value={{
         isConfigured,
         isConnecting,
+        configError,
         connectToShopify,
         exportOrder
       }}

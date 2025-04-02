@@ -4,9 +4,10 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useShopify } from "@/contexts/ShopifyContext";
-import { ChevronLeft, ShieldCheck } from "lucide-react";
+import { ChevronLeft, ShieldCheck, Info, ExternalLink } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 import { CountryCode, getDefaultCountryByLanguage } from '@/data/countries';
@@ -18,7 +19,7 @@ import CheckoutForm from '@/components/CheckoutForm';
 const CheckoutPage = () => {
   const { translate, language } = useLanguage();
   const navigate = useNavigate();
-  const { isConfigured, exportOrder } = useShopify();
+  const { isConfigured, configError, exportOrder } = useShopify();
   const [step, setStep] = useState<'products' | 'shipping'>('products');
   const [selectedProduct, setSelectedProduct] = useState<ProductOption | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -84,7 +85,7 @@ const CheckoutPage = () => {
       });
       
       if (result) {
-        console.log("Order successfully exported to Shopify");
+        console.log("Order successfully exported");
         navigate('/order-success');
       } else {
         setIsProcessing(false);
@@ -135,6 +136,19 @@ const CheckoutPage = () => {
       </div>
       
       <div className="px-4">
+        {configError && (
+          <Alert variant="destructive" className="mb-4 mt-2 bg-red-50 border-red-200">
+            <Info className="h-4 w-4" />
+            <AlertTitle>{translate('shopifyConfigError')}</AlertTitle>
+            <AlertDescription className="text-sm">
+              {configError}
+              <p className="mt-2 text-xs">
+                {translate('shopifyConfigErrorDesc')}
+              </p>
+            </AlertDescription>
+          </Alert>
+        )}
+        
         <ProductSummary product={selectedProduct} />
         
         <Card className="mb-4">
@@ -162,6 +176,11 @@ const CheckoutPage = () => {
               onSubmit={onSubmitShippingInfo}
               isSubmitting={isProcessing}
             />
+            
+            <div className="flex items-center justify-center mt-3 text-xs text-gray-500 gap-1">
+              <ShieldCheck className="h-3 w-3" />
+              <span>{isConfigured ? translate('shopifyIntegrated') : translate('orderWillBeSaved')}</span>
+            </div>
           </CardContent>
         </Card>
       </div>

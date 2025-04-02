@@ -1,4 +1,3 @@
-
 import { TranslationMap } from './types';
 
 export const shopifyTranslations: Record<string, TranslationMap> = {
@@ -13,6 +12,7 @@ export const shopifyTranslations: Record<string, TranslationMap> = {
     'shopifyHelp2': 'Los pedidos se exportarán automáticamente a tu tienda Shopify.',
     'processing': 'Procesando...',
     'shopifyIntegrated': 'Este pedido se exportará a Shopify',
+    'orderWillBeSaved': 'Este pedido será guardado localmente',
     'orderError': 'Error en el pedido',
     'orderErrorDesc': 'Ha ocurrido un error procesando tu pedido. Inténtalo de nuevo.',
     'phoneInvalid': 'Número de teléfono inválido. El formato correcto es +34 XXX XXX XXX.',
@@ -38,7 +38,9 @@ export const shopifyTranslations: Record<string, TranslationMap> = {
     'total': 'Total',
     'deviceDescription': 'Accu-Tech Glucómetro',
     'paymentOnDelivery': 'Pago contra reembolso',
-    'finishOrder': 'Finalizar pedido'
+    'finishOrder': 'Finalizar pedido',
+    'shopifyConfigError': 'Error de configuración de Shopify',
+    'shopifyConfigErrorDesc': 'El pedido se procesará correctamente, pero no se exportará a Shopify debido a problemas de configuración.'
   },
   pt: {
     'shopifyIntegration': 'Integração com Shopify',
@@ -51,6 +53,7 @@ export const shopifyTranslations: Record<string, TranslationMap> = {
     'shopifyHelp2': 'Os pedidos serão exportados automaticamente para sua loja Shopify.',
     'processing': 'Processando...',
     'shopifyIntegrated': 'Este pedido será exportado para o Shopify',
+    'orderWillBeSaved': 'Este pedido será salvo localmente',
     'orderError': 'Erro no pedido',
     'orderErrorDesc': 'Ocorreu um erro ao processar seu pedido. Tente novamente.',
     'phoneInvalid': 'Número de telefone inválido. O formato correto é +351 XXX XXX XXX.',
@@ -76,7 +79,9 @@ export const shopifyTranslations: Record<string, TranslationMap> = {
     'total': 'Total',
     'deviceDescription': 'Accu-Tech Glucómetro',
     'paymentOnDelivery': 'Pagamento contra entrega',
-    'finishOrder': 'Finalizar pedido'
+    'finishOrder': 'Finalizar pedido',
+    'shopifyConfigError': 'Erro de configuração do Shopify',
+    'shopifyConfigErrorDesc': 'O pedido será processado corretamente, mas não será exportado para o Shopify devido a problemas de configuração.'
   },
   it: {
     'shopifyIntegration': 'Integrazione con Shopify',
@@ -89,6 +94,7 @@ export const shopifyTranslations: Record<string, TranslationMap> = {
     'shopifyHelp2': 'Gli ordini verranno esportati automaticamente nel tuo negozio Shopify.',
     'processing': 'Elaborazione in corso...',
     'shopifyIntegrated': 'Questo ordine verrà esportato su Shopify',
+    'orderWillBeSaved': 'Questo ordine verrà salvato localmente',
     'orderError': 'Errore nell\'ordine',
     'orderErrorDesc': 'Si è verificato un errore durante l\'elaborazione dell\'ordine. Riprova.',
     'phoneInvalid': 'Numero di telefono non valido. Il formato corretto è +39 XXX XXX XXXX.',
@@ -114,7 +120,9 @@ export const shopifyTranslations: Record<string, TranslationMap> = {
     'total': 'Totale',
     'deviceDescription': 'Accu-Tech Glucometro',
     'paymentOnDelivery': 'Pagamento alla consegna',
-    'finishOrder': 'Finalizza ordine'
+    'finishOrder': 'Finalizza ordine',
+    'shopifyConfigError': 'Errore di configurazione Shopify',
+    'shopifyConfigErrorDesc': 'L\'ordine verrà elaborato correttamente, ma non verrà esportato su Shopify a causa di problemi di configurazione.'
   },
   de: {
     'shopifyIntegration': 'Shopify Integration',
@@ -127,6 +135,7 @@ export const shopifyTranslations: Record<string, TranslationMap> = {
     'shopifyHelp2': 'Bestellungen werden automatisch in Ihren Shopify-Shop exportiert.',
     'processing': 'Verarbeitung...',
     'shopifyIntegrated': 'Diese Bestellung wird nach Shopify exportiert',
+    'orderWillBeSaved': 'Diese Bestellung wird lokal gespeichert',
     'orderError': 'Bestellungsfehler',
     'orderErrorDesc': 'Bei der Verarbeitung Ihrer Bestellung ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.',
     'phoneInvalid': 'Ungültige Telefonnummer. Das korrekte Format ist +49 XXX XXXXXXX.',
@@ -152,6 +161,8 @@ export const shopifyTranslations: Record<string, TranslationMap> = {
     'total': 'Gesamt',
     'deviceDescription': 'Accu-Tech Blutzuckermessgerät',
     'paymentOnDelivery': 'Zahlung bei Lieferung',
-    'finishOrder': 'Bestellung abschließen'
+    'finishOrder': 'Bestellung abschließen',
+    'shopifyConfigError': 'Shopify-Konfigurationsfehler',
+    'shopifyConfigErrorDesc': 'Die Bestellung wird korrekt bearbeitet, aber aufgrund von Konfigurationsproblemen nicht nach Shopify exportiert.'
   }
 };
