@@ -22,6 +22,7 @@ import {
 } from '@/data/countries';
 import { Badge } from "@/components/ui/badge";
 import { ProductOption } from '@/types/userData';
+import { trackTaboolaStartCheckout, trackTaboolaPurchase } from '@/utils/tracking';
 
 const OnboardingSteps = [
   'welcome', 
@@ -109,6 +110,12 @@ const OnboardingPage = () => {
     }
   }, [phone, selectedCountry]);
 
+  useEffect(() => {
+    if (currentStep === 4) {
+      trackTaboolaStartCheckout();
+    }
+  }, [currentStep]);
+
   const goToNextStep = async () => {
     if (currentStep === 4) { // Purchase step
       await handlePurchase();
@@ -116,6 +123,9 @@ const OnboardingPage = () => {
     }
 
     if (currentStep < OnboardingSteps.length - 1) {
+      if (currentStep === 4) {
+        trackTaboolaPurchase();
+      }
       setCurrentStep(currentStep + 1);
     } else {
       completeOnboarding();

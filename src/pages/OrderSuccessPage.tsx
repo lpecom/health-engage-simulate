@@ -1,20 +1,13 @@
-
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { CheckCircle, Package, TruckIcon, Home } from "lucide-react";
-import { trackTaboolaPurchase } from "@/utils/tracking";
 
 const OrderSuccessPage = () => {
   const { translate } = useLanguage();
   const navigate = useNavigate();
-
-  // Fire Taboola purchase event when success page loads
-  useEffect(() => {
-    trackTaboolaPurchase();
-  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">

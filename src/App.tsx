@@ -4,11 +4,11 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { UserProvider } from "@/contexts/UserContext";
 import { ShopifyProvider } from "@/contexts/ShopifyContext";
-import { initTaboolaPixel } from "@/utils/tracking";
+import { initTaboolaPixel, trackTaboolaPageView } from "@/utils/tracking";
 import OnboardingPage from "./pages/OnboardingPage";
 import HomePage from "./pages/HomePage";
 import LearnPage from "./pages/LearnPage";
@@ -22,6 +22,17 @@ import Index from "./pages/Index";
 
 // Create a new QueryClient instance
 const queryClient = new QueryClient();
+
+// RouteChangeTracker component to track route changes
+const RouteChangeTracker = () => {
+  const location = useLocation();
+  
+  useEffect(() => {
+    trackTaboolaPageView();
+  }, [location]);
+  
+  return null;
+};
 
 const App = () => {
   // Initialize Taboola pixel on app load
@@ -39,6 +50,7 @@ const App = () => {
                 <Toaster />
                 <Sonner />
                 <BrowserRouter>
+                  <RouteChangeTracker />
                   <Routes>
                     <Route path="/" element={<Index />} />
                     <Route path="/onboarding" element={<OnboardingPage />} />

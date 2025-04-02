@@ -27,6 +27,17 @@ export const initTaboolaPixel = () => {
 };
 
 /**
+ * Track Taboola page view event
+ * This should be called on route changes
+ */
+export const trackTaboolaPageView = () => {
+  if (typeof window !== 'undefined' && window._tfa) {
+    window._tfa.push({notify: 'event', name: 'page_view', id: 1380038});
+    console.log('Taboola page_view event fired');
+  }
+};
+
+/**
  * Track Taboola start checkout event
  */
 export const trackTaboolaStartCheckout = () => {
