@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -170,91 +171,6 @@ const HomePage = () => {
     );
   };
 
-  const RecentOrders = () => {
-    if (loading) {
-      return (
-        <Card className="mb-4">
-          <CardContent className="p-4">
-            <h2 className="text-lg font-medium mb-3">{translate('recentOrders')}</h2>
-            <div className="text-sm text-gray-500 py-3 text-center">{translate('loading')}...</div>
-          </CardContent>
-        </Card>
-      );
-    }
-    
-    if (userOrders.length === 0) {
-      return (
-        <Card className="mb-4">
-          <CardContent className="p-4">
-            <h2 className="text-lg font-medium mb-3">{translate('recentOrders')}</h2>
-            <div className="text-sm text-gray-500 py-3 text-center">{translate('noOrders')}</div>
-            <Button 
-              variant="outline" 
-              className="w-full mt-2"
-              onClick={() => navigate('/checkout')}
-            >
-              {translate('placeOrder')}
-            </Button>
-          </CardContent>
-        </Card>
-      );
-    }
-    
-    return (
-      <Card className="mb-4">
-        <CardContent className="p-4">
-          <h2 className="text-lg font-medium mb-3">{translate('recentOrders')}</h2>
-          <div className="space-y-3">
-            {userOrders.map((order) => (
-              <div 
-                key={order.id} 
-                className="border border-gray-200 rounded-lg p-3"
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
-                      <Package className="h-4 w-4 text-gray-600" />
-                    </div>
-                    <div>
-                      <p className="font-medium">{order.product_name}</p>
-                      <p className="text-xs text-gray-500">
-                        {new Date(order.created_at).toLocaleDateString()} · 
-                        {order.product_quantity} {order.product_quantity > 1 ? translate('units') : translate('unit')}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-medium">€{order.total_price}</p>
-                    <span className={`text-xs px-2 py-1 rounded-full ${
-                      order.status === 'pending' ? 'bg-amber-100 text-amber-800' : 
-                      order.status === 'shipped' ? 'bg-green-100 text-green-800' :
-                      order.status === 'error' ? 'bg-red-100 text-red-800' :
-                      'bg-gray-100 text-gray-800'
-                    }`}>
-                      {translate(order.status)}
-                    </span>
-                  </div>
-                </div>
-                
-                {order.exported_to_shopify ? (
-                  <div className="mt-2 flex items-center gap-1 text-xs text-green-600">
-                    <CheckCircle className="h-3 w-3" />
-                    <span>{translate('exportedToShopify')}</span>
-                  </div>
-                ) : (
-                  <div className="mt-2 flex items-center gap-1 text-xs text-amber-600">
-                    <Clock className="h-3 w-3" />
-                    <span>{translate('pendingExport')}</span>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-    );
-  };
-
   const RecentOrderDetails = () => {
     if (!mostRecentOrder) return null;
     
@@ -362,7 +278,7 @@ const HomePage = () => {
         
         <UserProfile />
         
-        <RecentOrders />
+        {/* RecentOrders component has been removed */}
       
         <LearnAboutGlucoVista />
       </div>
