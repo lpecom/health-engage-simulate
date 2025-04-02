@@ -5,10 +5,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useUser } from "@/contexts/UserContext";
 import DeviceShippingStatus from "@/components/DeviceShippingStatus";
-import { ActivitySquare, Award, Book, ChevronRight, History, Home, MapPin, Phone, User } from "lucide-react";
+import { ActivitySquare, Award, Book, ChevronRight, History, Home, MapPin, Phone, User, Bluetooth } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import LanguageSelector from '@/components/LanguageSelector';
+
 const formatDateTime = (timestamp: number) => {
   return new Date(timestamp).toLocaleString(undefined, {
     month: 'short',
@@ -17,31 +18,27 @@ const formatDateTime = (timestamp: number) => {
     minute: '2-digit'
   });
 };
+
 const HomePage = () => {
-  const {
-    translate,
-    language
-  } = useLanguage();
-  const {
-    userData,
-    checkAchievements
-  } = useUser();
-  const {
-    toast
-  } = useToast();
+  const { translate, language } = useLanguage();
+  const { userData, checkAchievements } = useUser();
+  const { toast } = useToast();
   const navigate = useNavigate();
   const [showDeviceConnector, setShowDeviceConnector] = useState(true);
   const [userOrders, setUserOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [mostRecentOrder, setMostRecentOrder] = useState<any>(null);
+
   useEffect(() => {
     if (!userData.onboarded) {
       navigate('/onboarding');
     }
   }, [userData.onboarded, navigate]);
+
   useEffect(() => {
     checkAchievements();
   }, [checkAchievements]);
+
   useEffect(() => {
     if (userData.achievements && Array.isArray(userData.achievements)) {
       const unlockedAchievements = userData.achievements.filter(a => a.unlocked);
@@ -57,6 +54,7 @@ const HomePage = () => {
       }
     }
   }, [userData.achievements, toast, translate]);
+
   useEffect(() => {
     const fetchUserOrders = async () => {
       setLoading(true);
@@ -82,6 +80,7 @@ const HomePage = () => {
     };
     fetchUserOrders();
   }, [userData.name]);
+
   const UserProfile = () => {
     if (!userData.name) return null;
     return <Card className="mb-4">
@@ -118,10 +117,13 @@ const HomePage = () => {
         </CardContent>
       </Card>;
   };
+
   const handleNavigation = (path: string) => {
     navigate(path);
   };
-  const LearnAboutGlucoVista = () => <Card className="mb-4">
+
+  const LearnAboutGlucoVista = () => (
+    <Card className="mb-4">
       <CardContent className="p-4">
         <h2 className="text-lg font-medium mb-4">{translate('learnAboutGlucoVista')}</h2>
         
@@ -157,24 +159,35 @@ const HomePage = () => {
           </Button>
         </div>
       </CardContent>
-    </Card>;
-  return <div className="min-h-screen bg-gray-50 pb-16">
+    </Card>
+  );
+
+  return (
+    <div className="min-h-screen bg-gray-50 pb-16">
       <div className="gradient-medical text-white px-4 pt-6 pb-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex-1"></div>
           <div className="flex justify-center flex-1">
-            <img src="/lovable-uploads/dda38d27-5b5f-40cb-a3e4-f87b713723e1.png" alt="Accu-Tech Logo" className="h-5 object-contain" />
+            <img 
+              src="/lovable-uploads/dda38d27-5b5f-40cb-a3e4-f87b713723e1.png" 
+              alt="Accu-Tech Logo" 
+              className="h-5 object-contain" 
+            />
           </div>
           <div className="flex justify-end flex-1">
             <LanguageSelector />
           </div>
         </div>
         
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex justify-between items-center mb-2">
           <div>
             {userData.name && <p className="text-sm opacity-90">{translate('hello')}, {userData.name}</p>}
           </div>
         </div>
+        
+        <h1 className="text-xl font-semibold text-center">
+          {translate('dashboard') || 'Dashboard'}
+        </h1>
       </div>
       
       <div className="px-4 -mt-4">
@@ -189,10 +202,21 @@ const HomePage = () => {
         <div className="flex justify-around">
           <Button variant="ghost" className="flex flex-col items-center">
             <Home className="h-5 w-5 text-medical-primary" />
-            <span className="text-xs mt-1">{translate('home')}</span>
+            <span className="text-xs mt-1 text-medical-primary">{translate('home') || 'Home'}</span>
+          </Button>
+          
+          <Button 
+            variant="ghost" 
+            className="flex flex-col items-center" 
+            onClick={() => navigate('/device')}
+          >
+            <Bluetooth className="h-5 w-5 text-gray-500" />
+            <span className="text-xs mt-1 text-gray-500">{translate('device') || 'Device'}</span>
           </Button>
         </div>
       </div>
-    </div>;
+    </div>
+  );
 };
+
 export default HomePage;

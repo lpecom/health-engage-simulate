@@ -33,11 +33,13 @@ const Index = () => {
       {showLanguageSelection ? (
         <div className="w-full max-w-md px-4">
           <div className="text-center mb-6">
-            <img 
-              src="/lovable-uploads/dda38d27-5b5f-40cb-a3e4-f87b713723e1.png" 
-              alt="Accu-Tech Logo" 
-              className="h-4 mx-auto mb-3" 
-            />
+            <div className="flex justify-center">
+              <img 
+                src="/lovable-uploads/dda38d27-5b5f-40cb-a3e4-f87b713723e1.png" 
+                alt="Accu-Tech Logo" 
+                className="h-5 mx-auto mb-3" 
+              />
+            </div>
             <h1 className="text-2xl font-bold text-accu-tech-blue">Accu-Tech Healthineers</h1>
             <p className="text-lg text-gray-600 mt-2">
               Bienvenido a GlucoVista - Tu Solución de Monitoreo de Glucosa No Invasiva
@@ -59,11 +61,13 @@ const Index = () => {
         </div>
       ) : (
         <div className="text-center">
-          <img 
-            src="/lovable-uploads/dda38d27-5b5f-40cb-a3e4-f87b713723e1.png" 
-            alt="Accu-Tech Logo" 
-            className="h-4 mx-auto mb-3" 
-          />
+          <div className="flex justify-center">
+            <img 
+              src="/lovable-uploads/dda38d27-5b5f-40cb-a3e4-f87b713723e1.png" 
+              alt="Accu-Tech Logo" 
+              className="h-5 mx-auto mb-3" 
+            />
+          </div>
           <h1 className="text-2xl font-bold mb-3 text-accu-tech-blue">Accu-Tech Healthineers</h1>
           <p className="text-lg text-gray-600">Loading...</p>
         </div>

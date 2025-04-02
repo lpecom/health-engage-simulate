@@ -15,7 +15,9 @@ import LanguagePage from "./pages/LanguagePage";
 import PersonalizedPlanPage from "./pages/PersonalizedPlanPage";
 import CheckoutPage from "./pages/CheckoutPage";
 import OrderSuccessPage from "./pages/OrderSuccessPage";
+import DeviceConnectionPage from "./pages/DeviceConnectionPage";
 import NotFound from "./pages/NotFound";
+import Index from "./pages/Index"; 
 
 // Create a new QueryClient instance
 const queryClient = new QueryClient();
@@ -32,9 +34,10 @@ const App = () => {
                 <Sonner />
                 <BrowserRouter>
                   <Routes>
-                    <Route path="/" element={<Navigate to="/onboarding" replace />} />
+                    <Route path="/" element={<Index />} />
                     <Route path="/onboarding" element={<OnboardingPage />} />
                     <Route path="/home" element={<HomePage />} />
+                    <Route path="/device" element={<DeviceConnectionPage />} />
                     <Route path="/learn/:topic" element={<LearnPage />} />
                     <Route path="/language" element={<LanguagePage />} />
                     <Route path="/plan" element={<PersonalizedPlanPage />} />
