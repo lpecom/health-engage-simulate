@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
-import BluetoothConnection from '@/components/BluetoothConnection';
+import DeviceShippingStatus from '@/components/DeviceShippingStatus';
 import LanguageSelector from '@/components/LanguageSelector';
 import { Home, Bluetooth } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -43,9 +43,9 @@ const DeviceConnectionPage = () => {
         </h1>
       </div>
       
-      {/* Main Content - Just the BluetoothConnection component */}
+      {/* Main Content - Now using DeviceShippingStatus component instead of BluetoothConnection */}
       <div className="px-4 pt-4 pb-20">
-        <BluetoothConnection />
+        <DeviceShippingStatus />
       </div>
       
       {/* Bottom Navigation */}
