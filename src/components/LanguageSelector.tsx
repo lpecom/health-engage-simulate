@@ -8,6 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
+import { LanguageCode } from "@/translations/types";
 
 const countryFlags: Record<string, string> = {
   es: "🇪🇸",
@@ -33,6 +34,14 @@ const LanguageSelector = () => {
   const renderStandalone = () => {
     return (
       <div className="w-full space-y-2">
+        <div className="flex justify-center mb-6">
+          <img 
+            src="/lovable-uploads/dda38d27-5b5f-40cb-a3e4-f87b713723e1.png" 
+            alt="Accu-Tech Logo" 
+            className="h-5 mx-auto" 
+          />
+        </div>
+        
         <h2 className="text-2xl font-medium text-center text-accu-tech-blue mb-6">
           {translate('selectLanguage')}
         </h2>
@@ -40,7 +49,7 @@ const LanguageSelector = () => {
         {Object.keys(countryFlags).map((langCode) => (
           <button
             key={langCode}
-            onClick={() => setLanguage(langCode)}
+            onClick={() => setLanguage(langCode as LanguageCode)}
             className={`w-full p-4 text-left flex items-center justify-between rounded-lg transition-colors ${
               language === langCode 
                 ? "bg-accu-tech-blue text-white" 
@@ -72,7 +81,7 @@ const LanguageSelector = () => {
           {Object.keys(countryFlags).map((langCode) => (
             <DropdownMenuItem 
               key={langCode}
-              onClick={() => setLanguage(langCode)} 
+              onClick={() => setLanguage(langCode as LanguageCode)} 
               className="flex items-center justify-between"
             >
               <div className="flex items-center">

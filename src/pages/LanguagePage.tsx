@@ -33,7 +33,7 @@ const LanguagePage = () => {
             <img 
               src="/lovable-uploads/dda38d27-5b5f-40cb-a3e4-f87b713723e1.png" 
               alt="Accu-Tech Logo" 
-              className="h-6" 
+              className="h-5 mx-auto" 
             />
           </div>
           
