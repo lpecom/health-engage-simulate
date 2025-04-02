@@ -16,7 +16,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   // Use browser's preferred language or default to Spanish
   const getBrowserLanguage = (): LanguageCode => {
     const browserLang = navigator.language.slice(0, 2);
-    if (browserLang === 'es' || browserLang === 'pt' || browserLang === 'it') {
+    if (browserLang === 'es' || browserLang === 'pt' || browserLang === 'it' || browserLang === 'de') {
       return browserLang as LanguageCode;
     }
     return 'es'; // Default to Spanish
@@ -25,7 +25,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   // Get saved language from localStorage or use browser language
   const getSavedLanguage = (): LanguageCode => {
     const saved = localStorage.getItem('language');
-    if (saved === 'es' || saved === 'pt' || saved === 'it') {
+    if (saved === 'es' || saved === 'pt' || saved === 'it' || saved === 'de') {
       return saved as LanguageCode;
     }
     return getBrowserLanguage();
