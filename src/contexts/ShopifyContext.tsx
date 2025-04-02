@@ -192,7 +192,7 @@ export const ShopifyProvider: React.FC<ShopifyProviderProps> = ({ children }) =>
         toast({
           title: "Order Submission Warning",
           description: "We've received your order but encountered an issue. Our team will contact you.",
-          variant: "warning",
+          variant: "destructive", // Changed from "warning" to "destructive" as "warning" is not a valid variant
         });
         // Return true to allow the user to proceed to success page, even with DB save issues
         return true;

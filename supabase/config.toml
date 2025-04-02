@@ -81,6 +81,7 @@ gcp_project_id = ""
 gcp_project_number = ""
 gcp_jwt_path = "supabase/gcloud.json"
 
+# Remove the [functions.serve] section with port = 54321 as it's causing the error
+# Functions configuration should be structured differently
 [functions]
-[functions.serve]
-port = 54321
+# No port specification here
