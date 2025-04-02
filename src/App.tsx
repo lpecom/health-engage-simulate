@@ -19,6 +19,10 @@ import OrderSuccessPage from "./pages/OrderSuccessPage";
 import DeviceConnectionPage from "./pages/DeviceConnectionPage";
 import NotFound from "./pages/NotFound";
 import Index from "./pages/Index"; 
+import AdminPage from "./pages/AdminPage";
+import AdminOrdersPage from "./pages/AdminOrdersPage";
+import AdminOrderDetailsPage from "./pages/AdminOrderDetailsPage";
+import AdminAddressCheckPage from "./pages/AdminAddressCheckPage";
 
 // Create a new QueryClient instance
 const queryClient = new QueryClient();
@@ -61,6 +65,11 @@ const App = () => {
                     <Route path="/plan" element={<PersonalizedPlanPage />} />
                     <Route path="/checkout" element={<CheckoutPage />} />
                     <Route path="/order-success" element={<OrderSuccessPage />} />
+                    {/* Admin routes */}
+                    <Route path="/admin" element={<AdminPage />} />
+                    <Route path="/admin/orders" element={<AdminOrdersPage />} />
+                    <Route path="/admin/orders/:id" element={<AdminOrderDetailsPage />} />
+                    <Route path="/admin/address-check" element={<AdminAddressCheckPage />} />
                     {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                     <Route path="*" element={<NotFound />} />
                   </Routes>
