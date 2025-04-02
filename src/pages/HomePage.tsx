@@ -6,14 +6,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useUser } from "@/contexts/UserContext";
 import DeviceShippingStatus from "@/components/DeviceShippingStatus";
-import { 
-  ActivitySquare, Award, Book, ChevronRight, History, Home, 
-  TrendingUp, LineChart, BarChart, Package, User, MapPin, Phone,
-  CheckCircle, Clock
-} from "lucide-react";
+import { ActivitySquare, Award, Book, ChevronRight, History, Home, TrendingUp, LineChart, BarChart, Package, User, MapPin, Phone, CheckCircle, Clock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-
 const formatDateTime = (timestamp: number) => {
   return new Date(timestamp).toLocaleString(undefined, {
     month: 'short',
@@ -22,27 +17,31 @@ const formatDateTime = (timestamp: number) => {
     minute: '2-digit'
   });
 };
-
 const HomePage = () => {
-  const { translate, language } = useLanguage();
-  const { userData, checkAchievements } = useUser();
-  const { toast } = useToast();
+  const {
+    translate,
+    language
+  } = useLanguage();
+  const {
+    userData,
+    checkAchievements
+  } = useUser();
+  const {
+    toast
+  } = useToast();
   const navigate = useNavigate();
   const [showDeviceConnector, setShowDeviceConnector] = useState(true);
   const [userOrders, setUserOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [mostRecentOrder, setMostRecentOrder] = useState<any>(null);
-
   useEffect(() => {
     if (!userData.onboarded) {
       navigate('/onboarding');
     }
   }, [userData.onboarded, navigate]);
-
   useEffect(() => {
     checkAchievements();
   }, [checkAchievements]);
-
   useEffect(() => {
     if (userData.achievements && Array.isArray(userData.achievements)) {
       const unlockedAchievements = userData.achievements.filter(a => a.unlocked);
@@ -58,19 +57,17 @@ const HomePage = () => {
       }
     }
   }, [userData.achievements, toast, translate]);
-
   useEffect(() => {
     const fetchUserOrders = async () => {
       setLoading(true);
       try {
-        let { data, error } = await supabase
-          .from('orders')
-          .select('*')
-          .order('created_at', { ascending: false })
-          .limit(5);
-        
+        let {
+          data,
+          error
+        } = await supabase.from('orders').select('*').order('created_at', {
+          ascending: false
+        }).limit(5);
         if (error) throw error;
-        
         if (data) {
           setUserOrders(data);
           if (data.length > 0) {
@@ -83,15 +80,11 @@ const HomePage = () => {
         setLoading(false);
       }
     };
-    
     fetchUserOrders();
   }, [userData.name]);
-
   const UserProfile = () => {
     if (!userData.name) return null;
-    
-    return (
-      <Card className="mb-4">
+    return <Card className="mb-4">
         <CardContent className="p-4">
           <h2 className="text-lg font-medium mb-3">{translate('userProfile')}</h2>
           
@@ -102,15 +95,12 @@ const HomePage = () => {
               </div>
               <div>
                 <p className="font-medium text-blue-900">{userData.name}</p>
-                {userData.diabetesType && (
-                  <p className="text-xs text-blue-700">{translate(userData.diabetesType)}</p>
-                )}
+                {userData.diabetesType && <p className="text-xs text-blue-700">{translate(userData.diabetesType)}</p>}
               </div>
             </div>
           </div>
           
-          {userData.shippingInfo && (
-            <div className="space-y-2 text-sm">
+          {userData.shippingInfo && <div className="space-y-2 text-sm">
               <div className="flex items-start gap-2">
                 <MapPin className="h-4 w-4 text-gray-500 mt-0.5 flex-shrink-0" />
                 <div className="text-gray-700">
@@ -120,34 +110,23 @@ const HomePage = () => {
                 </div>
               </div>
               
-              {userData.shippingInfo.phone && (
-                <div className="flex items-center gap-2">
+              {userData.shippingInfo.phone && <div className="flex items-center gap-2">
                   <Phone className="h-4 w-4 text-gray-500 flex-shrink-0" />
                   <span className="text-gray-700">{userData.shippingInfo.phone}</span>
-                </div>
-              )}
-            </div>
-          )}
+                </div>}
+            </div>}
         </CardContent>
-      </Card>
-    );
+      </Card>;
   };
-
   const handleNavigation = (path: string) => {
     navigate(path);
   };
-
-  const LearnAboutGlucoVista = () => (
-    <Card className="mb-4">
+  const LearnAboutGlucoVista = () => <Card className="mb-4">
       <CardContent className="p-4">
         <h2 className="text-lg font-medium mb-4">{translate('learnAboutGlucoVista')}</h2>
         
         <div className="space-y-3">
-          <Button 
-            variant="outline" 
-            className="w-full justify-between py-6 px-4" 
-            onClick={() => handleNavigation('/learn/how-it-works')}
-          >
+          <Button variant="outline" className="w-full justify-between py-6 px-4" onClick={() => handleNavigation('/learn/how-it-works')}>
             <div className="flex items-center">
               <div className="w-8 h-8 rounded-full bg-teal-100 flex items-center justify-center mr-3">
                 <History className="h-4 w-4 text-teal-600" />
@@ -157,11 +136,7 @@ const HomePage = () => {
             <ChevronRight className="h-5 w-5 text-gray-400" />
           </Button>
           
-          <Button 
-            variant="outline" 
-            className="w-full justify-between py-6 px-4" 
-            onClick={() => handleNavigation('/learn/benefits')}
-          >
+          <Button variant="outline" className="w-full justify-between py-6 px-4" onClick={() => handleNavigation('/learn/benefits')}>
             <div className="flex items-center">
               <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center mr-3">
                 <Award className="h-4 w-4 text-orange-500" />
@@ -171,11 +146,7 @@ const HomePage = () => {
             <ChevronRight className="h-5 w-5 text-gray-400" />
           </Button>
           
-          <Button 
-            variant="outline" 
-            className="w-full justify-between py-6 px-4" 
-            onClick={() => handleNavigation('/learn/safety')}
-          >
+          <Button variant="outline" className="w-full justify-between py-6 px-4" onClick={() => handleNavigation('/learn/safety')}>
             <div className="flex items-center">
               <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-3">
                 <div className="h-4 w-4 text-green-600">✓</div>
@@ -186,19 +157,12 @@ const HomePage = () => {
           </Button>
         </div>
       </CardContent>
-    </Card>
-  );
-
-  return (
-    <div className="min-h-screen bg-gray-50 pb-16">
+    </Card>;
+  return <div className="min-h-screen bg-gray-50 pb-16">
       <div className="gradient-medical text-white px-4 pt-6 pb-6">
         <div className="flex items-center mb-4">
-          <img 
-            src="/lovable-uploads/dda38d27-5b5f-40cb-a3e4-f87b713723e1.png" 
-            alt="Accu-Tech Logo" 
-            className="h-6 mr-3" 
-          />
-          <h1 className="text-xl font-bold">Healthineers</h1>
+          <img src="/lovable-uploads/dda38d27-5b5f-40cb-a3e4-f87b713723e1.png" alt="Accu-Tech Logo" className="h-6 mr-3" />
+          
         </div>
         
         <div className="flex justify-between items-center mb-6">
@@ -209,10 +173,7 @@ const HomePage = () => {
       </div>
       
       <div className="px-4 -mt-4">
-        <DeviceShippingStatus 
-          onConnect={() => setShowDeviceConnector(false)} 
-          orderDetails={mostRecentOrder}
-        />
+        <DeviceShippingStatus onConnect={() => setShowDeviceConnector(false)} orderDetails={mostRecentOrder} />
         
         <UserProfile />
       
@@ -227,8 +188,6 @@ const HomePage = () => {
           </Button>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default HomePage;
