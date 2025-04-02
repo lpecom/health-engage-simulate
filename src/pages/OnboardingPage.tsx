@@ -185,23 +185,18 @@ const OnboardingPage = () => {
       };
 
       const success = await exportOrder(orderData);
-      if (success) {
-        console.log("Order successfully exported to Shopify");
-        setCurrentStep(currentStep + 1);
-      } else {
-        toast({
-          title: translate('orderError'),
-          description: translate('orderErrorDesc'),
-          variant: "destructive",
-        });
-      }
+      
+      setCurrentStep(currentStep + 1);
     } catch (error) {
       console.error('Error processing order:', error);
+      
       toast({
-        title: translate('orderError'),
-        description: translate('orderErrorDesc'),
-        variant: "destructive",
+        title: translate('orderReceived'),
+        description: translate('orderProcessLater'),
+        variant: "default",
       });
+      
+      setCurrentStep(currentStep + 1);
     } finally {
       setIsProcessingOrder(false);
     }

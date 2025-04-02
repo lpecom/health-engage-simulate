@@ -8,173 +8,132 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3"
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Content-Type': 'application/json',
 };
 
-interface Address {
-  street: string;
+interface AddressValidationRequest {
+  address: string;
   city: string;
   province: string;
   postalCode: string;
-  country?: string;
+  country: string;
 }
 
-interface AddressValidationResponse {
+interface ValidationResult {
   isValid: boolean;
-  suggestedAddress?: string;
-  suggestedCity?: string;
-  suggestedProvince?: string;
-  suggestedPostalCode?: string;
+  suggestions?: {
+    address?: string;
+    city?: string;
+    province?: string;
+    postalCode?: string;
+  };
   issues?: string[];
-  confidence?: number;
 }
 
 serve(async (req) => {
-  // Handle CORS preflight requests
+  // CORS handling for browser requests
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    return new Response('ok', { headers: corsHeaders });
   }
-
+  
   try {
     const { SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY } = Deno.env.toObject();
-    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
-
-    const { address, addresses } = await req.json();
-
-    // If multiple addresses are provided, process them in bulk
-    if (addresses && Array.isArray(addresses)) {
-      const results = [];
-      
-      for (const addr of addresses) {
-        if (!addr || typeof addr !== 'object') {
-          continue;
-        }
-        
-        results.push(validateAddress({
-          street: addr.street || '',
-          city: addr.city || '',
-          province: addr.province || '',
-          postalCode: addr.postalCode || '',
-          country: addr.country || 'ES'
-        }));
-      }
-      
-      return new Response(
-        JSON.stringify({ results }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    const supabaseClient = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+    
+    // Get request data
+    const requestData = await req.json();
+    
+    // Handle batch validation
+    if (Array.isArray(requestData)) {
+      const results = await Promise.all(
+        requestData.map(async (address) => {
+          const result = await validateAddress(address);
+          return {
+            id: address.id, // Pass through any ID that was sent
+            result
+          };
+        })
       );
+      
+      return new Response(JSON.stringify(results), {
+        headers: corsHeaders,
+      });
     }
     
     // Handle single address validation
-    if (!address || typeof address !== 'object') {
-      return new Response(
-        JSON.stringify({ error: 'Invalid address data provided' }),
-        {
-          status: 400, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        }
-      );
-    }
-
-    // In a real implementation, you would call an AI service or geocoding API here
-    // For now, we'll simulate validation with some rules
+    const result = await validateAddress(requestData);
     
-    const validateAddress = (address: Address): AddressValidationResponse => {
-      const issues: string[] = [];
-      
-      // Check street address
-      const hasNumber = /\d/.test(address.street);
-      if (!hasNumber) {
-        issues.push("Street address might be missing a house/building number");
-      }
-      
-      // Check postal code format based on country
-      // This is a simplified example - real validation would be much more complex
-      const country = address.country || 'ES'; // Default to Spain if not specified
-      let postalCodeValid = false;
-      let suggestedPostalCode = address.postalCode;
-      
-      switch (country) {
-        case 'ES': // Spain
-          postalCodeValid = /^\d{5}$/.test(address.postalCode);
-          if (!postalCodeValid && /^\d{1,4}$/.test(address.postalCode)) {
-            // Pad with zeros if it's only missing leading zeros
-            suggestedPostalCode = address.postalCode.padStart(5, '0');
-          }
-          break;
-        case 'IT': // Italy
-          postalCodeValid = /^\d{5}$/.test(address.postalCode);
-          break;
-        case 'PT': // Portugal
-          postalCodeValid = /^\d{4}-\d{3}$/.test(address.postalCode);
-          break;
-        case 'DE': // Germany
-          postalCodeValid = /^\d{5}$/.test(address.postalCode);
-          break;
-        default:
-          postalCodeValid = address.postalCode.length > 4;
-      }
-      
-      if (!postalCodeValid) {
-        issues.push("Postal code format appears to be invalid");
-      }
-      
-      // Check city
-      if (address.city.length < 2) {
-        issues.push("City name seems too short");
-      }
-      
-      // Determine if the address is generally valid
-      const isValid = issues.length === 0;
-      
-      // Create response
-      const response: AddressValidationResponse = {
-        isValid,
-        issues: issues.length > 0 ? issues : undefined,
-        confidence: isValid ? 0.95 : 0.5
-      };
-      
-      // Add suggestions for invalid addresses
-      if (!isValid) {
-        if (!hasNumber) {
-          response.suggestedAddress = address.street + " 1"; // Suggest adding a number
-        }
-        
-        if (!postalCodeValid) {
-          response.suggestedPostalCode = suggestedPostalCode;
-        }
-      }
-      
-      return response;
-    };
-
-    // Simulate processing time
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    const validationResult = validateAddress({
-      street: address.street || '',
-      city: address.city || '',
-      province: address.province || '',
-      postalCode: address.postalCode || '',
-      country: address.country
+    return new Response(JSON.stringify(result), {
+      headers: corsHeaders,
     });
-
-    return new Response(
-      JSON.stringify(validationResult),
-      { 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-      }
-    );
-
   } catch (error) {
-    console.error('Error validating address:', error);
+    console.error('Error in address validation function:', error);
     
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      {
-        status: 500, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      }
-    );
+    return new Response(JSON.stringify({
+      error: error.message,
+      details: JSON.stringify(error, null, 2)
+    }), {
+      status: 500,
+      headers: corsHeaders,
+    });
   }
-})
+});
+
+async function validateAddress(addressData: AddressValidationRequest): Promise<ValidationResult> {
+  // This is a simple validation implementation
+  // In a production environment, this would be connected to a real address validation service
+  
+  const issues: string[] = [];
+  const suggestions: ValidationResult['suggestions'] = {};
+  
+  // Validate address
+  if (!addressData.address || addressData.address.length < 5) {
+    issues.push('Address is too short');
+  }
+  
+  // Validate postal code format based on country
+  const postalCodePatterns: Record<string, RegExp> = {
+    'ES': /^[0-9]{5}$/,                 // Spain: 28001
+    'PT': /^[0-9]{4}-[0-9]{3}$/,        // Portugal: 1000-001
+    'IT': /^[0-9]{5}$/,                 // Italy: 00100
+    'DE': /^[0-9]{5}$/,                 // Germany: 10115
+  };
+  
+  const countryPattern = postalCodePatterns[addressData.country];
+  if (countryPattern && !countryPattern.test(addressData.postalCode)) {
+    issues.push('Invalid postal code format');
+    
+    // Generate suggestion for postal code
+    if (addressData.country === 'PT' && /^[0-9]{4}$/.test(addressData.postalCode)) {
+      suggestions.postalCode = `${addressData.postalCode}-000`;
+    } else if (addressData.country === 'PT' && /^[0-9]{7}$/.test(addressData.postalCode)) {
+      suggestions.postalCode = `${addressData.postalCode.substring(0, 4)}-${addressData.postalCode.substring(4)}`;
+    }
+  }
+  
+  // Check for potentially problematic characters in the address
+  if (/[<>]/.test(addressData.address)) {
+    issues.push('Address contains invalid characters');
+    suggestions.address = addressData.address.replace(/[<>]/g, '');
+  }
+  
+  // Basic city validation
+  if (!addressData.city || addressData.city.length < 2) {
+    issues.push('City name is too short');
+  }
+  
+  // Check for all uppercase or all lowercase cities and make a proper case suggestion
+  if (addressData.city === addressData.city.toUpperCase() || addressData.city === addressData.city.toLowerCase()) {
+    const words = addressData.city.toLowerCase().split(' ');
+    const properCaseCity = words.map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+    suggestions.city = properCaseCity;
+  }
+  
+  return {
+    isValid: issues.length === 0,
+    suggestions: Object.keys(suggestions).length > 0 ? suggestions : undefined,
+    issues: issues.length > 0 ? issues : undefined
+  };
+}

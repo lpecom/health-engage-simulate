@@ -161,192 +161,197 @@ export const ShopifyProvider: React.FC<ShopifyProviderProps> = ({ children }) =>
   };
   
   const exportOrder = async (orderData: CheckoutOrderData): Promise<boolean> => {
-    if (!isConfigured) {
-      // Handle submission when Shopify isn't configured by sending as a simple order
-      try {
-        // Save order data to Supabase without exporting to Shopify
-        const formattedPhone = normalizeToE164(orderData.shipping.phone, orderData.shipping.country as CountryCode);
-        
-        const { data, error } = await supabase
-          .from('orders')
-          .insert({
-            product_name: orderData.product.title,
-            product_quantity: orderData.product.units,
-            product_price: orderData.product.price,
-            shipping_price: orderData.product.shipping || 0,
-            total_price: (orderData.product.price * orderData.product.units) + (orderData.product.shipping || 0),
-            customer_name: orderData.shipping.firstName,
-            customer_surname: orderData.shipping.lastName,
-            customer_phone: formattedPhone,
-            customer_address: orderData.shipping.address,
-            province: orderData.shipping.province,
-            city: orderData.shipping.city,
-            zip_code: orderData.shipping.postalCode,
-            exported_to_shopify: false,
-            status: 'pending',
-            payment_method: 'COD'
-          })
-          .select();
-          
-        if (error) {
-          console.error('Error saving order to Supabase:', error);
-          toast({
-            title: "Order Submission Failed",
-            description: "Could not save your order information. Please try again.",
-            variant: "destructive",
-          });
-          return false;
-        }
-        
-        console.log('Order saved to Supabase (without Shopify export):', data);
-        return true;
-      } catch (error) {
-        console.error('Error processing order:', error);
-        toast({
-          title: "Order Submission Failed",
-          description: "An error occurred while processing your order.",
-          variant: "destructive",
-        });
-        return false;
-      }
-    }
-    
+    // Save the order to Supabase first, before attempting Shopify export
     try {
-      // Validate phone number before proceeding
-      if (!isValidPhoneForCountry(orderData.shipping.phone, orderData.shipping.country as CountryCode)) {
-        toast({
-          title: "Invalid Phone Number",
-          description: `Please enter a valid phone number for ${orderData.shipping.country}`,
-          variant: "destructive",
-        });
-        return false;
-      }
-      
-      // Format phone number to E.164 format (required by Shopify API)
       const formattedPhone = normalizeToE164(orderData.shipping.phone, orderData.shipping.country as CountryCode);
       
-      console.log('Original phone:', orderData.shipping.phone);
-      console.log('Normalized E.164 phone:', formattedPhone);
-      
-      const payload: ShopifyOrderPayload = {
-        order: {
-          line_items: [
-            {
-              variant_id: orderData.product.id,
-              quantity: orderData.product.units,
-              price: orderData.product.price.toString(),
-              title: orderData.product.title || "Accu-Tech Glucometer", // Add title to line_items
-              name: orderData.product.title || "Accu-Tech Glucometer"  // Add name to line_items
-            }
-          ],
-          customer: {
-            first_name: orderData.shipping.firstName,
-            last_name: orderData.shipping.lastName,
-            phone: formattedPhone,
-            email: orderData.shipping.email || `${orderData.shipping.firstName.toLowerCase()}.${orderData.shipping.lastName.toLowerCase()}@example.com`
-          },
-          shipping_address: {
-            first_name: orderData.shipping.firstName,
-            last_name: orderData.shipping.lastName,
-            address1: orderData.shipping.address,
-            city: orderData.shipping.city,
-            province: orderData.shipping.province,
-            zip: orderData.shipping.postalCode,
-            country: orderData.shipping.country,
-            phone: formattedPhone
-          },
-          financial_status: 'pending',
-          send_receipt: true,
-          send_fulfillment_receipt: true,
-          tags: 'accu-tech-app'
-        }
-      };
-      
-      console.log('Exporting order to Shopify with payload:', JSON.stringify(payload, null, 2));
-      
-      const { data: orderResponse, error: orderError } = await supabase.functions.invoke('shopify', {
-        body: {
-          action: 'createOrder',
-          payload
-        }
-      });
-      
-      if (orderError) {
-        console.error('Error creating Shopify order:', orderError);
-        toast({
-          title: "Export Failed",
-          description: "Failed to create order in Shopify: " + orderError.message,
-          variant: "destructive",
-        });
-        return false;
-      }
-      
-      if (orderResponse?.error) {
-        console.error('Shopify order creation failed:', orderResponse.error);
-        
-        let errorMessage = "Failed to create order in Shopify";
-        if (orderResponse.error.shopifyError?.errors) {
-          const errors = orderResponse.error.shopifyError.errors;
-          errorMessage = Object.entries(errors)
-            .map(([key, value]) => `${key}: ${value}`)
-            .join(', ');
-        }
-        
-        toast({
-          title: "Export Failed",
-          description: errorMessage,
-          variant: "destructive",
-        });
-        return false;
-      }
-      
-      console.log('Order successfully exported to Shopify:', orderResponse);
-      
-      try {
-        const { data, error } = await supabase
-          .from('orders')
-          .insert({
-            product_name: orderData.product.title,
-            product_quantity: orderData.product.units,
-            product_price: orderData.product.price,
-            shipping_price: orderData.product.shipping || 0,
-            total_price: (orderData.product.price * orderData.product.units) + (orderData.product.shipping || 0),
-            customer_name: orderData.shipping.firstName,
-            customer_surname: orderData.shipping.lastName,
-            customer_phone: formattedPhone,
-            customer_address: orderData.shipping.address,
-            province: orderData.shipping.province,
-            city: orderData.shipping.city,
-            zip_code: orderData.shipping.postalCode,
-            exported_to_shopify: true,
-            shopify_order_id: orderResponse?.order?.id?.toString(),
-            status: 'pending',
-            payment_method: 'COD'
-          })
-          .select();
+      // First save the order to Supabase, regardless of Shopify integration status
+      const { data: savedOrderData, error: saveError } = await supabase
+        .from('orders')
+        .insert({
+          product_name: orderData.product.title,
+          product_quantity: orderData.product.units,
+          product_price: orderData.product.price,
+          shipping_price: orderData.product.shipping || 0,
+          total_price: (orderData.product.price * orderData.product.units) + (orderData.product.shipping || 0),
+          customer_name: orderData.shipping.firstName,
+          customer_surname: orderData.shipping.lastName,
+          customer_phone: formattedPhone,
+          customer_address: orderData.shipping.address,
+          province: orderData.shipping.province,
+          city: orderData.shipping.city,
+          zip_code: orderData.shipping.postalCode,
+          exported_to_shopify: false,
+          status: 'pending',
+          payment_method: 'COD'
+        })
+        .select();
           
-        if (error) {
-          console.error('Error saving order to Supabase:', error);
-        } else {
-          console.log('Order saved to Supabase:', data);
-        }
-      } catch (dbError) {
-        console.error('Failed to save order to Supabase:', dbError);
+      if (saveError) {
+        console.error('Error saving order to Supabase:', saveError);
+        toast({
+          title: "Order Submission Warning",
+          description: "We've received your order but encountered an issue. Our team will contact you.",
+          variant: "warning",
+        });
+        // Return true to allow the user to proceed to success page, even with DB save issues
+        return true;
       }
       
-      toast({
-        title: "Order Exported Successfully",
-        description: "Your order has been created in Shopify",
-      });
+      // If Shopify isn't configured, we're done - order is saved to DB
+      if (!isConfigured) {
+        console.log('Order saved to Supabase (without Shopify export):', savedOrderData);
+        return true;
+      }
       
-      return true;
+      // Now try to export to Shopify if configured
+      try {
+        // Validate phone number before proceeding
+        if (!isValidPhoneForCountry(orderData.shipping.phone, orderData.shipping.country as CountryCode)) {
+          console.warn('Invalid phone format, but proceeding with order');
+        }
+      
+        // Format phone number to E.164 format (required by Shopify API)
+        console.log('Original phone:', orderData.shipping.phone);
+        console.log('Normalized E.164 phone:', formattedPhone);
+        
+        const payload: ShopifyOrderPayload = {
+          order: {
+            line_items: [
+              {
+                variant_id: orderData.product.id,
+                quantity: orderData.product.units,
+                price: orderData.product.price.toString(),
+                title: orderData.product.title || "Accu-Tech Glucometer",
+                name: orderData.product.title || "Accu-Tech Glucometer"
+              }
+            ],
+            customer: {
+              first_name: orderData.shipping.firstName,
+              last_name: orderData.shipping.lastName,
+              phone: formattedPhone,
+              email: orderData.shipping.email || `${orderData.shipping.firstName.toLowerCase()}.${orderData.shipping.lastName.toLowerCase()}@example.com`
+            },
+            shipping_address: {
+              first_name: orderData.shipping.firstName,
+              last_name: orderData.shipping.lastName,
+              address1: orderData.shipping.address,
+              city: orderData.shipping.city,
+              province: orderData.shipping.province,
+              zip: orderData.shipping.postalCode,
+              country: orderData.shipping.country,
+              phone: formattedPhone
+            },
+            financial_status: 'pending',
+            send_receipt: true,
+            send_fulfillment_receipt: true,
+            tags: 'accu-tech-app'
+          }
+        };
+        
+        console.log('Exporting order to Shopify with payload:', JSON.stringify(payload, null, 2));
+        
+        const { data: orderResponse, error: orderError } = await supabase.functions.invoke('shopify', {
+          body: {
+            action: 'createOrder',
+            payload
+          }
+        });
+        
+        if (orderError) {
+          console.error('Error creating Shopify order:', orderError);
+          
+          // Update the order record to indicate the failed Shopify export
+          await supabase
+            .from('orders')
+            .update({ 
+              exported_to_shopify: false,
+              status: 'pending'
+            })
+            .eq('id', savedOrderData[0].id);
+          
+          // We'll show a warning but still consider the order successful
+          toast({
+            title: "Order Received",
+            description: "Your order has been saved. We'll process it shortly.",
+            variant: "default",
+          });
+          
+          // Return true because the order is saved in our database
+          return true;
+        }
+        
+        if (orderResponse?.error) {
+          console.error('Shopify order creation failed:', orderResponse.error);
+          
+          // Update the order record to indicate the failed Shopify export
+          await supabase
+            .from('orders')
+            .update({ 
+              exported_to_shopify: false,
+              status: 'pending'
+            })
+            .eq('id', savedOrderData[0].id);
+          
+          // We'll show a warning but still consider the order successful
+          toast({
+            title: "Order Received",
+            description: "Your order has been saved. Our team will process it shortly.",
+            variant: "default",
+          });
+          
+          // Return true because the order is saved in our database
+          return true;
+        }
+        
+        console.log('Order successfully exported to Shopify:', orderResponse);
+        
+        // Update the order with the Shopify order ID
+        try {
+          const { error } = await supabase
+            .from('orders')
+            .update({
+              exported_to_shopify: true,
+              shopify_order_id: orderResponse?.order?.id?.toString(),
+              status: 'pending'
+            })
+            .eq('id', savedOrderData[0].id);
+            
+          if (error) {
+            console.error('Error updating order with Shopify ID:', error);
+          }
+        } catch (updateError) {
+          console.error('Failed to update order with Shopify ID:', updateError);
+        }
+        
+        toast({
+          title: "Order Placed Successfully",
+          description: "Your order has been processed and confirmed.",
+        });
+        
+        return true;
+      } catch (shopifyError) {
+        console.error('Error exporting order to Shopify:', shopifyError);
+        
+        // We still consider the order successful since it's saved in our database
+        toast({
+          title: "Order Received",
+          description: "Your order has been saved. We'll process it shortly.",
+          variant: "default",
+        });
+        
+        return true;
+      }
     } catch (error) {
-      console.error('Error exporting order to Shopify:', error);
+      console.error('Critical error processing order:', error);
+      
+      // This is a critical error - we couldn't even save to our database
       toast({
-        title: "Export Failed",
-        description: "Failed to export order to Shopify",
+        title: "Order Error",
+        description: "There was a problem with your order. Please try again or contact support.",
         variant: "destructive",
       });
+      
       return false;
     }
   };

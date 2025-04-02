@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -24,6 +23,7 @@ const CheckoutPage = () => {
   const [step, setStep] = useState<'products' | 'shipping'>('products');
   const [selectedProduct, setSelectedProduct] = useState<ProductOption | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   
   // Fire Taboola start_checkout event when page loads
   useEffect(() => {
@@ -80,6 +80,7 @@ const CheckoutPage = () => {
     if (!selectedProduct) return;
     
     setIsProcessing(true);
+    setErrorMessage(null);
     
     try {
       console.log("Order submitted with shipping info:", data);
@@ -91,7 +92,7 @@ const CheckoutPage = () => {
       });
       
       if (result) {
-        console.log("Order successfully exported");
+        console.log("Order successfully processed");
         
         // Track purchase event when order is successful
         trackTaboolaPurchase();
@@ -99,6 +100,7 @@ const CheckoutPage = () => {
         navigate('/order-success');
       } else {
         setIsProcessing(false);
+        setErrorMessage(translate('orderError'));
         toast({
           title: translate('orderError'),
           description: translate('orderErrorDesc'),
@@ -107,12 +109,13 @@ const CheckoutPage = () => {
       }
     } catch (error) {
       console.error("Error processing order:", error);
+      setIsProcessing(false);
+      setErrorMessage(translate('orderError'));
       toast({
         title: translate('orderError'),
         description: translate('orderErrorDesc'),
         variant: "destructive",
       });
-      setIsProcessing(false);
     }
   };
 
@@ -159,6 +162,16 @@ const CheckoutPage = () => {
           </Alert>
         )}
         
+        {errorMessage && (
+          <Alert variant="destructive" className="mb-4 mt-2">
+            <Info className="h-4 w-4" />
+            <AlertTitle>{translate('orderError')}</AlertTitle>
+            <AlertDescription>
+              {translate('orderErrorDesc')}
+            </AlertDescription>
+          </Alert>
+        )}
+        
         <ProductSummary product={selectedProduct} />
         
         <Card className="mb-4">
@@ -189,7 +202,7 @@ const CheckoutPage = () => {
             
             <div className="flex items-center justify-center mt-3 text-xs text-gray-500 gap-1">
               <ShieldCheck className="h-3 w-3" />
-              <span>{isConfigured ? translate('shopifyIntegrated') : translate('orderWillBeSaved')}</span>
+              <span>{translate('orderWillBeSaved')}</span>
             </div>
           </CardContent>
         </Card>
