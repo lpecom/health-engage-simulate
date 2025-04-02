@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -9,7 +8,8 @@ import { useUser } from "@/contexts/UserContext";
 import DeviceShippingStatus from "@/components/DeviceShippingStatus";
 import { 
   ActivitySquare, Award, Book, ChevronRight, History, Home, 
-  TrendingUp, LineChart, BarChart, Package, User, MapPin, Phone 
+  TrendingUp, LineChart, BarChart, Package, User, MapPin, Phone,
+  CheckCircle, Clock
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -40,7 +40,6 @@ const HomePage = () => {
   }, [userData.onboarded, navigate, checkAchievements]);
 
   useEffect(() => {
-    // Check if userData.achievements exists before trying to filter it
     if (userData.achievements && Array.isArray(userData.achievements)) {
       const unlockedAchievements = userData.achievements.filter(a => a.unlocked);
       const latestAchievement = unlockedAchievements[unlockedAchievements.length - 1];
@@ -56,12 +55,10 @@ const HomePage = () => {
     }
   }, [userData.achievements, toast, translate]);
 
-  // Fetch user's orders from Supabase
   useEffect(() => {
     const fetchUserOrders = async () => {
       setLoading(true);
       try {
-        // Get orders by matching customer details with userData
         let { data, error } = await supabase
           .from('orders')
           .select('*')
@@ -83,7 +80,6 @@ const HomePage = () => {
     fetchUserOrders();
   }, [userData.name]);
 
-  // Learn About GlucoVista Component
   const LearnAboutGlucoVista = () => (
     <Card className="mb-4">
       <CardContent className="p-4">
@@ -124,7 +120,6 @@ const HomePage = () => {
     </Card>
   );
 
-  // User Profile Component
   const UserProfile = () => {
     if (!userData.name) return null;
     
@@ -171,7 +166,6 @@ const HomePage = () => {
     );
   };
 
-  // Recent Orders Component
   const RecentOrders = () => {
     if (loading) {
       return (
@@ -275,13 +269,10 @@ const HomePage = () => {
       <div className="px-4 -mt-4">
         {showDeviceConnector && <DeviceShippingStatus onConnect={() => setShowDeviceConnector(false)} />}
         
-        {/* User Profile Section */}
         <UserProfile />
         
-        {/* Recent Orders Section */}
         <RecentOrders />
       
-        {/* Learn About GlucoVista section */}
         <LearnAboutGlucoVista />
       </div>
       
