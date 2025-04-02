@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -129,7 +128,11 @@ const HomePage = () => {
         <h2 className="text-lg font-medium mb-4">{translate('learnAboutGlucoVista')}</h2>
         
         <div className="space-y-3">
-          <Button variant="outline" className="w-full justify-between py-6 px-4" onClick={() => handleNavigation('/learn/how-it-works')}>
+          <Button 
+            variant="outline" 
+            className="w-full justify-between py-6 px-4" 
+            onClick={() => navigate('/learn/how-it-works')}
+          >
             <div className="flex items-center">
               <div className="w-8 h-8 rounded-full bg-teal-100 flex items-center justify-center mr-3">
                 <History className="h-4 w-4 text-teal-600" />
@@ -139,7 +142,11 @@ const HomePage = () => {
             <ChevronRight className="h-5 w-5 text-gray-400" />
           </Button>
           
-          <Button variant="outline" className="w-full justify-between py-6 px-4" onClick={() => handleNavigation('/learn/benefits')}>
+          <Button 
+            variant="outline" 
+            className="w-full justify-between py-6 px-4" 
+            onClick={() => navigate('/learn/benefits')}
+          >
             <div className="flex items-center">
               <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center mr-3">
                 <Award className="h-4 w-4 text-orange-500" />
@@ -149,7 +156,11 @@ const HomePage = () => {
             <ChevronRight className="h-5 w-5 text-gray-400" />
           </Button>
           
-          <Button variant="outline" className="w-full justify-between py-6 px-4" onClick={() => handleNavigation('/learn/safety')}>
+          <Button 
+            variant="outline" 
+            className="w-full justify-between py-6 px-4" 
+            onClick={() => navigate('/learn/safety')}
+          >
             <div className="flex items-center">
               <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-3">
                 <div className="h-4 w-4 text-green-600">✓</div>
@@ -194,7 +205,6 @@ const HomePage = () => {
       <div className="px-4 -mt-4">
         <UserProfile />
         
-        {/* Moved LearnAboutGlucoVista above DeviceShippingStatus */}
         <LearnAboutGlucoVista />
         
         <DeviceShippingStatus onConnect={() => setShowDeviceConnector(false)} orderDetails={mostRecentOrder} />
