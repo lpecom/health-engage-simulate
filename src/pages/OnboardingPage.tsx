@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -25,7 +24,6 @@ import { Badge } from "@/components/ui/badge";
 import { ProductOption } from '@/types/userData';
 
 const OnboardingSteps = [
-  'language', 
   'welcome', 
   'technology', 
   'benefits', 
@@ -112,7 +110,7 @@ const OnboardingPage = () => {
   }, [phone, selectedCountry]);
 
   const goToNextStep = async () => {
-    if (currentStep === 5) { // Purchase step
+    if (currentStep === 4) { // Purchase step
       await handlePurchase();
       return;
     }
@@ -233,13 +231,6 @@ const OnboardingPage = () => {
     const countryData = COUNTRIES[selectedCountry];
 
     switch (currentStepName) {
-      case 'language':
-        return <div className="text-center">
-            <h1 className="text-3xl font-bold mb-2 text-accu-tech-blue">Accu-Tech Healthineers</h1>
-            <p className="text-gray-600 mb-6">{translate('welcomeToApp')}</p>
-            <LanguageSelector />
-          </div>;
-
       case 'welcome':
         return <div className="text-center">
             <div className="mb-6 flex justify-center">
@@ -635,9 +626,9 @@ const OnboardingPage = () => {
       <div className="max-w-md mx-auto">
         <div className="flex items-center justify-between mb-4">
           <img 
-            src="https://accu-tech.pro/wp-content/uploads/2024/08/Accu-Tech-1.png" 
+            src="/lovable-uploads/dda38d27-5b5f-40cb-a3e4-f87b713723e1.png" 
             alt="Accu-Tech Logo" 
-            className="h-8" 
+            className="h-5" 
           />
           <div className="text-xs text-gray-500 text-right">
             {translate('step')} {currentStep + 1}/{OnboardingSteps.length}
@@ -674,13 +665,13 @@ const OnboardingPage = () => {
             </Button> : <div></div>}
           
           <div className="flex space-x-2">
-            {currentStep < OnboardingSteps.length - 1 && currentStep !== 5 && <Button variant="ghost" onClick={skipOnboarding}>
+            {currentStep < OnboardingSteps.length - 1 && currentStep !== 4 && <Button variant="ghost" onClick={skipOnboarding}>
                 {translate('skip')}
               </Button>}
             
-            <Button className="buy-button" onClick={goToNextStep} disabled={currentStep === 5 && isProcessingOrder}>
+            <Button className="buy-button" onClick={goToNextStep} disabled={currentStep === 4 && isProcessingOrder}>
               {currentStep === OnboardingSteps.length - 1 ? translate('getStarted') : 
-               currentStep === 5 ? (isProcessingOrder ? translate('processing') : translate('finishOrder')) : translate('next')}
+               currentStep === 4 ? (isProcessingOrder ? translate('processing') : translate('finishOrder')) : translate('next')}
             </Button>
           </div>
         </div>

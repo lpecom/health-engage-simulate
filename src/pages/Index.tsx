@@ -1,7 +1,6 @@
 
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Globe } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { LanguageCode } from "@/translations/types";
 
@@ -12,7 +11,7 @@ const Index = () => {
 
   useEffect(() => {
     if (!showLanguageSelection) {
-      navigate("/home");
+      navigate("/onboarding");
     }
   }, [showLanguageSelection, navigate]);
 
