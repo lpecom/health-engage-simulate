@@ -1,3 +1,4 @@
+
 import { TranslationMap } from './types';
 
 export const shopifyTranslations: Record<string, TranslationMap> = {
@@ -40,7 +41,25 @@ export const shopifyTranslations: Record<string, TranslationMap> = {
     'paymentOnDelivery': 'Pago contra reembolso',
     'finishOrder': 'Finalizar pedido',
     'shopifyConfigError': 'Error de configuración de Shopify',
-    'shopifyConfigErrorDesc': 'El pedido se procesará correctamente, pero no se exportará a Shopify debido a problemas de configuración.'
+    'shopifyConfigErrorDesc': 'El pedido se procesará correctamente, pero no se exportará a Shopify debido a problemas de configuración.',
+    // New translation keys
+    'userProfile': 'Perfil de Usuario',
+    'recentOrders': 'Pedidos Recientes',
+    'loading': 'Cargando',
+    'noOrders': 'No hay pedidos recientes',
+    'placeOrder': 'Realizar un Pedido',
+    'units': 'unidades',
+    'unit': 'unidad',
+    'pending': 'Pendiente',
+    'shipped': 'Enviado',
+    'error': 'Error',
+    'exportedToShopify': 'Exportado a Shopify',
+    'pendingExport': 'Pendiente de exportación',
+    'type1': 'Diabetes Tipo 1',
+    'type2': 'Diabetes Tipo 2',
+    'prediabetes': 'Prediabetes',
+    'gestational': 'Diabetes Gestacional',
+    'other': 'Otro tipo'
   },
   pt: {
     'shopifyIntegration': 'Integração com Shopify',
@@ -81,7 +100,25 @@ export const shopifyTranslations: Record<string, TranslationMap> = {
     'paymentOnDelivery': 'Pagamento contra entrega',
     'finishOrder': 'Finalizar pedido',
     'shopifyConfigError': 'Erro de configuração do Shopify',
-    'shopifyConfigErrorDesc': 'O pedido será processado corretamente, mas não será exportado para o Shopify devido a problemas de configuração.'
+    'shopifyConfigErrorDesc': 'O pedido será processado corretamente, mas não será exportado para o Shopify devido a problemas de configuração.',
+    // New translation keys
+    'userProfile': 'Perfil do Utilizador',
+    'recentOrders': 'Pedidos Recentes',
+    'loading': 'Carregando',
+    'noOrders': 'Não há pedidos recentes',
+    'placeOrder': 'Fazer um Pedido',
+    'units': 'unidades',
+    'unit': 'unidade',
+    'pending': 'Pendente',
+    'shipped': 'Enviado',
+    'error': 'Erro',
+    'exportedToShopify': 'Exportado para o Shopify',
+    'pendingExport': 'Pendente de exportação',
+    'type1': 'Diabetes Tipo 1',
+    'type2': 'Diabetes Tipo 2',
+    'prediabetes': 'Pré-diabetes',
+    'gestational': 'Diabetes Gestacional',
+    'other': 'Outro tipo'
   },
   it: {
     'shopifyIntegration': 'Integrazione con Shopify',
@@ -122,7 +159,25 @@ export const shopifyTranslations: Record<string, TranslationMap> = {
     'paymentOnDelivery': 'Pagamento alla consegna',
     'finishOrder': 'Finalizza ordine',
     'shopifyConfigError': 'Errore di configurazione Shopify',
-    'shopifyConfigErrorDesc': 'L\'ordine verrà elaborato correttamente, ma non verrà esportato su Shopify a causa di problemi di configurazione.'
+    'shopifyConfigErrorDesc': 'L\'ordine verrà elaborato correttamente, ma non verrà esportato su Shopify a causa di problemi di configurazione.',
+    // New translation keys
+    'userProfile': 'Profilo Utente',
+    'recentOrders': 'Ordini Recenti',
+    'loading': 'Caricamento',
+    'noOrders': 'Nessun ordine recente',
+    'placeOrder': 'Effettua un Ordine',
+    'units': 'unità',
+    'unit': 'unità',
+    'pending': 'In attesa',
+    'shipped': 'Spedito',
+    'error': 'Errore',
+    'exportedToShopify': 'Esportato su Shopify',
+    'pendingExport': 'In attesa di esportazione',
+    'type1': 'Diabete Tipo 1',
+    'type2': 'Diabete Tipo 2',
+    'prediabetes': 'Prediabete',
+    'gestational': 'Diabete Gestazionale',
+    'other': 'Altro tipo'
   },
   de: {
     'shopifyIntegration': 'Shopify Integration',
@@ -163,6 +218,24 @@ export const shopifyTranslations: Record<string, TranslationMap> = {
     'paymentOnDelivery': 'Zahlung bei Lieferung',
     'finishOrder': 'Bestellung abschließen',
     'shopifyConfigError': 'Shopify-Konfigurationsfehler',
-    'shopifyConfigErrorDesc': 'Die Bestellung wird korrekt bearbeitet, aber aufgrund von Konfigurationsproblemen nicht nach Shopify exportiert.'
+    'shopifyConfigErrorDesc': 'Die Bestellung wird korrekt bearbeitet, aber aufgrund von Konfigurationsproblemen nicht nach Shopify exportiert.',
+    // New translation keys
+    'userProfile': 'Benutzerprofil',
+    'recentOrders': 'Letzte Bestellungen',
+    'loading': 'Wird geladen',
+    'noOrders': 'Keine aktuellen Bestellungen',
+    'placeOrder': 'Bestellung aufgeben',
+    'units': 'Einheiten',
+    'unit': 'Einheit',
+    'pending': 'Ausstehend',
+    'shipped': 'Versendet',
+    'error': 'Fehler',
+    'exportedToShopify': 'Nach Shopify exportiert',
+    'pendingExport': 'Export ausstehend',
+    'type1': 'Diabetes Typ 1',
+    'type2': 'Diabetes Typ 2',
+    'prediabetes': 'Prädiabetes',
+    'gestational': 'Schwangerschaftsdiabetes',
+    'other': 'Anderer Typ'
   }
 };
