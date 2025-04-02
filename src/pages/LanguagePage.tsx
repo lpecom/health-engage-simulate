@@ -29,6 +29,14 @@ const LanguagePage = () => {
       
       <div className="px-4 py-8">
         <div className="bg-white rounded-lg shadow-md p-6 max-w-md mx-auto">
+          <div className="flex justify-center mb-6">
+            <img 
+              src="/lovable-uploads/dda38d27-5b5f-40cb-a3e4-f87b713723e1.png" 
+              alt="Accu-Tech Logo" 
+              className="h-6" 
+            />
+          </div>
+          
           <LanguageSelector />
           
           <div className="mt-8">

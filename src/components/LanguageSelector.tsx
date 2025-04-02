@@ -30,7 +30,7 @@ const LanguageSelector = () => {
           <span className="ml-1">{getLanguageName(language)}</span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
+      <DropdownMenuContent align="end" className="bg-white">
         <DropdownMenuItem onClick={() => setLanguage('es')} className="flex items-center justify-between">
           {translate('spanish')}
           {language === 'es' && <Check className="h-4 w-4 ml-2" />}

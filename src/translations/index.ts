@@ -39,11 +39,11 @@ export const translations: Record<LanguageCode, TranslationMap> = {
   },
   de: {
     ...commonTranslations.de,
-    ...onboardingTranslations.it, // Need to create proper German translations for onboarding
-    ...productTranslations.it, // Need to create proper German translations for product
+    ...onboardingTranslations.de, // Fix: Changed from .it to .de
+    ...productTranslations.de,    // Fix: Changed from .it to .de
     ...checkoutTranslations.de,
-    ...deliveryTranslations.it, // Need to create proper German translations for delivery
-    ...learnTranslations.it, // Need to create proper German translations for learn
+    ...deliveryTranslations.de,   // Fix: Changed from .it to .de
+    ...learnTranslations.de,      // Fix: Changed from .it to .de
     ...shopifyTranslations.de,
   }
 };

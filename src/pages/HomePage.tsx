@@ -193,7 +193,11 @@ const HomePage = () => {
     <div className="min-h-screen bg-gray-50 pb-16">
       <div className="gradient-medical text-white px-4 pt-6 pb-6">
         <div className="flex items-center mb-4">
-          <img src="https://accu-tech.pro/wp-content/uploads/2024/08/Accu-Tech-1.png" alt="Accu-Tech Logo" className="h-8 mr-3" />
+          <img 
+            src="/lovable-uploads/dda38d27-5b5f-40cb-a3e4-f87b713723e1.png" 
+            alt="Accu-Tech Logo" 
+            className="h-6 mr-3" 
+          />
           <h1 className="text-xl font-bold">Healthineers</h1>
         </div>
         
