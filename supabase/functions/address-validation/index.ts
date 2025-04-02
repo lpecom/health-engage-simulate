@@ -39,8 +39,33 @@ serve(async (req) => {
     const { SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY } = Deno.env.toObject();
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
-    const { address } = await req.json();
+    const { address, addresses } = await req.json();
 
+    // If multiple addresses are provided, process them in bulk
+    if (addresses && Array.isArray(addresses)) {
+      const results = [];
+      
+      for (const addr of addresses) {
+        if (!addr || typeof addr !== 'object') {
+          continue;
+        }
+        
+        results.push(validateAddress({
+          street: addr.street || '',
+          city: addr.city || '',
+          province: addr.province || '',
+          postalCode: addr.postalCode || '',
+          country: addr.country || 'ES'
+        }));
+      }
+      
+      return new Response(
+        JSON.stringify({ results }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    // Handle single address validation
     if (!address || typeof address !== 'object') {
       return new Response(
         JSON.stringify({ error: 'Invalid address data provided' }),
@@ -82,6 +107,9 @@ serve(async (req) => {
           break;
         case 'PT': // Portugal
           postalCodeValid = /^\d{4}-\d{3}$/.test(address.postalCode);
+          break;
+        case 'DE': // Germany
+          postalCodeValid = /^\d{5}$/.test(address.postalCode);
           break;
         default:
           postalCodeValid = address.postalCode.length > 4;

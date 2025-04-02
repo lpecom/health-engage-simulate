@@ -2,12 +2,12 @@
 import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { ArrowLeft, CheckCircle, Truck, AlertTriangle, Edit, Package } from "lucide-react";
+import { ArrowLeft, CheckCircle, Truck, AlertTriangle, Edit, Package, Printer, RefreshCw } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Tables } from '@/integrations/supabase/types';
@@ -23,7 +23,7 @@ const AdminOrderDetailsPage = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [orderStatus, setOrderStatus] = useState<string>('');
   
-  const { data: order, isLoading, error } = useQuery({
+  const { data: order, isLoading, error, refetch } = useQuery({
     queryKey: ['order', id],
     queryFn: async () => {
       if (!id) return null;
@@ -60,14 +60,14 @@ const AdminOrderDetailsPage = () => {
       queryClient.invalidateQueries({ queryKey: ['order', id] });
       queryClient.invalidateQueries({ queryKey: ['admin', 'order-stats'] });
       toast({
-        title: "Order updated",
-        description: "The order status has been updated",
+        title: translate("orderUpdated"),
+        description: translate("statusUpdated"),
       });
       setIsEditing(false);
     },
     onError: (error) => {
       toast({
-        title: "Update failed",
+        title: translate("updateFailed"),
         description: error.message,
         variant: "destructive",
       });
@@ -77,6 +77,10 @@ const AdminOrderDetailsPage = () => {
   const handleStatusUpdate = () => {
     if (!order) return;
     updateOrderMutation.mutate({ id: order.id, status: orderStatus });
+  };
+  
+  const handlePrintOrder = () => {
+    window.print();
   };
   
   if (isLoading) {
@@ -89,8 +93,9 @@ const AdminOrderDetailsPage = () => {
   
   if (error || !order) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <p>{translate('errorLoadingOrder')}</p>
+      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center gap-4">
+        <p className="text-red-500">{translate('errorLoadingOrder')}</p>
+        <Button onClick={() => refetch()}>{translate('tryAgain')}</Button>
       </div>
     );
   }
@@ -116,6 +121,13 @@ const AdminOrderDetailsPage = () => {
           <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-200">
             <CheckCircle className="h-3 w-3 mr-1" />
             {translate('delivered')}
+          </Badge>
+        );
+      case 'error':
+        return (
+          <Badge variant="outline" className="bg-red-100 text-red-800 border-red-200">
+            <AlertTriangle className="h-3 w-3 mr-1" />
+            {translate('error')}
           </Badge>
         );
       default:
@@ -145,12 +157,23 @@ const AdminOrderDetailsPage = () => {
       
       <div className="container mx-auto px-4 py-6">
         <Card className="mb-6">
-          <CardHeader className="flex flex-row items-center justify-between">
+          <CardHeader className="flex flex-col md:flex-row items-start md:items-center justify-between space-y-2 md:space-y-0">
             <div>
-              <CardTitle>{translate('orderID')}: {order.id.slice(0, 8)}</CardTitle>
-              <p className="text-sm text-gray-500">
+              <CardTitle className="flex items-center gap-2">
+                {translate('orderID')}: {order.id.slice(0, 8)}
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-6 w-6" 
+                  onClick={() => refetch()}
+                  title={translate('refresh')}
+                >
+                  <RefreshCw className="h-3 w-3" />
+                </Button>
+              </CardTitle>
+              <CardDescription>
                 {new Date(order.created_at).toLocaleDateString()} {new Date(order.created_at).toLocaleTimeString()}
-              </p>
+              </CardDescription>
             </div>
             {!isEditing ? (
               <div className="flex items-center gap-2">
@@ -158,6 +181,10 @@ const AdminOrderDetailsPage = () => {
                 <Button variant="outline" size="sm" onClick={() => setIsEditing(true)}>
                   <Edit className="h-4 w-4 mr-2" />
                   {translate('edit')}
+                </Button>
+                <Button variant="outline" size="sm" onClick={handlePrintOrder}>
+                  <Printer className="h-4 w-4 mr-2" />
+                  {translate('print')}
                 </Button>
               </div>
             ) : (
@@ -167,16 +194,16 @@ const AdminOrderDetailsPage = () => {
                   onChange={(e) => setOrderStatus(e.target.value)}
                   className="border rounded px-3 py-1 text-sm"
                 >
-                  <option value="pending">Pending</option>
-                  <option value="shipped">Shipped</option>
-                  <option value="delivered">Delivered</option>
-                  <option value="error">Error</option>
+                  <option value="pending">{translate('pending')}</option>
+                  <option value="shipped">{translate('shipped')}</option>
+                  <option value="delivered">{translate('delivered')}</option>
+                  <option value="error">{translate('error')}</option>
                 </select>
                 <Button size="sm" onClick={handleStatusUpdate} disabled={updateOrderMutation.isPending}>
-                  {updateOrderMutation.isPending ? 'Saving...' : 'Save'}
+                  {updateOrderMutation.isPending ? translate('saving') : translate('save')}
                 </Button>
                 <Button variant="ghost" size="sm" onClick={() => setIsEditing(false)}>
-                  Cancel
+                  {translate('cancel')}
                 </Button>
               </div>
             )}
@@ -227,7 +254,7 @@ const AdminOrderDetailsPage = () => {
                 
                 <h3 className="font-medium mb-2 mt-4">{translate('paymentMethod')}</h3>
                 <div className="bg-gray-50 rounded-md p-4">
-                  <p>{order.payment_method}</p>
+                  <p>{order.payment_method === 'COD' ? translate('cashOnDelivery') : order.payment_method}</p>
                 </div>
                 
                 {order.shopify_order_id && (
@@ -244,6 +271,29 @@ const AdminOrderDetailsPage = () => {
                 )}
               </div>
             </div>
+            
+            <div className="flex justify-end gap-3 mt-6 print:hidden">
+              <Button 
+                variant="ghost" 
+                onClick={() => navigate('/admin/address-check')}
+              >
+                {translate('validateAddress')}
+              </Button>
+              <Button onClick={() => navigate('/admin/orders')}>
+                {translate('backToOrders')}
+              </Button>
+            </div>
+
+            <style jsx global>{`
+              @media print {
+                .print\\:hidden {
+                  display: none !important;
+                }
+                body {
+                  background: white;
+                }
+              }
+            `}</style>
           </CardContent>
         </Card>
       </div>

@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { 
   Table, 
   TableBody, 
@@ -14,7 +14,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { ArrowLeft, Check, X, AlertTriangle, Loader2 } from "lucide-react";
+import { ArrowLeft, Check, X, AlertTriangle, Loader2, CheckSquare } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Tables } from '@/integrations/supabase/types';
@@ -26,8 +26,9 @@ interface AddressCheckResult {
   suggestedAddress?: string;
   suggestedCity?: string;
   suggestedProvince?: string;
-  suggestedZipCode?: string;
+  suggestedPostalCode?: string;
   issues?: string[];
+  confidence?: number;
 }
 
 const AdminAddressCheckPage = () => {
@@ -37,6 +38,9 @@ const AdminAddressCheckPage = () => {
   const queryClient = useQueryClient();
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const [addressCheckResults, setAddressCheckResults] = useState<Record<string, AddressCheckResult>>({});
+  const [isBulkProcessing, setIsBulkProcessing] = useState(false);
+  const [selectedOrders, setSelectedOrders] = useState<Set<string>>(new Set());
+  const [isAllSelected, setIsAllSelected] = useState(false);
   
   const { data: orders, isLoading } = useQuery({
     queryKey: ['admin', 'orders'],
@@ -56,58 +60,28 @@ const AdminAddressCheckPage = () => {
       setSelectedOrderId(order.id);
       
       try {
-        const fullAddress = `${order.customer_address}, ${order.city}, ${order.province} ${order.zip_code}`;
-        
-        // For now we'll simulate the AI check with a simple validation
-        // In a real application, this would call an AI service or API
-        const simulateAICheck = (): AddressCheckResult => {
-          // Simulating some basic address validation
-          const hasNumber = /\d/.test(order.customer_address);
-          const zipValid = order.zip_code.length >= 4;
-          const cityValid = order.city.length > 2;
-          
-          const issues: string[] = [];
-          if (!hasNumber) issues.push("Address might be missing a house/building number");
-          if (!zipValid) issues.push("Zip code appears to be invalid");
-          if (!cityValid) issues.push("City name seems too short or invalid");
-          
-          const isValid = issues.length === 0;
-          
-          // If not valid, generate some suggestions
-          let result: AddressCheckResult = { isValid, issues };
-          
-          if (!isValid) {
-            // Simulate some AI suggestions
-            if (!hasNumber) {
-              result.suggestedAddress = order.customer_address + " 1";
-            }
-            
-            if (!zipValid) {
-              const country = order.province === "Madrid" ? "Spain" : "Unknown";
-              switch (country) {
-                case "Spain":
-                  result.suggestedZipCode = order.zip_code.padEnd(5, '0');
-                  break;
-                default:
-                  result.suggestedZipCode = order.zip_code.padEnd(5, '0');
-              }
+        // Call the Supabase Edge Function for address validation
+        const { data, error } = await supabase.functions.invoke('address-validation', {
+          body: { 
+            address: {
+              street: order.customer_address,
+              city: order.city,
+              province: order.province,
+              postalCode: order.zip_code,
+              country: 'ES' // Default to Spain for now
             }
           }
-          
-          return result;
-        };
+        });
         
-        // Wait for a simulated response (would be an API call in production)
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        const result = simulateAICheck();
+        if (error) throw error;
         
         // Update the results state
         setAddressCheckResults(prev => ({
           ...prev,
-          [order.id]: result
+          [order.id]: data
         }));
         
-        return result;
+        return data;
       } catch (error) {
         console.error("Error checking address:", error);
         throw error;
@@ -118,6 +92,71 @@ const AdminAddressCheckPage = () => {
     onError: (error) => {
       toast({
         title: "Address check failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  });
+  
+  const bulkCheckAddressMutation = useMutation({
+    mutationFn: async (orderIds: string[]) => {
+      setIsBulkProcessing(true);
+      
+      try {
+        const results: Record<string, AddressCheckResult> = {};
+        
+        // Process orders sequentially to avoid rate limiting
+        for (const orderId of orderIds) {
+          const order = orders?.find(o => o.id === orderId);
+          if (!order) continue;
+          
+          setSelectedOrderId(orderId);
+          
+          // Call the Supabase Edge Function for address validation
+          const { data, error } = await supabase.functions.invoke('address-validation', {
+            body: { 
+              address: {
+                street: order.customer_address,
+                city: order.city,
+                province: order.province,
+                postalCode: order.zip_code,
+                country: 'ES' // Default to Spain for now
+              }
+            }
+          });
+          
+          if (error) throw error;
+          
+          results[orderId] = data;
+          
+          // Add a small delay between requests
+          await new Promise(resolve => setTimeout(resolve, 200));
+        }
+        
+        // Update the results state with all new results
+        setAddressCheckResults(prev => ({
+          ...prev,
+          ...results
+        }));
+        
+        return results;
+      } catch (error) {
+        console.error("Error checking addresses in bulk:", error);
+        throw error;
+      } finally {
+        setIsBulkProcessing(false);
+        setSelectedOrderId(null);
+      }
+    },
+    onSuccess: () => {
+      toast({
+        title: translate("bulkValidationComplete"),
+        description: translate("addressesValidated"),
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: translate("bulkValidationFailed"),
         description: error.message,
         variant: "destructive",
       });
@@ -157,8 +196,8 @@ const AdminAddressCheckPage = () => {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'orders'] });
       toast({
-        title: "Address updated",
-        description: "The order address has been updated with the suggested changes",
+        title: translate("addressUpdated"),
+        description: translate("orderAddressUpdated"),
       });
       
       // Clear the result for this order since we've applied the changes
@@ -167,15 +206,63 @@ const AdminAddressCheckPage = () => {
         delete newResults[data.id];
         return newResults;
       });
+
+      // Also remove from selected orders if it's there
+      setSelectedOrders(prev => {
+        const newSelected = new Set(prev);
+        newSelected.delete(data.id);
+        return newSelected;
+      });
     },
     onError: (error) => {
       toast({
-        title: "Update failed",
+        title: translate("updateFailed"),
         description: error.message,
         variant: "destructive",
       });
     }
   });
+  
+  const bulkApplyAddressSuggestions = () => {
+    // Filter to only selected orders that have invalid addresses with suggestions
+    const ordersToUpdate = Array.from(selectedOrders).filter(orderId => {
+      const result = addressCheckResults[orderId];
+      return result && !result.isValid && 
+        (result.suggestedAddress || result.suggestedCity || result.suggestedPostalCode || result.suggestedProvince);
+    });
+    
+    // Apply updates sequentially
+    const applyUpdates = async () => {
+      for (const orderId of ordersToUpdate) {
+        const result = addressCheckResults[orderId];
+        const order = orders?.find(o => o.id === orderId);
+        
+        if (order && result) {
+          await updateOrderAddressMutation.mutateAsync({
+            orderId,
+            address: result.suggestedAddress,
+            city: result.suggestedCity,
+            province: result.suggestedProvince,
+            zipCode: result.suggestedPostalCode,
+          });
+        }
+      }
+      
+      toast({
+        title: translate("bulkUpdateComplete"),
+        description: `${ordersToUpdate.length} ${translate("ordersUpdated")}`,
+      });
+    };
+    
+    if (ordersToUpdate.length > 0) {
+      applyUpdates();
+    } else {
+      toast({
+        title: translate("noOrdersToUpdate"),
+        description: translate("noValidSuggestions"),
+      });
+    }
+  };
 
   const applyAddressSuggestion = (order: Order) => {
     const result = addressCheckResults[order.id];
@@ -186,8 +273,48 @@ const AdminAddressCheckPage = () => {
       address: result.suggestedAddress,
       city: result.suggestedCity,
       province: result.suggestedProvince,
-      zipCode: result.suggestedZipCode,
+      zipCode: result.suggestedPostalCode,
     });
+  };
+  
+  const handleSelectAll = () => {
+    if (isAllSelected) {
+      // Deselect all
+      setSelectedOrders(new Set());
+    } else {
+      // Select all orders
+      const allOrderIds = orders?.map(order => order.id) || [];
+      setSelectedOrders(new Set(allOrderIds));
+    }
+    setIsAllSelected(!isAllSelected);
+  };
+  
+  const handleSelectOrder = (orderId: string) => {
+    setSelectedOrders(prev => {
+      const newSelected = new Set(prev);
+      if (newSelected.has(orderId)) {
+        newSelected.delete(orderId);
+      } else {
+        newSelected.add(orderId);
+      }
+      return newSelected;
+    });
+  };
+  
+  const handleBulkValidation = () => {
+    const orderIdsToValidate = selectedOrders.size > 0 
+      ? Array.from(selectedOrders)
+      : (orders?.map(order => order.id) || []);
+    
+    if (orderIdsToValidate.length === 0) {
+      toast({
+        title: translate("noOrdersSelected"),
+        description: translate("selectOrdersToValidate"),
+      });
+      return;
+    }
+    
+    bulkCheckAddressMutation.mutate(orderIdsToValidate);
   };
 
   return (
@@ -209,7 +336,43 @@ const AdminAddressCheckPage = () => {
       <div className="container mx-auto px-4 py-6">
         <Card>
           <CardHeader>
-            <CardTitle>{translate('aiAddressValidation')}</CardTitle>
+            <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+              <div>
+                <CardTitle>{translate('aiAddressValidation')}</CardTitle>
+                <CardDescription>{translate('validateAddresses')}</CardDescription>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  disabled={isBulkProcessing}
+                  onClick={handleSelectAll}
+                >
+                  {isAllSelected ? translate('deselectAll') : translate('selectAll')}
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={handleBulkValidation}
+                  disabled={isBulkProcessing}
+                >
+                  {isBulkProcessing ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      {translate('processing')}
+                    </>
+                  ) : (
+                    translate('bulkValidateAddresses')
+                  )}
+                </Button>
+                {selectedOrders.size > 0 && (
+                  <Button 
+                    onClick={bulkApplyAddressSuggestions}
+                    disabled={isBulkProcessing || updateOrderAddressMutation.isPending}
+                  >
+                    {translate('bulkApplySuggestions')}
+                  </Button>
+                )}
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
             {isLoading ? (
@@ -218,6 +381,14 @@ const AdminAddressCheckPage = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
+                    <TableHead className="w-[40px]">
+                      <input 
+                        type="checkbox" 
+                        checked={isAllSelected}
+                        onChange={handleSelectAll}
+                        className="rounded"
+                      />
+                    </TableHead>
                     <TableHead>{translate('orderID')}</TableHead>
                     <TableHead>{translate('customer')}</TableHead>
                     <TableHead>{translate('address')}</TableHead>
@@ -228,9 +399,18 @@ const AdminAddressCheckPage = () => {
                 <TableBody>
                   {orders?.map((order) => {
                     const checkResult = addressCheckResults[order.id];
+                    const isSelected = selectedOrders.has(order.id);
                     
                     return (
-                      <TableRow key={order.id}>
+                      <TableRow key={order.id} className={isSelected ? "bg-slate-50" : ""}>
+                        <TableCell>
+                          <input 
+                            type="checkbox" 
+                            checked={isSelected}
+                            onChange={() => handleSelectOrder(order.id)}
+                            className="rounded"
+                          />
+                        </TableCell>
                         <TableCell className="font-medium">
                           <Button variant="link" onClick={() => navigate(`/admin/orders/${order.id}`)}>
                             {order.id.slice(0, 8)}
@@ -294,14 +474,14 @@ const AdminAddressCheckPage = () => {
                                   <li key={i}>{issue}</li>
                                 ))}
                               </ul>
-                              {(checkResult.suggestedAddress || checkResult.suggestedZipCode) && (
+                              {(checkResult.suggestedAddress || checkResult.suggestedPostalCode) && (
                                 <div className="mt-1">
                                   <p className="font-medium">{translate('suggestions')}:</p>
                                   {checkResult.suggestedAddress && (
                                     <p><span className="font-medium">Address:</span> {checkResult.suggestedAddress}</p>
                                   )}
-                                  {checkResult.suggestedZipCode && (
-                                    <p><span className="font-medium">Zip Code:</span> {checkResult.suggestedZipCode}</p>
+                                  {checkResult.suggestedPostalCode && (
+                                    <p><span className="font-medium">Zip Code:</span> {checkResult.suggestedPostalCode}</p>
                                   )}
                                 </div>
                               )}
