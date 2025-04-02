@@ -1,4 +1,3 @@
-
 import { TranslationMap } from './types';
 
 export const checkoutTranslations: Record<string, TranslationMap> = {
@@ -52,7 +51,11 @@ export const checkoutTranslations: Record<string, TranslationMap> = {
     'deviceDescription': 'Glucómetro Accu-Tech',
     'shopifyIntegrated': 'Este pedido se exportará a Shopify',
     'orderError': 'Error en el pedido',
-    'orderErrorDesc': 'Ha ocurrido un error procesando tu pedido. Inténtalo de nuevo.'
+    'orderErrorDesc': 'Ha ocurrido un error procesando tu pedido. Inténtalo de nuevo.',
+    'requiredField': 'Campo obligatorio',
+    'allFieldsRequired': 'Todos los campos marcados con * son obligatorios',
+    'invalidPhoneFormat': 'Formato de teléfono no válido para este país',
+    'orderWillBeSaved': 'Tu pedido será guardado incluso si hay problemas con la exportación'
   },
   pt: {
     'selectOffer': 'Selecione sua oferta',
@@ -104,7 +107,11 @@ export const checkoutTranslations: Record<string, TranslationMap> = {
     'deviceDescription': 'Glicosímetro Accu-Tech',
     'shopifyIntegrated': 'Este pedido será exportado para o Shopify',
     'orderError': 'Erro no pedido',
-    'orderErrorDesc': 'Ocorreu um erro ao processar seu pedido. Tente novamente.'
+    'orderErrorDesc': 'Ocorreu um erro ao processar seu pedido. Tente novamente.',
+    'requiredField': 'Campo obrigatório',
+    'allFieldsRequired': 'Todos os campos marcados com * são obrigatórios',
+    'invalidPhoneFormat': 'Formato de telefone inválido para este país',
+    'orderWillBeSaved': 'Seu pedido será salvo mesmo que haja problemas com a exportação'
   },
   it: {
     'selectOffer': 'Seleziona la tua offerta',
@@ -156,7 +163,11 @@ export const checkoutTranslations: Record<string, TranslationMap> = {
     'deviceDescription': 'Glucometro Accu-Tech',
     'shopifyIntegrated': 'Questo ordine verrà esportato su Shopify',
     'orderError': 'Errore nell\'ordine',
-    'orderErrorDesc': 'Si è verificato un errore durante l\'elaborazione dell\'ordine. Riprova.'
+    'orderErrorDesc': 'Si è verificato un errore durante l\'elaborazione dell\'ordine. Riprova.',
+    'requiredField': 'Campo obbligatorio',
+    'allFieldsRequired': 'Tutti i campi contrassegnati con * sono obbligatori',
+    'invalidPhoneFormat': 'Formato del telefono non valido per questo paese',
+    'orderWillBeSaved': 'Il tuo ordine verrà salvato anche se ci sono problemi con l\'esportazione'
   },
   de: {
     'selectOffer': 'Wählen Sie Ihr Angebot',
@@ -208,6 +219,10 @@ export const checkoutTranslations: Record<string, TranslationMap> = {
     'deviceDescription': 'Accu-Tech Blutzuckermessgerät',
     'shopifyIntegrated': 'Diese Bestellung wird nach Shopify exportiert',
     'orderError': 'Bestellungsfehler',
-    'orderErrorDesc': 'Bei der Verarbeitung Ihrer Bestellung ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.'
+    'orderErrorDesc': 'Bei der Verarbeitung Ihrer Bestellung ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.',
+    'requiredField': 'Pflichtfeld',
+    'allFieldsRequired': 'Alle mit * markierten Felder sind Pflichtfelder',
+    'invalidPhoneFormat': 'Ungültiges Telefonformat für dieses Land',
+    'orderWillBeSaved': 'Ihre Bestellung wird gespeichert, auch wenn es Probleme mit dem Export gibt'
   }
 };

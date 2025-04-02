@@ -57,7 +57,9 @@ const OnboardingPage = () => {
   const [selectedCountry, setSelectedCountry] = useState<CountryCode>(getDefaultCountryByLanguage(language));
   const [availableCities, setAvailableCities] = useState<string[]>([]);
   const [phoneError, setPhoneError] = useState<string | null>(null);
-  
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const [formSubmitted, setFormSubmitted] = useState(false);
+
   useEffect(() => {
     const defaultCountry = getDefaultCountryByLanguage(language);
     setSelectedCountry(defaultCountry);
@@ -82,7 +84,13 @@ const OnboardingPage = () => {
   const validatePhone = (phoneNumber: string): boolean => {
     if (!phoneNumber || !selectedCountry) return false;
     
-    return isValidPhoneForCountry(phoneNumber, selectedCountry);
+    const isValid = isValidPhoneForCountry(phoneNumber, selectedCountry);
+    if (!isValid) {
+      setPhoneError(translate('invalidPhoneFormat'));
+    } else {
+      setPhoneError(null);
+    }
+    return isValid;
   };
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -94,7 +102,7 @@ const OnboardingPage = () => {
       setFormattedPhone(formattedValue);
       
       if (!validatePhone(formattedValue)) {
-        setPhoneError(translate('invalidPhone'));
+        setPhoneError(translate('invalidPhoneFormat'));
       } else {
         setPhoneError(null);
       }
@@ -133,19 +141,12 @@ const OnboardingPage = () => {
   };
 
   const handlePurchase = async () => {
-    if (!firstName || !lastName || !address || !city || !province || !postalCode || !formattedPhone || !selectedCountry) {
+    setFormSubmitted(true);
+    
+    if (!validateCheckoutForm()) {
       toast({
         title: translate('formError'),
-        description: translate('fillAllFields'),
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (!validatePhone(formattedPhone)) {
-      toast({
-        title: translate('formError'),
-        description: translate('invalidPhone'),
+        description: translate('allFieldsRequired'),
         variant: "destructive",
       });
       return;
@@ -184,7 +185,7 @@ const OnboardingPage = () => {
         shipping: shippingInfo
       };
 
-      const success = await exportOrder(orderData);
+      await exportOrder(orderData);
       
       setCurrentStep(currentStep + 1);
     } catch (error) {
@@ -200,6 +201,57 @@ const OnboardingPage = () => {
     } finally {
       setIsProcessingOrder(false);
     }
+  };
+
+  const validateCheckoutForm = (): boolean => {
+    const errors: Record<string, string> = {};
+    let isValid = true;
+
+    if (!firstName.trim()) {
+      errors.firstName = translate('requiredField');
+      isValid = false;
+    }
+    
+    if (!lastName.trim()) {
+      errors.lastName = translate('requiredField');
+      isValid = false;
+    }
+
+    if (!address.trim()) {
+      errors.address = translate('requiredField');
+      isValid = false;
+    }
+
+    if (!province) {
+      errors.province = translate('requiredField');
+      isValid = false;
+    }
+
+    if (!city && availableCities.length > 0) {
+      errors.city = translate('requiredField');
+      isValid = false;
+    }
+
+    if (!postalCode.trim()) {
+      errors.postalCode = translate('requiredField');
+      isValid = false;
+    }
+
+    if (!phone.trim()) {
+      errors.phone = translate('requiredField');
+      isValid = false;
+    } else if (!validatePhone(phone)) {
+      errors.phone = translate('invalidPhoneFormat');
+      isValid = false;
+    }
+
+    if (email && !email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+      errors.email = translate('emailInvalid');
+      isValid = false;
+    }
+
+    setFormErrors(errors);
+    return isValid;
   };
 
   const goToPreviousStep = () => {
@@ -415,42 +467,61 @@ const OnboardingPage = () => {
               <p className="text-sm text-yellow-800">{translate('paymentOnDelivery')}</p>
             </div>
             
+            {formSubmitted && Object.keys(formErrors).length > 0 && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-4">
+                <p className="text-sm text-red-700 font-medium">{translate('allFieldsRequired')}</p>
+              </div>
+            )}
+            
             <div className="space-y-4 mb-6">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="firstName" className="text-sm font-medium text-gray-700">{translate('firstName')}</Label>
+                  <Label htmlFor="firstName" className="text-sm font-medium text-gray-700 flex items-center">
+                    {translate('firstName')} <span className="text-red-500 ml-1">*</span>
+                  </Label>
                   <Input
                     id="firstName"
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
                     placeholder={translate('firstName')}
-                    className="mt-1"
+                    className={`mt-1 ${formErrors.firstName ? 'border-red-500' : ''}`}
                   />
+                  {formErrors.firstName && (
+                    <p className="text-xs text-red-500 mt-1">{formErrors.firstName}</p>
+                  )}
                 </div>
                 
                 <div>
-                  <Label htmlFor="lastName" className="text-sm font-medium text-gray-700">{translate('lastName')}</Label>
+                  <Label htmlFor="lastName" className="text-sm font-medium text-gray-700 flex items-center">
+                    {translate('lastName')} <span className="text-red-500 ml-1">*</span>
+                  </Label>
                   <Input
                     id="lastName"
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
                     placeholder={translate('lastName')}
-                    className="mt-1"
+                    className={`mt-1 ${formErrors.lastName ? 'border-red-500' : ''}`}
                   />
+                  {formErrors.lastName && (
+                    <p className="text-xs text-red-500 mt-1">{formErrors.lastName}</p>
+                  )}
                 </div>
               </div>
               
               <div>
-                <Label htmlFor="country" className="text-sm font-medium text-gray-700">{translate('country')}</Label>
+                <Label htmlFor="country" className="text-sm font-medium text-gray-700 flex items-center">
+                  {translate('country')} <span className="text-red-500 ml-1">*</span>
+                </Label>
                 <Select 
                   value={selectedCountry}
                   onValueChange={(value: CountryCode) => {
                     setSelectedCountry(value);
                     setProvince('');
                     setCity('');
+                    setPhoneError(null);
                   }}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className={`bg-white ${!selectedCountry ? 'border-red-500' : ''}`}>
                     <SelectValue placeholder="Select country" />
                   </SelectTrigger>
                   <SelectContent>
@@ -460,11 +531,14 @@ const OnboardingPage = () => {
                     <SelectItem value="DE">Deutschland</SelectItem>
                   </SelectContent>
                 </Select>
+                {formErrors.country && (
+                  <p className="text-xs text-red-500 mt-1">{formErrors.country}</p>
+                )}
               </div>
 
               <div>
-                <Label htmlFor="phone" className="text-sm font-medium text-gray-700">
-                  {translate('phone')}
+                <Label htmlFor="phone" className="text-sm font-medium text-gray-700 flex items-center">
+                  {translate('phone')} <span className="text-red-500 ml-1">*</span>
                 </Label>
                 <div className="mt-1">
                   <Input
@@ -473,12 +547,12 @@ const OnboardingPage = () => {
                     value={phone}
                     onChange={handlePhoneChange}
                     placeholder={COUNTRIES[selectedCountry].phoneFormat}
-                    className={phoneError ? "border-red-500" : ""}
+                    className={phoneError || formErrors.phone ? "border-red-500" : ""}
                   />
-                  {phoneError && (
+                  {(phoneError || formErrors.phone) && (
                     <p className="text-xs text-red-500 mt-1 flex items-center">
                       <AlertTriangle className="h-3 w-3 mr-1" />
-                      {phoneError}
+                      {phoneError || formErrors.phone}
                     </p>
                   )}
                   <p className="text-xs text-gray-500 mt-1">
@@ -495,29 +569,42 @@ const OnboardingPage = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="email@example.com"
-                  className="mt-1"
+                  className={`mt-1 ${formErrors.email ? 'border-red-500' : ''}`}
                 />
-                <p className="text-xs text-gray-500 mt-1">{translate('emailOptional')}</p>
+                {formErrors.email ? (
+                  <p className="text-xs text-red-500 mt-1">{formErrors.email}</p>
+                ) : (
+                  <p className="text-xs text-gray-500 mt-1">{translate('emailOptional')}</p>
+                )}
               </div>
               
               <div>
-                <Label htmlFor="address" className="text-sm font-medium text-gray-700">{translate('address')}</Label>
+                <Label htmlFor="address" className="text-sm font-medium text-gray-700 flex items-center">
+                  {translate('address')} <span className="text-red-500 ml-1">*</span>
+                </Label>
                 <Input
                   id="address"
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
                   placeholder={translate('addressPlaceholder')}
-                  className="mt-1"
+                  className={`mt-1 ${formErrors.address ? 'border-red-500' : ''}`}
                 />
+                {formErrors.address && (
+                  <p className="text-xs text-red-500 mt-1">{formErrors.address}</p>
+                )}
               </div>
               
               {selectedCountry && (
                 <div>
-                  <Label htmlFor="region" className="text-sm font-medium text-gray-700">
-                    {getRegionLabel(selectedCountry)}
+                  <Label htmlFor="region" className="text-sm font-medium text-gray-700 flex items-center">
+                    {getRegionLabel(selectedCountry)} <span className="text-red-500 ml-1">*</span>
                   </Label>
-                  <Select value={province} onValueChange={setProvince} disabled={!selectedCountry}>
-                    <SelectTrigger>
+                  <Select 
+                    value={province} 
+                    onValueChange={setProvince} 
+                    disabled={!selectedCountry}
+                  >
+                    <SelectTrigger className={`bg-white ${formErrors.province ? 'border-red-500' : ''}`}>
                       <SelectValue placeholder={translate('selectRegion')} />
                     </SelectTrigger>
                     <SelectContent>
@@ -526,14 +613,22 @@ const OnboardingPage = () => {
                       ))}
                     </SelectContent>
                   </Select>
+                  {formErrors.province && (
+                    <p className="text-xs text-red-500 mt-1">{formErrors.province}</p>
+                  )}
                 </div>
               )}
 
               {province && availableCities.length > 0 && (
                 <div>
-                  <Label htmlFor="city" className="text-sm font-medium text-gray-700">{translate('city')}</Label>
-                  <Select value={city} onValueChange={setCity}>
-                    <SelectTrigger>
+                  <Label htmlFor="city" className="text-sm font-medium text-gray-700 flex items-center">
+                    {translate('city')} <span className="text-red-500 ml-1">*</span>
+                  </Label>
+                  <Select 
+                    value={city} 
+                    onValueChange={setCity}
+                  >
+                    <SelectTrigger className={`bg-white ${formErrors.city ? 'border-red-500' : ''}`}>
                       <SelectValue placeholder={translate('selectCity')} />
                     </SelectTrigger>
                     <SelectContent>
@@ -544,18 +639,26 @@ const OnboardingPage = () => {
                       ))}
                     </SelectContent>
                   </Select>
+                  {formErrors.city && (
+                    <p className="text-xs text-red-500 mt-1">{formErrors.city}</p>
+                  )}
                 </div>
               )}
               
               <div>
-                <Label htmlFor="postalCode" className="text-sm font-medium text-gray-700">{translate('postalCode')}</Label>
+                <Label htmlFor="postalCode" className="text-sm font-medium text-gray-700 flex items-center">
+                  {translate('postalCode')} <span className="text-red-500 ml-1">*</span>
+                </Label>
                 <Input
                   id="postalCode"
                   value={postalCode}
                   onChange={(e) => setPostalCode(e.target.value)}
                   placeholder={translate('postalCode')}
-                  className="mt-1"
+                  className={`mt-1 ${formErrors.postalCode ? 'border-red-500' : ''}`}
                 />
+                {formErrors.postalCode && (
+                  <p className="text-xs text-red-500 mt-1">{formErrors.postalCode}</p>
+                )}
               </div>
             </div>
             
@@ -582,12 +685,10 @@ const OnboardingPage = () => {
               </div>
             </div>
             
-            {isConfigured && (
-              <div className="flex items-center mt-4 text-xs text-gray-500">
-                <MapPin className="w-4 h-4 mr-1" />
-                <span>{translate('shopifyIntegrated')}</span>
-              </div>
-            )}
+            <div className="flex items-center mt-4 mb-1 text-xs text-gray-500 justify-center">
+              <MapPin className="w-3 h-3 mr-1" />
+              <span>{translate('orderWillBeSaved')}</span>
+            </div>
           </div>;
 
       case 'tutorial':
