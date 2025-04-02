@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -284,16 +283,25 @@ const AdminOrderDetailsPage = () => {
               </Button>
             </div>
 
-            <style jsx global>{`
+            <style dangerouslySetInnerHTML={{__html: `
               @media print {
-                .print\\:hidden {
+                body * {
+                  visibility: hidden;
+                }
+                .order-print-section, .order-print-section * {
+                  visibility: visible;
+                }
+                .order-print-section {
+                  position: absolute;
+                  left: 0;
+                  top: 0;
+                  width: 100%;
+                }
+                .no-print {
                   display: none !important;
                 }
-                body {
-                  background: white;
-                }
               }
-            `}</style>
+            `}} />
           </CardContent>
         </Card>
       </div>

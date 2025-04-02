@@ -9,6 +9,7 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import { UserProvider } from "@/contexts/UserContext";
 import { ShopifyProvider } from "@/contexts/ShopifyContext";
 import { initTaboolaPixel, trackTaboolaPageView } from "@/utils/tracking";
+import { initClarity } from "@/utils/clarity";
 import OnboardingPage from "./pages/OnboardingPage";
 import HomePage from "./pages/HomePage";
 import LearnPage from "./pages/LearnPage";
@@ -39,9 +40,10 @@ const RouteChangeTracker = () => {
 };
 
 const App = () => {
-  // Initialize Taboola pixel on app load
+  // Initialize tracking pixels on app load
   useEffect(() => {
     initTaboolaPixel();
+    initClarity();
   }, []);
 
   return (
